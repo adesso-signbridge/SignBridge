@@ -18,11 +18,8 @@ class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
 
   static const _tabs = [
-    _TabItem(asset: 'assets/home/tabs/tab_home.png', label: 'Home'),
-    _TabItem(asset: 'assets/home/tabs/tab_convert.png', label: 'Translate'),
+    _TabItem(asset: 'assets/home/tabs/tab_convert.png', label: 'Talk'),
     _TabItem(asset: 'assets/home/tabs/tab_book.png', label: 'Phrases'),
-    _TabItem(asset: 'assets/home/tabs/tab_alert.png', label: 'SOS'),
-    _TabItem(asset: 'assets/home/tabs/tab_settings.png', label: 'Settings'),
   ];
 
   @override
@@ -40,20 +37,8 @@ class _MainShellState extends State<MainShell> {
           children: [
             HomeScreen(homeService: services.home),
             MicroserviceTabScreen(
-              serviceName: services.translate.serviceName,
-              titleFuture: services.translate.getStatusMessage(),
-            ),
-            MicroserviceTabScreen(
               serviceName: services.phrases.serviceName,
               titleFuture: services.phrases.getStatusMessage(),
-            ),
-            MicroserviceTabScreen(
-              serviceName: services.sos.serviceName,
-              titleFuture: services.sos.getStatusMessage(),
-            ),
-            MicroserviceTabScreen(
-              serviceName: services.settings.serviceName,
-              titleFuture: services.settings.getStatusMessage(),
             ),
           ],
         ),
@@ -92,42 +77,50 @@ class _AppTabBar extends StatelessWidget {
         color: AppColors.white,
         border: Border(top: BorderSide(color: AppColors.phraseBorder)),
       ),
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
       child: SafeArea(
         top: false,
-        child: Row(
-          children: List.generate(tabs.length, (index) {
-            final selected = index == selectedIndex;
-            final tab = tabs[index];
-            return Expanded(
-              child: InkWell(
-                onTap: () => onSelected(index),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _TabIcon(asset: tab.asset, selected: selected),
-                      const SizedBox(height: 4),
-                      Text(
-                        tab.label,
-                        style: TextStyle(
-                          fontSize: AppTypography.tabLabel,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: selected
-                              ? AppColors.splashBlue
-                              : AppColors.tabInactive,
-                          height: 1.2,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            children: [
+              for (var index = 0; index < tabs.length; index++) ...[
+                if (index > 0)
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: AppColors.phraseBorder,
+                  ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => onSelected(index),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _TabIcon(
+                          asset: tabs[index].asset,
+                          selected: index == selectedIndex,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          tabs[index].label,
+                          style: TextStyle(
+                            fontSize: AppTypography.tabLabel,
+                            fontWeight: index == selectedIndex
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: index == selectedIndex
+                                ? AppColors.splashBlue
+                                : AppColors.tabInactive,
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -149,16 +142,15 @@ class _TabIcon extends StatelessWidget {
       fit: BoxFit.contain,
     );
 
-    final color = selected ? AppColors.splashBlue : AppColors.tabInactive;
+    if (!selected) {
+      return image;
+    }
 
-    if (asset.endsWith('tab_home.png') && selected) {
-      return image;
-    }
-    if (!selected && !asset.endsWith('tab_home.png')) {
-      return image;
-    }
     return ColorFiltered(
-      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      colorFilter: const ColorFilter.mode(
+        AppColors.splashBlue,
+        BlendMode.srcIn,
+      ),
       child: image,
     );
   }

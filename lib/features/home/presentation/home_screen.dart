@@ -4,57 +4,136 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/home/home_service.dart';
+import 'settings_sheet.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.homeService});
 
   final HomeService homeService;
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  HomeContent? _content;
+  String? _selectedLanguageCode;
+  bool _languageMenuOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.homeService.fetchHomeContent().then((content) {
+      if (mounted) {
+        setState(() {
+          _content = content;
+          _selectedLanguageCode = content.selectedLanguageCode;
+        });
+      }
+    });
+  }
+
+  HomeLanguage? get _selectedLanguage {
+    final content = _content;
+    if (content == null || _selectedLanguageCode == null) {
+      return null;
+    }
+    return content.languages.firstWhere(
+      (language) => language.code == _selectedLanguageCode,
+      orElse: () => content.languages.first,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<HomeContent>(
-      future: homeService.fetchHomeContent(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final content = snapshot.data!;
-        return SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screenPaddingH,
-              AppSpacing.screenPaddingTop,
-              AppSpacing.screenPaddingH,
-              AppSpacing.screenPaddingBottom,
+    final content = _content;
+    if (content == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return SafeArea(
+      bottom: false,
+      child: Stack(
+        children: [
+          if (_languageMenuOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => setState(() => _languageMenuOpen = false),
+                child: Container(color: Colors.transparent),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _HomeHeader(language: content.selectedLanguage),
-                const SizedBox(height: AppSpacing.headerToCards),
-                _ActionCardsRow(cards: content.actionCards),
-                const SizedBox(height: AppSpacing.cardsToQuickPhrases),
-                const _QuickPhrasesHeader(),
-                const SizedBox(height: AppSpacing.quickPhrasesToTiles),
-                ...content.quickPhrases.map(
-                  (phrase) => _PhraseTile(text: phrase),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screenPaddingH,
+                  AppSpacing.screenPaddingTop,
+                  AppSpacing.screenPaddingH,
+                  0,
                 ),
-                const SizedBox(height: AppSpacing.phrasesToFooter),
-                const _AdessoFooter(),
-              ],
-            ),
+                child: _HomeHeader(
+                  selectedLanguage: _selectedLanguage,
+                  languageMenuOpen: _languageMenuOpen,
+                  onLanguageTap: () =>
+                      setState(() => _languageMenuOpen = !_languageMenuOpen),
+                  onMenuTap: () => SettingsSheet.show(
+                    context,
+                    appVersion: content.appVersion,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      content.emptyStateMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const _TalkActionButtons(),
+              const SizedBox(height: 24),
+            ],
           ),
-        );
-      },
+          if (_languageMenuOpen)
+            Positioned(
+              top: 72,
+              right: 20,
+              child: _LanguageMenu(
+                languages: content.languages,
+                selectedCode: _selectedLanguageCode!,
+                onSelected: (code) => setState(() {
+                  _selectedLanguageCode = code;
+                  _languageMenuOpen = false;
+                }),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
 
 class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.language});
+  const _HomeHeader({
+    required this.selectedLanguage,
+    required this.languageMenuOpen,
+    required this.onLanguageTap,
+    required this.onMenuTap,
+  });
 
-  final String language;
+  final HomeLanguage? selectedLanguage;
+  final bool languageMenuOpen;
+  final VoidCallback onLanguageTap;
+  final VoidCallback onMenuTap;
 
   @override
   Widget build(BuildContext context) {
@@ -92,176 +171,58 @@ class _HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        _LanguageSelector(language: language),
-        const SizedBox(width: AppSpacing.headerMenuGap),
-        Image.asset(
-          'assets/home/icon_menu.png',
-          width: AppTypography.menuIconW,
-          height: AppTypography.menuIconH,
-          fit: BoxFit.contain,
-        ),
-      ],
-    );
-  }
-}
-
-class _LanguageSelector extends StatelessWidget {
-  const _LanguageSelector({required this.language});
-
-  final String language;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.langPillPaddingH,
-        vertical: AppSpacing.langPillPaddingV,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.lightBlue,
-        borderRadius: BorderRadius.circular(AppSpacing.langPillRadius),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            'assets/home/icon_globe.png',
-            width: AppTypography.langGlobe,
-            height: AppTypography.langGlobe,
-          ),
-          const SizedBox(width: AppSpacing.langGlobeToText),
-          Text(
-            language,
-            style: const TextStyle(
-              fontSize: AppTypography.langText,
-              fontWeight: FontWeight.w600,
-              color: AppColors.splashBlue,
+        GestureDetector(
+          onTap: onLanguageTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.langPillPaddingH,
+              vertical: AppSpacing.langPillPaddingV,
             ),
-          ),
-          const SizedBox(width: AppSpacing.langTextToChevron),
-          const Icon(
-            Icons.keyboard_arrow_down,
-            size: AppTypography.langGlobe,
-            color: AppColors.splashBlue,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionCardsRow extends StatelessWidget {
-  const _ActionCardsRow({required this.cards});
-
-  final List<HomeActionCard> cards;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < cards.length; i++) ...[
-            if (i > 0) const SizedBox(width: AppSpacing.cardGap),
-            Expanded(child: _ActionCard(card: cards[i])),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({required this.card});
-
-  final HomeActionCard card;
-
-  IconData get _icon => switch (card.mode) {
-    HomeActionMode.hearForMe => Icons.hearing,
-    HomeActionMode.speakForMe => Icons.pan_tool_alt_outlined,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(
-        14,
-        AppSpacing.cardPaddingTop,
-        14,
-        AppSpacing.cardPaddingBottom,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.splashBlue,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: AppTypography.cardIconBox,
-            height: AppTypography.cardIconBox,
-            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.lightBlue,
+              borderRadius: BorderRadius.circular(AppSpacing.langPillRadius),
+              border: languageMenuOpen
+                  ? Border.all(color: AppColors.splashBlue, width: 1)
+                  : null,
             ),
-            child: Icon(
-              _icon,
-              color: AppColors.white,
-              size: AppTypography.cardIcon,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.cardIconToTitle),
-          Text(
-            card.title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: AppTypography.cardTitle,
-              fontWeight: FontWeight.w700,
-              color: AppColors.white,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.cardTitleToSubtitle),
-          Text(
-            card.subtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: AppTypography.cardSubtitle,
-              fontWeight: FontWeight.w500,
-              color: AppColors.white.withValues(alpha: 0.9),
-              height: 1.2,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickPhrasesHeader extends StatelessWidget {
-  const _QuickPhrasesHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(
-          child: Text(
-            'Quick Phrases',
-            style: TextStyle(
-              fontSize: AppTypography.sectionLabel,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/home/icon_globe.png',
+                  width: AppTypography.langGlobe,
+                  height: AppTypography.langGlobe,
+                ),
+                const SizedBox(width: AppSpacing.langGlobeToText),
+                Text(
+                  selectedLanguage?.code ?? 'ENG',
+                  style: const TextStyle(
+                    fontSize: AppTypography.langText,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.splashBlue,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.langTextToChevron),
+                Icon(
+                  languageMenuOpen
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  size: AppTypography.langGlobe,
+                  color: AppColors.splashBlue,
+                ),
+              ],
             ),
           ),
         ),
-        Text(
-          'See all',
-          style: TextStyle(
-            fontSize: AppTypography.sectionLink,
-            fontWeight: FontWeight.w700,
-            color: AppColors.splashBlue,
+        const SizedBox(width: AppSpacing.headerMenuGap),
+        GestureDetector(
+          key: const Key('home_menu_button'),
+          onTap: onMenuTap,
+          child: Image.asset(
+            'assets/home/icon_menu.png',
+            width: AppTypography.menuIconW,
+            height: AppTypography.menuIconH,
+            fit: BoxFit.contain,
           ),
         ),
       ],
@@ -269,42 +230,89 @@ class _QuickPhrasesHeader extends StatelessWidget {
   }
 }
 
-class _PhraseTile extends StatelessWidget {
-  const _PhraseTile({required this.text});
+class _LanguageMenu extends StatelessWidget {
+  const _LanguageMenu({
+    required this.languages,
+    required this.selectedCode,
+    required this.onSelected,
+  });
 
-  final String text;
+  final List<HomeLanguage> languages;
+  final String selectedCode;
+  final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: AppSpacing.phraseTileHeight,
-      margin: const EdgeInsets.only(bottom: AppSpacing.phraseTileGap),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.phraseTilePaddingH,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(AppSpacing.phraseTileRadius),
-        border: Border.all(color: AppColors.phraseBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.bolt,
-            color: AppColors.splashBlue,
-            size: AppTypography.phraseBolt,
-          ),
-          const SizedBox(width: AppSpacing.phraseIconGap),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: AppTypography.phraseText,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-                height: 1.2,
+    return Material(
+      elevation: 8,
+      shadowColor: Colors.black26,
+      borderRadius: BorderRadius.circular(16),
+      color: AppColors.white,
+      child: Container(
+        width: 180,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.phraseBorder),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final language in languages)
+              InkWell(
+                onTap: () => onSelected(language.code),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  color: language.code == selectedCode
+                      ? AppColors.lightBlue
+                      : Colors.transparent,
+                  child: Text(
+                    language.label,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: language.code == selectedCode
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: language.code == selectedCode
+                          ? AppColors.splashBlue
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TalkActionButtons extends StatelessWidget {
+  const _TalkActionButtons();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 48),
+      child: Row(
+        children: [
+          Expanded(
+            child: _TalkActionButton(
+              asset: 'assets/home/btn_listen.png',
+              label: 'Tap to listen',
+              onTap: () {},
+            ),
+          ),
+          const SizedBox(width: 32),
+          Expanded(
+            child: _TalkActionButton(
+              asset: 'assets/home/btn_sign.png',
+              label: 'Tap to sign',
+              onTap: () {},
             ),
           ),
         ],
@@ -313,18 +321,36 @@ class _PhraseTile extends StatelessWidget {
   }
 }
 
-class _AdessoFooter extends StatelessWidget {
-  const _AdessoFooter();
+class _TalkActionButton extends StatelessWidget {
+  const _TalkActionButton({
+    required this.asset,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String asset;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Image.asset(
-        'assets/home/adesso_footer.png',
-        width: AppTypography.adessoFooterW,
-        height: AppTypography.adessoFooterH,
-        fit: BoxFit.contain,
-      ),
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Image.asset(asset, width: 88, height: 88, fit: BoxFit.contain),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary,
+            height: 1.2,
+          ),
+        ),
+      ],
     );
   }
 }

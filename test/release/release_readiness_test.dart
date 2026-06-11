@@ -168,7 +168,7 @@ void main() {
 
     test('Tab labels remain readable and concise', () {
       final shellSource = File('lib/shell/main_shell.dart').readAsStringSync();
-      for (final label in ['Home', 'Translate', 'Phrases', 'SOS', 'Settings']) {
+      for (final label in ['Talk', 'Phrases']) {
         expect(shellSource.contains("'$label'"), isTrue);
       }
     });
