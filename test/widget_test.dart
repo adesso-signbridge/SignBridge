@@ -28,11 +28,8 @@ void main() {
     mockSignCapture.lastVideoPath = null;
   });
 
-  tearDown(() {
-    signCameraTestModeEnabled = false;
-  });
-
   tearDown(() async {
+    signCameraTestModeEnabled = false;
     await ServiceLocator.instance.translate.cancelListening();
   });
 
