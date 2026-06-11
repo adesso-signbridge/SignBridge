@@ -1,5 +1,9 @@
 import '../../core/services/microservice.dart';
 
+import 'home_ui_copy.dart';
+
+export 'home_ui_copy.dart';
+
 class HomeLanguage {
   const HomeLanguage({required this.code, required this.label});
 
@@ -23,4 +27,6 @@ class HomeContent {
 
 abstract class HomeService implements Microservice {
   Future<HomeContent> fetchHomeContent();
+
+  HomeUiCopy uiCopyFor(String languageCode);
 }

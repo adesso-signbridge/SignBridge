@@ -19,4 +19,7 @@ final class LocalHomeService implements HomeService {
       appVersion: '1.0.0',
     );
   }
+
+  @override
+  HomeUiCopy uiCopyFor(String languageCode) => homeUiCopyFor(languageCode);
 }

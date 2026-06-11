@@ -32,11 +32,11 @@ final class ServiceLocator {
   final SosService sos;
   final SettingsService settings;
 
-  static void bootstrap() {
+  static void bootstrap({TranslateService? translate}) {
     _instance = ServiceLocator._(
       splash: LocalSplashService(),
       home: LocalHomeService(),
-      translate: LocalTranslateService(),
+      translate: translate ?? LocalTranslateService(),
       phrases: LocalPhrasesService(),
       sos: LocalSosService(),
       settings: LocalSettingsService(),

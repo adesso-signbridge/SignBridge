@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../services/home/home_service.dart';
 
 class SettingsDrawer extends StatelessWidget {
-  const SettingsDrawer({super.key, required this.appVersion});
+  const SettingsDrawer({
+    super.key,
+    required this.appVersion,
+    required this.uiCopy,
+  });
 
   final String appVersion;
+  final HomeUiCopy uiCopy;
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +27,10 @@ class SettingsDrawer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Settings',
-                      style: TextStyle(
+                      uiCopy.settingsTitle,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -50,26 +56,26 @@ class SettingsDrawer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const _SectionLabel('EMERGENCY'),
+                    _SectionLabel(uiCopy.emergencySection),
                     const SizedBox(height: 12),
                     _SettingsButton(
-                      label: 'Call Emergency',
+                      label: uiCopy.callEmergency,
                       icon: Icons.phone,
                       backgroundColor: AppColors.splashBlue,
                       onTap: () {},
                     ),
                     const SizedBox(height: 12),
                     _SettingsButton(
-                      label: 'SOS',
+                      label: uiCopy.sos,
                       backgroundColor: AppColors.emergencyRed,
                       onTap: () {},
                     ),
                     const SizedBox(height: 28),
-                    const _SectionLabel('ABOUT'),
+                    _SectionLabel(uiCopy.aboutSection),
                     const SizedBox(height: 8),
-                    const _AboutRow(label: 'App', value: 'SignBridge'),
+                    _AboutRow(label: uiCopy.appLabel, value: 'SignBridge'),
                     const Divider(color: AppColors.phraseBorder, height: 1),
-                    _AboutRow(label: 'Version', value: appVersion),
+                    _AboutRow(label: uiCopy.versionLabel, value: appVersion),
                     const SizedBox(height: 48),
                     Center(
                       child: Image.asset(
@@ -80,10 +86,10 @@ class SettingsDrawer extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Center(
+                    Center(
                       child: Text(
-                        '© 2026 adesso India',
-                        style: TextStyle(
+                        uiCopy.footerCopyright,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
                           height: 1.2,
