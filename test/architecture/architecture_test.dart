@@ -39,17 +39,27 @@ void main() {
   group('microservice modules', () {
     test('each domain has an interface and local adapter', () {
       for (final domain in serviceDomains) {
-        final interfaceFile = File('lib/services/$domain/${domain}_service.dart');
-        final localFile = File('lib/services/$domain/local_${domain}_service.dart');
+        final interfaceFile = File(
+          'lib/services/$domain/${domain}_service.dart',
+        );
+        final localFile = File(
+          'lib/services/$domain/local_${domain}_service.dart',
+        );
 
-        expect(interfaceFile.existsSync(), isTrue, reason: 'Missing $interfaceFile');
+        expect(
+          interfaceFile.existsSync(),
+          isTrue,
+          reason: 'Missing $interfaceFile',
+        );
         expect(localFile.existsSync(), isTrue, reason: 'Missing $localFile');
       }
     });
 
     test('service interfaces implement Microservice', () {
       for (final domain in serviceDomains) {
-        final contents = File('lib/services/$domain/${domain}_service.dart').readAsStringSync();
+        final contents = File(
+          'lib/services/$domain/${domain}_service.dart',
+        ).readAsStringSync();
         expect(
           contents.contains('implements Microservice'),
           isTrue,
@@ -59,7 +69,9 @@ void main() {
     });
 
     test('ServiceLocator wires local adapters only', () {
-      final contents = File('lib/core/di/service_locator.dart').readAsStringSync();
+      final contents = File(
+        'lib/core/di/service_locator.dart',
+      ).readAsStringSync();
 
       for (final domain in serviceDomains) {
         final className = 'Local${_pascalCase(domain)}Service';
@@ -88,7 +100,8 @@ void main() {
       expect(
         violations,
         isEmpty,
-        reason: 'Presentation layer must depend on service interfaces only:\n${violations.join('\n')}',
+        reason:
+            'Presentation layer must depend on service interfaces only:\n${violations.join('\n')}',
       );
     });
 
@@ -101,7 +114,8 @@ void main() {
       expect(
         violations,
         isEmpty,
-        reason: 'Features must receive dependencies via constructors, not ServiceLocator:\n${violations.join('\n')}',
+        reason:
+            'Features must receive dependencies via constructors, not ServiceLocator:\n${violations.join('\n')}',
       );
     });
 
@@ -114,7 +128,8 @@ void main() {
       expect(
         violations,
         isEmpty,
-        reason: 'Presentation layer must not call HTTP client directly:\n${violations.join('\n')}',
+        reason:
+            'Presentation layer must not call HTTP client directly:\n${violations.join('\n')}',
       );
     });
 
@@ -138,7 +153,8 @@ void main() {
       expect(
         violations,
         isEmpty,
-        reason: 'Service contracts must stay UI-free:\n${violations.join('\n')}',
+        reason:
+            'Service contracts must stay UI-free:\n${violations.join('\n')}',
       );
     });
   });
@@ -149,9 +165,10 @@ List<String> _collectImportViolations({
   required List<String> forbiddenPatterns,
 }) {
   final violations = <String>[];
-  final files = Directory(root).listSync(recursive: true).whereType<File>().where(
-        (file) => file.path.endsWith('.dart'),
-      );
+  final files = Directory(root)
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.dart'));
 
   for (final file in files) {
     for (final line in file.readAsLinesSync()) {
