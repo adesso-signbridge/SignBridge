@@ -84,23 +84,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      content.emptyStateMessage,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.5,
-                        color: AppColors.textSecondary,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.talkContentPaddingH,
+                    AppSpacing.talkContentPaddingTop,
+                    AppSpacing.talkContentPaddingH,
+                    AppSpacing.talkContentPaddingBottom,
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: AppSpacing.talkContentInnerWidth,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.talkContentInnerPaddingBottom,
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: AppTypography.talkEmptyTextWidth,
+                                  child: Text(
+                                    content.emptyStateMessage,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontFamily: 'Klavika',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: AppTypography.talkEmptyText,
+                                      height: AppTypography.talkEmptyLineHeight,
+                                      color: AppColors.talkMutedText,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: AppSpacing.talkEmptyToButtons,
+                                ),
+                                const _TalkActionButtons(),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
-              const _TalkActionButtons(),
-              const SizedBox(height: 24),
             ],
           ),
           if (_languageMenuOpen)
@@ -296,61 +325,73 @@ class _TalkActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 48),
-      child: Row(
-        children: [
-          Expanded(
-            child: _TalkActionButton(
-              asset: 'assets/home/btn_listen.png',
-              label: 'Tap to listen',
-              onTap: () {},
-            ),
-          ),
-          const SizedBox(width: 32),
-          Expanded(
-            child: _TalkActionButton(
-              asset: 'assets/home/btn_sign.png',
-              label: 'Tap to sign',
-              onTap: () {},
-            ),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        _TalkActionButton(
+          icon: Icons.mic_none_outlined,
+          label: 'Tap to listen',
+        ),
+        SizedBox(width: AppSpacing.talkButtonGap),
+        _TalkActionButton(icon: Icons.videocam_outlined, label: 'Tap to sign'),
+      ],
     );
   }
 }
 
 class _TalkActionButton extends StatelessWidget {
-  const _TalkActionButton({
-    required this.asset,
-    required this.label,
-    required this.onTap,
-  });
+  const _TalkActionButton({required this.icon, required this.label});
 
-  final String asset;
+  final IconData icon;
   final String label;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: Image.asset(asset, width: 88, height: 88, fit: BoxFit.contain),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-            height: 1.2,
+    return SizedBox(
+      width: AppTypography.talkButtonSize,
+      child: Column(
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {},
+              customBorder: const CircleBorder(),
+              child: Ink(
+                decoration: const BoxDecoration(
+                  color: AppColors.splashBlue,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.talkButtonShadow,
+                      blurRadius: 16,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                width: AppTypography.talkButtonSize,
+                height: AppTypography.talkButtonSize,
+                child: Icon(
+                  icon,
+                  size: AppTypography.talkButtonIcon,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.talkButtonToLabel),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: 'Klavika',
+              fontWeight: FontWeight.w400,
+              fontSize: AppTypography.talkButtonLabel,
+              height: AppTypography.talkButtonLabelLineHeight,
+              color: AppColors.talkMutedText,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

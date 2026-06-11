@@ -31,4 +31,14 @@ abstract final class AppSpacing {
   static const double phraseTileHeight = 46;
   static const double phraseTileRadius = 16;
   static const double phraseIconGap = 12;
+
+  // Figma Talk container (375pt frame).
+  static const double talkContentPaddingTop = 12;
+  static const double talkContentPaddingH = 16;
+  static const double talkContentPaddingBottom = 8;
+  static const double talkContentInnerWidth = 343;
+  static const double talkEmptyToButtons = 12;
+  static const double talkContentInnerPaddingBottom = 16;
+  static const double talkButtonGap = 77;
+  static const double talkButtonToLabel = 3;
 }

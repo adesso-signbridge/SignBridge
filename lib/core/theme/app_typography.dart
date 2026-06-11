@@ -24,4 +24,13 @@ abstract final class AppTypography {
 
   static const double tabIcon = 24;
   static const double tabLabel = 10;
+
+  // Figma Talk container (375pt frame).
+  static const double talkEmptyText = 14;
+  static const double talkEmptyLineHeight = 21 / 14;
+  static const double talkEmptyTextWidth = 180;
+  static const double talkButtonSize = 68;
+  static const double talkButtonIcon = 26;
+  static const double talkButtonLabel = 13;
+  static const double talkButtonLabelLineHeight = 20 / 13;
 }
