@@ -1,0 +1,447 @@
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../services/home/home_service.dart';
+import '../../../../services/translate/sign_capture_result.dart';
+import '../../../../services/translate/talk_listen_result.dart';
+import 'sign_camera_recorder.dart';
+import 'talk_session_content.dart';
+
+class TalkSignRecordingContent extends StatelessWidget {
+  const TalkSignRecordingContent({
+    super.key,
+    required this.uiCopy,
+    this.heardResult,
+    required this.isRecording,
+    required this.onRecordingReady,
+    required this.onRecordingStopped,
+    required this.onCameraError,
+  });
+
+  final HomeUiCopy uiCopy;
+  final TalkListenResult? heardResult;
+  final bool isRecording;
+  final ValueChanged<CameraController> onRecordingReady;
+  final ValueChanged<String> onRecordingStopped;
+  final ValueChanged<String> onCameraError;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TalkSignHeardSection(heardResult: heardResult, uiCopy: uiCopy),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: AppSpacing.talkSessionStatusBottom,
+            ),
+            child: TalkSignRecordingStatusBubble(
+              label: uiCopy.recordingSignsLabel,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.talkSessionStatusBottom),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final cameraHeight = constraints.maxHeight.clamp(
+                160.0,
+                AppSpacing.talkSignCameraCardHeight,
+              );
+              return Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  height: cameraHeight,
+                  child: SignCameraStageFrame(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        SignCameraRecorder(
+                          isRecording: isRecording,
+                          onRecordingReady: onRecordingReady,
+                          onRecordingStopped: onRecordingStopped,
+                          onError: onCameraError,
+                        ),
+                        if (isRecording)
+                          const Align(
+                            alignment: Alignment.topCenter,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 14),
+                              child: SignRecordingBadge(),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TalkSignAnalyzingContent extends StatelessWidget {
+  const TalkSignAnalyzingContent({
+    super.key,
+    required this.uiCopy,
+    this.heardResult,
+  });
+
+  final HomeUiCopy uiCopy;
+  final TalkListenResult? heardResult;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TalkSignHeardSection(heardResult: heardResult, uiCopy: uiCopy),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: AppSpacing.talkSessionStatusBottom,
+              bottom: AppSpacing.talkSessionStatusBottom,
+            ),
+            child: TalkSignAnalyzingStatusBubble(
+              label: uiCopy.analyzingSignsLabel,
+            ),
+          ),
+        ),
+        const Spacer(),
+      ],
+    );
+  }
+}
+
+class TalkSignSpokenContent extends StatelessWidget {
+  const TalkSignSpokenContent({
+    super.key,
+    required this.uiCopy,
+    this.heardResult,
+    required this.signResult,
+    required this.onReplay,
+  });
+
+  final HomeUiCopy uiCopy;
+  final TalkListenResult? heardResult;
+  final SignCaptureResult signResult;
+  final VoidCallback onReplay;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TalkSignHeardSection(heardResult: heardResult, uiCopy: uiCopy),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.talkSessionStatusBottom),
+            child: TalkSignSpokenMessage(
+              transcript: signResult.text,
+              metaLabel:
+                  '${uiCopy.spokenLabel} · ${signResult.formattedDuration()}',
+              replayLabel: uiCopy.replayLabel,
+              onReplay: onReplay,
+            ),
+          ),
+        ),
+        const Spacer(),
+      ],
+    );
+  }
+}
+
+class TalkSignHeardSection extends StatelessWidget {
+  const TalkSignHeardSection({
+    super.key,
+    required this.heardResult,
+    required this.uiCopy,
+  });
+
+  final TalkListenResult? heardResult;
+  final HomeUiCopy uiCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    if (heardResult == null || !heardResult!.hasTranscript) {
+      return const SizedBox.shrink();
+    }
+
+    return TalkHeardSummaryHeader(
+      transcript: heardResult!.fullTranscript,
+      metaLabel: '${uiCopy.heardLabel} · ${heardResult!.heardDuration}',
+    );
+  }
+}
+
+/// Blue right-aligned bubble shown while recording signs.
+class TalkSignRecordingStatusBubble extends StatelessWidget {
+  const TalkSignRecordingStatusBubble({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TalkSignRightStatusBubble(
+      backgroundColor: AppColors.splashBlue,
+      borderColor: Colors.transparent,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: AppSpacing.talkSignRecordingDotSize,
+            height: AppSpacing.talkSignRecordingDotSize,
+            decoration: const BoxDecoration(
+              color: AppColors.talkSignRecordingDot,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.talkSignStatusBubbleGap),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Klavika',
+              fontWeight: FontWeight.w400,
+              fontSize: 13,
+              height: 20 / 13,
+              color: AppColors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Light gray right-aligned bubble shown while analyzing signs.
+class TalkSignAnalyzingStatusBubble extends StatelessWidget {
+  const TalkSignAnalyzingStatusBubble({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TalkSignRightStatusBubble(
+      backgroundColor: AppColors.talkSignAnalyzingBubbleBg,
+      borderColor: AppColors.talkSignAnalyzingBubbleBorder,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 1.57,
+              color: AppColors.splashBlue.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.talkSignStatusBubbleGap),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Klavika',
+              fontWeight: FontWeight.w400,
+              fontSize: 13,
+              height: 20 / 13,
+              color: AppColors.phraseCategoryText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Blue spoken transcript bubble with inline replay pill and meta row.
+class TalkSignSpokenMessage extends StatelessWidget {
+  const TalkSignSpokenMessage({
+    super.key,
+    required this.transcript,
+    required this.metaLabel,
+    required this.replayLabel,
+    required this.onReplay,
+  });
+
+  final String transcript;
+  final String metaLabel;
+  final String replayLabel;
+  final VoidCallback onReplay;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TalkSignRightStatusBubble(
+          backgroundColor: AppColors.splashBlue,
+          borderColor: Colors.transparent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                transcript,
+                style: const TextStyle(
+                  fontFamily: 'Klavika',
+                  fontWeight: FontWeight.w400,
+                  fontSize: AppSpacing.talkSessionTranscriptFont,
+                  height: AppSpacing.talkSessionTranscriptLineHeight,
+                  color: AppColors.white,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.talkSessionMetaTop),
+              TalkReplayButton(label: replayLabel, onTap: onReplay),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(
+            top: AppSpacing.talkSessionMetaPaddingTop,
+            right: AppSpacing.talkSessionMetaPaddingLeft,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                metaLabel,
+                style: const TextStyle(
+                  fontFamily: 'Klavika',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 10,
+                  height: 1.5,
+                  color: AppColors.talkMutedText,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.talkSessionMetaDotGap),
+              Container(
+                width: AppSpacing.talkSessionMetaDotSize,
+                height: AppSpacing.talkSessionMetaDotSize,
+                decoration: const BoxDecoration(
+                  color: AppColors.talkSpokenActiveDot,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TalkSignRightStatusBubble extends StatelessWidget {
+  const TalkSignRightStatusBubble({
+    super.key,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.child,
+  });
+
+  final Color backgroundColor;
+  final Color borderColor;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: borderColor == Colors.transparent
+            ? null
+            : Border.all(color: borderColor, width: 1.04),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(AppSpacing.talkSessionBubbleRadiusLarge),
+          topRight: Radius.circular(AppSpacing.talkSessionBubbleRadiusSmall),
+          bottomRight: Radius.circular(AppSpacing.talkSessionBubbleRadiusLarge),
+          bottomLeft: Radius.circular(AppSpacing.talkSessionBubbleRadiusLarge),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.talkSessionBubblePaddingH,
+          AppSpacing.talkSessionBubblePaddingTop,
+          AppSpacing.talkSessionBubblePaddingH,
+          AppSpacing.talkSessionBubblePaddingBottom,
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class TalkHeardSummaryHeader extends StatelessWidget {
+  const TalkHeardSummaryHeader({
+    super.key,
+    required this.transcript,
+    required this.metaLabel,
+  });
+
+  final String transcript;
+  final String metaLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return TalkFullTranscriptHeader(
+      transcript: transcript,
+      metaLabel: metaLabel,
+    );
+  }
+}
+
+class TalkReplayButton extends StatelessWidget {
+  const TalkReplayButton({
+    super.key,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(AppSpacing.talkSignReplayPillRadius),
+      child: InkWell(
+        key: const Key('talk_replay_button'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.talkSignReplayPillRadius),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.replay_rounded,
+                size: 12,
+                color: AppColors.splashBlue,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Klavika',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                  height: 1.5,
+                  color: AppColors.splashBlue,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

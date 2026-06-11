@@ -9,8 +9,10 @@ import '../../services/sos/sos_service.dart';
 import '../../services/sos/local_sos_service.dart';
 import '../../services/splash/splash_service.dart';
 import '../../services/splash/local_splash_service.dart';
-import '../../services/translate/translate_service.dart';
+import '../../services/translate/local_sign_capture_service.dart';
 import '../../services/translate/local_translate_service.dart';
+import '../../services/translate/sign_capture_service.dart';
+import '../../services/translate/translate_service.dart';
 
 /// Central registry for independent microservice adapters.
 final class ServiceLocator {
@@ -18,6 +20,7 @@ final class ServiceLocator {
     required this.splash,
     required this.home,
     required this.translate,
+    required this.signCapture,
     required this.phrases,
     required this.phraseSpeech,
     required this.sos,
@@ -30,6 +33,7 @@ final class ServiceLocator {
   final SplashService splash;
   final HomeService home;
   final TranslateService translate;
+  final SignCaptureService signCapture;
   final PhrasesService phrases;
   final PhraseSpeechService phraseSpeech;
   final SosService sos;
@@ -37,12 +41,14 @@ final class ServiceLocator {
 
   static void bootstrap({
     TranslateService? translate,
+    SignCaptureService? signCapture,
     PhraseSpeechService? phraseSpeech,
   }) {
     _instance = ServiceLocator._(
       splash: LocalSplashService(),
       home: LocalHomeService(),
       translate: translate ?? LocalTranslateService(),
+      signCapture: signCapture ?? LocalSignCaptureService(),
       phrases: LocalPhrasesService(),
       phraseSpeech: phraseSpeech ?? LocalPhraseSpeechService(),
       sos: LocalSosService(),

@@ -27,4 +27,10 @@ abstract final class AppColors {
   static const Color phraseSpeakerIdle = Color(0xFFEFF3F8);
   static const Color phraseCardBorder = Color(0x1A006EC7);
   static const Color phraseChipBorder = Color(0x1F006EC7);
+  static const Color talkSignCameraBackground = Color(0xFF0F172A);
+  static const Color talkSignRecordingDot = Color(0xFFFF6467);
+  static const Color talkSignAnalyzingBubbleBg = Color(0xFFEFF3F8);
+  static const Color talkSignAnalyzingBubbleBorder = Color(0x33006EC7);
+  static const Color talkSignRecBadgeBackground = Color(0xE6DC2626);
+  static const Color talkSpokenActiveDot = Color(0xFF00B36B);
 }
