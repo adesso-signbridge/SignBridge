@@ -13,7 +13,7 @@ Built by [adesso](https://www.adesso.de/).
 
 SignBridge removes the communication barrier between spoken language and sign language, so deaf and mute users can take part in conversations at shops, hospitals, work, and home.
 
-## What the app will do
+## What the app does
 
 SignBridge provides two core translation modes:
 
@@ -24,13 +24,33 @@ SignBridge provides two core translation modes:
 
 The app is organized around five main areas:
 
-- **Home** — Entry point with action cards (Hear for me / Speak for me), language selection, and quick phrases for common situations (e.g. greetings, asking for help).
-- **Translate** — Live translation between voice and sign.
+- **Talk** — Live listen session: speech → caption → ASL/ISL gloss → 3D signing avatar.
 - **Phrases** — Saved and frequently used phrases for faster communication.
 - **SOS** — Emergency communication tools for urgent situations.
 - **Settings** — App preferences, language, and accessibility options.
 
-> **Current status:** The home screen, splash flow, and tab navigation are implemented. Translate, Phrases, SOS, and Settings screens are scaffolded and backed by local service adapters until backend microservices are connected.
+> **Current status:** Talk listen flow (speech capture, live captions, ASL/ISL gloss, native 3D avatar) is implemented on Android and iOS. Phrases, SOS, and remote backend services are scaffolded with local adapters.
+
+## Talk listen flow
+
+```
+Tap Listen → mic permission → speech-to-text (device)
+           → live caption (top bubble)
+           → ASL/ISL gloss (blue chip)
+           → native 3D avatar (same sign as chip)
+           → Heard → Signing (cycles gloss sequence)
+Stop       → saved transcript or "No speech detected"
+Clear      → return to idle
+```
+
+| Spoken language | Sign system |
+|-----------------|-------------|
+| English (ENG)   | ASL         |
+| Hindi, Tamil, Malayalam | ISL |
+
+**Permissions:** microphone and speech recognition (iOS `Info.plist`, Android `RECORD_AUDIO`).
+
+**Simulator / CI:** uses a local mock speech pipeline (`LocalTranslateService(forceMockListening: true)` in tests).
 
 ## Technology stack
 
@@ -39,10 +59,12 @@ The app is organized around five main areas:
 | Framework | [Flutter](https://flutter.dev/) |
 | Language | Dart 3.12+ |
 | UI | Material Design, custom Figma-based theme |
+| Speech | `speech_to_text`, `permission_handler` |
+| 3D avatar | Native SceneKit (iOS), Canvas 3D (Android) via platform views |
 | Assets | PNG icons, SVG logos (`flutter_svg`) |
 | Typography | Klavika Bold (brand font) |
 | Platforms | Android, iOS (scaffold also includes web, macOS, Linux, Windows) |
-| Testing | `flutter_test` widget tests |
+| Testing | `flutter_test` widget + service tests, architecture guardrails, release readiness |
 
 ## Architecture
 
@@ -54,45 +76,38 @@ lib/
 ├── app/                              # Root MaterialApp
 ├── core/
 │   ├── di/service_locator.dart       # Dependency injection registry
-│   ├── network/microservice_client.dart  # HTTP client for remote services
-│   ├── services/microservice.dart    # Shared service contract
-│   └── theme/                        # Colors, typography, spacing
+│   ├── platform/                     # Mic permission, sign avatar channel
+│   ├── network/microservice_client.dart
+│   ├── services/microservice.dart
+│   └── theme/
 ├── features/
-│   ├── splash/presentation/          # Splash screen
-│   ├── home/presentation/            # Home screen UI
-│   └── shared/presentation/          # Shared tab placeholders
+│   ├── splash/presentation/
+│   ├── home/presentation/            # Talk screen + session UI
+│   └── shared/presentation/
 ├── services/
-│   ├── home/                         # HomeService + LocalHomeService
-│   ├── translate/                    # TranslateService + LocalTranslateService
-│   ├── phrases/                      # PhrasesService + LocalPhrasesService
-│   ├── sos/                          # SosService + LocalSosService
-│   ├── settings/                     # SettingsService + LocalSettingsService
-│   └── splash/                       # SplashService + LocalSplashService
-└── shell/main_shell.dart             # Bottom tab bar + IndexedStack
+│   ├── home/                         # HomeService + localized UI copy
+│   ├── translate/                    # STT, ASL/ISL catalog, listen stream
+│   ├── phrases/, sos/, settings/, splash/
+└── shell/main_shell.dart
 ```
 
 ### Key design decisions
 
-1. **Service interfaces + adapters** — Each feature depends on an abstract service (e.g. `HomeService`). Local implementations provide mock/static data today; remote implementations can replace them without changing the UI.
+1. **Service interfaces + adapters** — UI depends on abstractions (`TranslateService`, `HomeService`). Local implementations ship today; remote adapters swap in without UI changes.
 
-2. **ServiceLocator** — A lightweight DI container wires all services at startup via `ServiceLocator.bootstrap()`.
+2. **Session generation tokens** — `HomeScreen` uses monotonic generation counters so async listen/stop/clear races cannot apply stale UI updates.
 
-3. **Independent microservice endpoints** — `MicroserviceClient` and `MicroserviceEndpoints` are prepared for per-service backend URLs (configurable via `--dart-define`).
+3. **Native avatar bridge** — `SignAvatarChannel` + platform views keep 3D rendering on the platform thread; Flutter falls back to Figma illustrations in tests and on desktop.
 
-4. **Shell navigation** — `MainShell` uses an `IndexedStack` to preserve tab state across the five bottom tabs.
-
-### App flow
-
-```
-Native launch screen → Dart SplashScreen (2s) → MainShell (5 tabs)
-```
+4. **Empty-stop semantics** — Stopping before speech returns `TalkListenResult.empty`, not demo sample text.
 
 ## Getting started
 
 ### Prerequisites
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.12+)
-- Android Studio / Xcode for device simulators
+- Android Studio / Xcode for device builds
+- **Physical device recommended** for real speech recognition and 3D avatar
 
 ### Run locally
 
@@ -101,15 +116,17 @@ flutter pub get
 flutter run
 ```
 
-### Run tests
+### Run tests (matches CI)
 
 ```bash
-flutter test
+dart format --output=none --set-exit-if-changed .
+flutter analyze --fatal-infos --fatal-warnings
+flutter test --exclude-tags store-blocker
 ```
 
 ### Configure backend URLs (optional)
 
-When remote microservices are available, pass service URLs at build time:
+When remote microservices are available:
 
 ```bash
 flutter run \
