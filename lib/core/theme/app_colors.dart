@@ -22,4 +22,9 @@ abstract final class AppColors {
   static const Color talkHeardBubbleBorder = Color(0x2E006EC7);
   static const Color talkBackgroundGradientEnd = Color(0xFFEEF6FC);
   static const Color talkClearHistoryBackground = Color(0xFFFEF2F2);
+  static const Color phraseCategoryText = Color(0xFF6B7A90);
+  static const Color phraseSelectedBackground = Color(0xFFE8F2FB);
+  static const Color phraseSpeakerIdle = Color(0xFFEFF3F8);
+  static const Color phraseCardBorder = Color(0x1A006EC7);
+  static const Color phraseChipBorder = Color(0x1F006EC7);
 }
