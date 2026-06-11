@@ -89,7 +89,7 @@ The gloss lexicon is a starter set; unknown words appear as uppercase fallback g
 | Typography | Klavika Bold (brand font) |
 | Platforms | Android, iOS (scaffold also includes web, macOS, Linux, Windows) |
 | Testing | `flutter_test` widget + service tests, architecture guardrails, release readiness |
-| CI | GitHub Actions — format, analyze, architecture, validation, tests, Android/web builds, iOS build check |
+| CI | GitHub Actions — 7 core jobs gated by **PR merge gate** on pull requests to `main` |
 
 ## Architecture
 
@@ -159,6 +159,27 @@ flutter test test/architecture/
 flutter test test/validation/
 flutter test --exclude-tags store-blocker
 ```
+
+### Merge protection (7 CI checks)
+
+Pull requests to `main` run a **PR merge gate** job that fails unless all **7** core checks pass:
+
+1. Coding standards  
+2. Architecture checks  
+3. Repository validation  
+4. Release readiness (iOS + Android)  
+5. Unit and widget tests  
+6. Build verification (apk, appbundle, web)  
+7. iOS TestFlight build check  
+
+To enforce this on GitHub (block merge when the gate is red), run once with admin access:
+
+```bash
+chmod +x scripts/setup-branch-protection.sh
+./scripts/setup-branch-protection.sh
+```
+
+Requires [GitHub CLI](https://cli.github.com/) (`gh auth login`). Use `--dry-run` to preview the ruleset.
 
 ### Configure backend URLs (optional)
 
