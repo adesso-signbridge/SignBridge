@@ -4,16 +4,22 @@ import 'package:sign_bridge/app/sign_bridge_app.dart';
 import 'package:sign_bridge/core/di/service_locator.dart';
 import 'package:sign_bridge/core/platform/microphone_permission.dart';
 import 'package:sign_bridge/services/translate/local_translate_service.dart';
+
+import 'services/mock_phrase_speech_service.dart';
 import 'package:sign_bridge/features/splash/presentation/widgets/adesso_logo.dart';
 import 'package:sign_bridge/features/splash/presentation/widgets/sign_bridge_logo.dart';
 import 'package:sign_bridge/shell/main_shell.dart';
 
 void main() {
+  final mockPhraseSpeech = MockPhraseSpeechService();
+
   setUp(() {
     ServiceLocator.bootstrap(
       translate: LocalTranslateService(forceMockListening: true),
+      phraseSpeech: mockPhraseSpeech,
     );
     microphonePermissionRequester = () async => true;
+    mockPhraseSpeech.lastSpokenText = null;
   });
 
   tearDown(() async {
@@ -62,6 +68,29 @@ void main() {
     expect(find.text('SOS'), findsOneWidget);
     expect(find.text('Version'), findsOneWidget);
     expect(find.text('1.0.0'), findsOneWidget);
+  });
+
+  testWidgets('Phrases tab shows categories and speaks on tap', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const SignBridgeApp());
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Phrases'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Search phrases…'), findsOneWidget);
+    expect(find.text('All'), findsOneWidget);
+    expect(find.text('Greetings'), findsWidgets);
+    expect(find.text('Hello'), findsOneWidget);
+
+    await tester.tap(find.text('Hello'));
+    await tester.pump();
+
+    expect(mockPhraseSpeech.lastSpokenText, 'Hello');
+    expect(mockPhraseSpeech.lastLanguageCode, 'ENG');
   });
 
   testWidgets('Changing language updates talk screen copy', (
