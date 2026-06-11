@@ -108,10 +108,7 @@ void main() {
     test('branch protection setup script exists', () {
       final script = File('scripts/setup-branch-protection.sh');
       expect(script.existsSync(), isTrue);
-      expect(
-        script.readAsStringSync(),
-        contains('PR merge gate'),
-      );
+      expect(script.readAsStringSync(), contains('PR merge gate'));
     });
 
     test('lib source avoids debug print statements', () {
