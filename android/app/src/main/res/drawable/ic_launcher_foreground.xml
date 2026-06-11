@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="89dp"
+        android:height="89dp"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <item
+        android:width="47dp"
+        android:height="47dp"
+        android:gravity="center"
+        android:drawable="@drawable/splash_hands" />
+</layer-list>
