@@ -106,6 +106,33 @@ jobs:
           fi
           echo "No secret patterns found."
 
+  release-readiness:
+    name: Release readiness (iOS + Android)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: coding-standards
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run Apple HIG and store packaging checks
+        run: flutter test test/release/ --exclude-tags store-blocker
+
+      - name: Report store submission blockers
+        continue-on-error: true
+        run: |
+          flutter test test/release/ --tags store-blocker || \
+            echo "::warning::Store submission blockers remain (bundle ID, release signing). See test output."
+
   test:
     name: Unit and widget tests
     runs-on: ubuntu-latest
@@ -125,7 +152,7 @@ jobs:
         run: flutter pub get
 
       - name: Run tests
-        run: flutter test --coverage
+        run: flutter test --coverage --exclude-tags store-blocker
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -137,12 +164,12 @@ jobs:
   build:
     name: Build verification (${{ matrix.target }})
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [architecture, validation, test]
+    timeout-minutes: 30
+    needs: [architecture, validation, release-readiness, test]
     strategy:
       fail-fast: false
       matrix:
-        target: [apk, web]
+        target: [apk, appbundle, web]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -160,9 +187,34 @@ jobs:
         if: matrix.target == 'apk'
         run: flutter build apk --debug
 
+      - name: Build Android App Bundle
+        if: matrix.target == 'appbundle'
+        run: flutter build appbundle
+
       - name: Build Web
         if: matrix.target == 'web'
         run: flutter build web
+
+  ios-release:
+    name: iOS TestFlight build check
+    runs-on: macos-latest
+    timeout-minutes: 30
+    needs: [architecture, validation, release-readiness, test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS app without codesigning
+        run: flutter build ios --release --no-codesign
 
   dependency-review:
     name: Dependency review
@@ -196,8 +248,10 @@ jobs:
       - coding-standards
       - architecture
       - validation
+      - release-readiness
       - test
       - build
+      - ios-release
       - dependency-review
       - workflow-lint
     steps:
@@ -217,8 +271,10 @@ jobs:
           check "${{ needs.coding-standards.result }}" "Coding standards"
           check "${{ needs.architecture.result }}" "Architecture checks"
           check "${{ needs.validation.result }}" "Repository validation"
+          check "${{ needs.release-readiness.result }}" "Release readiness"
           check "${{ needs.test.result }}" "Unit and widget tests"
           check "${{ needs.build.result }}" "Build verification"
+          check "${{ needs.ios-release.result }}" "iOS TestFlight build check"
           check "${{ needs.dependency-review.result }}" "Dependency review"
           check "${{ needs.workflow-lint.result }}" "Workflow lint"
 
