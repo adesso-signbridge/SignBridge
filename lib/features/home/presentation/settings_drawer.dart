@@ -11,7 +11,7 @@ class SettingsDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: MediaQuery.sizeOf(context).width,
+      width: MediaQuery.sizeOf(context).width * 0.65,
       backgroundColor: AppColors.white,
       child: SafeArea(
         child: Column(
