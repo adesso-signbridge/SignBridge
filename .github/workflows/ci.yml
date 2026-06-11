@@ -196,8 +196,8 @@ jobs:
         run: flutter build web
 
   ios-release:
-    # Disabled for now — not required for PR merge gate. Re-enable when ready.
-    if: false
+    # Manual only — not part of the PR merge gate. Run from Actions → CI → Run workflow.
+    if: github.event_name == 'workflow_dispatch'
     name: iOS TestFlight build check
     runs-on: macos-latest
     timeout-minutes: 30
