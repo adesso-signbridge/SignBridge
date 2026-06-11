@@ -90,16 +90,19 @@ void main() {
 
     expect(find.text('Recording signs…'), findsOneWidget);
     expect(find.text('Tap to translate'), findsOneWidget);
+    expect(find.text('Clear history'), findsNothing);
 
     await tester.tap(find.byKey(const Key('talk_translate_button')));
     await tester.pump();
 
     expect(find.text('Analyzing your signs…'), findsOneWidget);
+    expect(find.text('Clear history'), findsNothing);
 
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('talk_sign_spoken_content')), findsOneWidget);
+    expect(find.text('Clear history'), findsOneWidget);
     expect(find.textContaining('My name is Alex. I am deaf.'), findsOneWidget);
     expect(find.textContaining('Spoken · 01:00'), findsOneWidget);
     expect(mockSignCapture.lastVideoPath, 'mock-sign-capture.mp4');
@@ -144,6 +147,28 @@ void main() {
 
     expect(find.text('കേൾക്കാൻ ടാപ്പ് ചെയ്യുക'), findsOneWidget);
     expect(find.text('സംസാരം'), findsOneWidget);
+  });
+
+  testWidgets('Clear history hides during sign flow after listen stops', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const SignBridgeApp());
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('talk_listen_button')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('talk_stop_button')));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Clear history'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk_sign_button')));
+    await tester.pump();
+
+    expect(find.text('Clear history'), findsNothing);
   });
 
   testWidgets('Tap listen then stop shows stopped state with transcript', (

@@ -38,14 +38,7 @@ class SettingsDrawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Image.asset(
-                      'assets/home/btn_close.png',
-                      width: 36,
-                      height: 36,
-                    ),
-                  ),
+                  const _DrawerCloseButton(),
                 ],
               ),
             ),
@@ -102,6 +95,34 @@ class SettingsDrawer extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerCloseButton extends StatelessWidget {
+  const _DrawerCloseButton();
+
+  static const double _size = 36;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.splashBlue,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).pop(),
+        customBorder: const CircleBorder(),
+        child: const SizedBox(
+          width: _size,
+          height: _size,
+          child: Icon(
+            Icons.close,
+            size: 20,
+            color: AppColors.white,
+          ),
         ),
       ),
     );

@@ -130,6 +130,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool get _isSignFlowActive => _signPhase != SignFlowPhase.idle;
 
+  /// Clear history after listen stops or sign translation finishes — never
+  /// while sign recording or analysis is in progress.
+  bool get _showClearHistory {
+    return switch (_signPhase) {
+      SignFlowPhase.recording || SignFlowPhase.analyzing => false,
+      SignFlowPhase.spoken => true,
+      SignFlowPhase.idle => _sessionPhase == TalkSessionPhase.stopped,
+    };
+  }
+
   Future<void> _startSignRecording() async {
     if (_signPhase != SignFlowPhase.idle || _isActiveListenPhase) {
       return;
@@ -648,8 +658,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: AppSpacing.talkSessionWaveformToButtons,
                           ),
                         ],
-                        if (_sessionPhase == TalkSessionPhase.stopped ||
-                            _signPhase == SignFlowPhase.spoken) ...[
+                        if (_showClearHistory) ...[
                           TalkClearHistoryButton(
                             label: widget.uiCopy.clearHistoryLabel,
                             onTap: _clearHistory,
@@ -905,7 +914,6 @@ class _TalkActionButtons extends StatelessWidget {
             _TalkActionButton(
               key: const Key('talk_stop_button'),
               backgroundColor: AppColors.talkStopRed,
-              ringShadow: true,
               icon: Icons.mic_off_outlined,
               label: uiCopy.tapToStop,
               onTap: onStopTap,
@@ -946,7 +954,6 @@ class _TalkActionButtons extends StatelessWidget {
             _TalkActionButton(
               key: const Key('talk_translate_button'),
               backgroundColor: AppColors.talkStopRed,
-              ringShadow: true,
               icon: Icons.translate_rounded,
               label: uiCopy.tapToTranslate,
               onTap: onTranslateTap,
