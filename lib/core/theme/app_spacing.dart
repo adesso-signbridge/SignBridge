@@ -67,6 +67,15 @@ abstract final class AppSpacing {
 
   // Avatar card + illustration — all session states share one fixed card size.
   static const double talkSessionAvatarCardHeight = 260;
+  static const double talkSignCameraCardHeight = 240;
+  static const double talkSignBubblesToCameraGap = 74;
+  static const double talkSignCameraBorderWidth = 1.5655;
+  static const double talkSignCameraCornerSize = 20;
+  static const double talkSignCameraCornerInset = 13.56;
+  static const double talkSignCameraCornerRadius = 3;
+  static const double talkSignRecordingDotSize = 8;
+  static const double talkSignStatusBubbleGap = 8;
+  static const double talkSignReplayPillRadius = 6;
   static const double talkSessionListeningAvatarCardHeight =
       talkSessionAvatarCardHeight;
   static const double talkSessionAvatarIlluWidth = 237;

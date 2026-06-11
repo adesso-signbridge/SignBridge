@@ -713,6 +713,36 @@ class _OverlaySigningChip extends StatelessWidget {
   }
 }
 
+/// Status bubble reused by the sign-capture flow (e.g. "Recording signs…").
+class TalkSessionStatusBubble extends StatelessWidget {
+  const TalkSessionStatusBubble({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => _SessionStatusBubble(label: label);
+}
+
+/// Transcript + meta row reused by heard/spoken conversation headers.
+class TalkFullTranscriptHeader extends StatelessWidget {
+  const TalkFullTranscriptHeader({
+    super.key,
+    required this.transcript,
+    required this.metaLabel,
+  });
+
+  final String transcript;
+  final String metaLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return _FullTranscriptHeader(
+      transcript: transcript,
+      metaLabel: metaLabel,
+    );
+  }
+}
+
 class _ThinkingDots extends StatelessWidget {
   const _ThinkingDots({required this.activeCount});
 
