@@ -4,12 +4,16 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/home/home_service.dart';
-import 'settings_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.homeService});
+  const HomeScreen({
+    super.key,
+    required this.homeService,
+    required this.onMenuTap,
+  });
 
   final HomeService homeService;
+  final VoidCallback onMenuTap;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -77,10 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   languageMenuOpen: _languageMenuOpen,
                   onLanguageTap: () =>
                       setState(() => _languageMenuOpen = !_languageMenuOpen),
-                  onMenuTap: () => SettingsSheet.show(
-                    context,
-                    appVersion: content.appVersion,
-                  ),
+                  onMenuTap: widget.onMenuTap,
                 ),
               ),
               Expanded(
@@ -91,42 +92,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     AppSpacing.talkContentPaddingH,
                     AppSpacing.talkContentPaddingBottom,
                   ),
-                  child: Center(
-                    child: SizedBox(
-                      width: AppSpacing.talkContentInnerWidth,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpacing.talkContentInnerPaddingBottom,
-                            ),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  width: AppTypography.talkEmptyTextWidth,
-                                  child: Text(
-                                    content.emptyStateMessage,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: 'Klavika',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: AppTypography.talkEmptyText,
-                                      height: AppTypography.talkEmptyLineHeight,
-                                      color: AppColors.talkMutedText,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: AppSpacing.talkEmptyToButtons,
-                                ),
-                                const _TalkActionButtons(),
-                              ],
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: SizedBox(
+                            width: AppTypography.talkEmptyTextWidth,
+                            child: Text(
+                              content.emptyStateMessage,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Klavika',
+                                fontWeight: FontWeight.w400,
+                                fontSize: AppTypography.talkEmptyText,
+                                height: AppTypography.talkEmptyLineHeight,
+                                color: AppColors.talkMutedText,
+                              ),
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppSpacing.talkContentInnerPaddingBottom,
+                        ),
+                        child: const _TalkActionButtons(),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -135,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (_languageMenuOpen)
             Positioned(
               top: 72,
-              right: 20,
+              right: AppSpacing.talkContentPaddingH,
               child: _LanguageMenu(
                 languages: content.languages,
                 selectedCode: _selectedLanguageCode!,
@@ -329,20 +321,23 @@ class _TalkActionButtons extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: const [
         _TalkActionButton(
-          icon: Icons.mic_none_outlined,
+          asset: 'assets/home/btn_listen.png',
           label: 'Tap to listen',
         ),
         SizedBox(width: AppSpacing.talkButtonGap),
-        _TalkActionButton(icon: Icons.videocam_outlined, label: 'Tap to sign'),
+        _TalkActionButton(
+          asset: 'assets/home/btn_sign.png',
+          label: 'Tap to sign',
+        ),
       ],
     );
   }
 }
 
 class _TalkActionButton extends StatelessWidget {
-  const _TalkActionButton({required this.icon, required this.label});
+  const _TalkActionButton({required this.asset, required this.label});
 
-  final IconData icon;
+  final String asset;
   final String label;
 
   @override
@@ -351,31 +346,13 @@ class _TalkActionButton extends StatelessWidget {
       width: AppTypography.talkButtonSize,
       child: Column(
         children: [
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {},
-              customBorder: const CircleBorder(),
-              child: Ink(
-                decoration: const BoxDecoration(
-                  color: AppColors.splashBlue,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.talkButtonShadow,
-                      blurRadius: 16,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                width: AppTypography.talkButtonSize,
-                height: AppTypography.talkButtonSize,
-                child: Icon(
-                  icon,
-                  size: AppTypography.talkButtonIcon,
-                  color: AppColors.white,
-                ),
-              ),
+          GestureDetector(
+            onTap: () {},
+            child: Image.asset(
+              asset,
+              width: AppTypography.talkButtonSize,
+              height: AppTypography.talkButtonSize,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: AppSpacing.talkButtonToLabel),
