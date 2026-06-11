@@ -1,0 +1,224 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coding-standards:
+    name: Coding standards
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Verify pubspec.lock is up to date
+        run: |
+          flutter pub get
+          git diff --exit-code pubspec.lock
+
+  architecture:
+    name: Architecture checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: coding-standards
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run architecture guardrails
+        run: flutter test test/architecture/
+
+  validation:
+    name: Repository validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: coding-standards
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run repository validation tests
+        run: flutter test test/validation/
+
+      - name: Block tracked secret files and IDE artifacts
+        run: |
+          set -euo pipefail
+          forbidden='^(\.env|\.env\.|credentials\.json|\.cursor/|\.venv|\.venv_pdf/)'
+          if git ls-files | grep -E "$forbidden"; then
+            echo "Forbidden tracked files detected."
+            exit 1
+          fi
+
+      - name: Scan for hardcoded secret patterns
+        run: |
+          set -euo pipefail
+          pattern='(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----)'
+          if git grep -I -n -E "$pattern" -- . ':(exclude)*.md'; then
+            echo "Potential secret detected in source."
+            exit 1
+          fi
+          echo "No secret patterns found."
+
+  test:
+    name: Unit and widget tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: coding-standards
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  build:
+    name: Build verification (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [architecture, validation, test]
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [apk, web]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        if: matrix.target == 'apk'
+        run: flutter build apk --debug
+
+      - name: Build Web
+        if: matrix.target == 'web'
+        run: flutter build web
+
+  dependency-review:
+    name: Dependency review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+
+  workflow-lint:
+    name: Workflow lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint GitHub Actions workflows
+        uses: rhysd/actionlint@v1.7.10
+
+  ci-summary:
+    name: CI summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - coding-standards
+      - architecture
+      - validation
+      - test
+      - build
+      - dependency-review
+      - workflow-lint
+    steps:
+      - name: Evaluate required checks
+        run: |
+          check() {
+            result="$1"
+            name="$2"
+            if [ "$result" = "success" ] || [ "$result" = "skipped" ]; then
+              echo "PASS: $name ($result)"
+            else
+              echo "FAIL: $name ($result)"
+              exit 1
+            fi
+          }
+
+          check "${{ needs.coding-standards.result }}" "Coding standards"
+          check "${{ needs.architecture.result }}" "Architecture checks"
+          check "${{ needs.validation.result }}" "Repository validation"
+          check "${{ needs.test.result }}" "Unit and widget tests"
+          check "${{ needs.build.result }}" "Build verification"
+          check "${{ needs.dependency-review.result }}" "Dependency review"
+          check "${{ needs.workflow-lint.result }}" "Workflow lint"
+
+      - name: CI passed
+        if: success()
+        run: echo "All required CI checks passed."

@@ -7,7 +7,11 @@ import 'widgets/adesso_logo.dart';
 import 'widgets/sign_bridge_logo.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key, required this.splashService, required this.onFinished});
+  const SplashScreen({
+    super.key,
+    required this.splashService,
+    required this.onFinished,
+  });
 
   final SplashService splashService;
   final VoidCallback onFinished;
@@ -59,10 +63,7 @@ class _SplashBody extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           spacing: _sectionGap,
-          children: const [
-            AdessoLogo(),
-            _AppLogoGroup(),
-          ],
+          children: const [AdessoLogo(), _AppLogoGroup()],
         ),
       ),
     );

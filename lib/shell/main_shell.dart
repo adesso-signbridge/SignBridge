@@ -113,8 +113,9 @@ class _AppTabBar extends StatelessWidget {
                         tab.label,
                         style: TextStyle(
                           fontSize: AppTypography.tabLabel,
-                          fontWeight:
-                              selected ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                           color: selected
                               ? AppColors.splashBlue
                               : AppColors.tabInactive,

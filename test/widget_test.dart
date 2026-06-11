@@ -8,7 +8,9 @@ import 'package:sign_bridge/shell/main_shell.dart';
 void main() {
   setUp(ServiceLocator.bootstrap);
 
-  testWidgets('Splash screen shows SignBridge branding', (WidgetTester tester) async {
+  testWidgets('Splash screen shows SignBridge branding', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const SignBridgeApp());
 
     expect(find.text('SignBridge'), findsOneWidget);
