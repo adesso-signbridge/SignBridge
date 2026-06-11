@@ -41,4 +41,6 @@ abstract final class AppSpacing {
   static const double talkContentInnerPaddingBottom = 16;
   static const double talkButtonGap = 77;
   static const double talkButtonToLabel = 3;
+  static const double talkButtonLabelHeight = 20;
+  static const double talkButtonsRowWidth = 213; // 68 + 77 + 68 (Figma 212.99px)
 }

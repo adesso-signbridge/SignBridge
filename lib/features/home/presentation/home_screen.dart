@@ -93,25 +93,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     AppSpacing.talkContentPaddingBottom,
                   ),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: Center(
-                          child: SizedBox(
-                            width: AppTypography.talkEmptyTextWidth,
-                            child: Text(
-                              content.emptyStateMessage,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontFamily: 'Klavika',
-                                fontWeight: FontWeight.w400,
-                                fontSize: AppTypography.talkEmptyText,
-                                height: AppTypography.talkEmptyLineHeight,
-                                color: AppColors.talkMutedText,
-                              ),
-                            ),
+                      SizedBox(
+                        width: AppTypography.talkEmptyTextWidth,
+                        child: Text(
+                          content.emptyStateMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontFamily: 'Klavika',
+                            fontWeight: FontWeight.w400,
+                            fontSize: AppTypography.talkEmptyText,
+                            height: AppTypography.talkEmptyLineHeight,
+                            color: AppColors.talkMutedText,
                           ),
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.talkEmptyToButtons),
                       Padding(
                         padding: const EdgeInsets.only(
                           bottom: AppSpacing.talkContentInnerPaddingBottom,
@@ -317,48 +315,62 @@ class _TalkActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        _TalkActionButton(
-          asset: 'assets/home/btn_listen.png',
-          label: 'Tap to listen',
-        ),
-        SizedBox(width: AppSpacing.talkButtonGap),
-        _TalkActionButton(
-          asset: 'assets/home/btn_sign.png',
-          label: 'Tap to sign',
-        ),
-      ],
+    return SizedBox(
+      width: AppSpacing.talkButtonsRowWidth,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: const [
+          _TalkActionButton(
+            asset: 'assets/home/btn_listen.png',
+            label: 'Tap to listen',
+            labelWidth: AppTypography.talkListenLabelWidth,
+          ),
+          _TalkActionButton(
+            asset: 'assets/home/btn_sign.png',
+            label: 'Tap to sign',
+            labelWidth: AppTypography.talkSignLabelWidth,
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _TalkActionButton extends StatelessWidget {
-  const _TalkActionButton({required this.asset, required this.label});
+  const _TalkActionButton({
+    required this.asset,
+    required this.label,
+    required this.labelWidth,
+  });
 
   final String asset;
   final String label;
+  final double labelWidth;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: AppTypography.talkButtonSize,
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () {},
-            child: Image.asset(
-              asset,
-              width: AppTypography.talkButtonSize,
-              height: AppTypography.talkButtonSize,
-              fit: BoxFit.contain,
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: () {},
+          child: Image.asset(
+            asset,
+            width: AppTypography.talkButtonSize,
+            height: AppTypography.talkButtonSize,
+            fit: BoxFit.contain,
           ),
-          const SizedBox(height: AppSpacing.talkButtonToLabel),
-          Text(
+        ),
+        const SizedBox(height: AppSpacing.talkButtonToLabel),
+        SizedBox(
+          width: labelWidth,
+          height: AppSpacing.talkButtonLabelHeight,
+          child: Text(
             label,
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.visible,
             style: const TextStyle(
               fontFamily: 'Klavika',
               fontWeight: FontWeight.w400,
@@ -367,8 +379,8 @@ class _TalkActionButton extends StatelessWidget {
               color: AppColors.talkMutedText,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
