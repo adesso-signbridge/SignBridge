@@ -50,12 +50,19 @@
 
 ## Automated checks
 
-<!-- Confirm before merge. CI runs on PRs to `main`. -->
+<!-- PRs to `main` are blocked until **PR merge gate** passes (7 core CI jobs). -->
 
 - [ ] `dart format --output=none --set-exit-if-changed .` passes
 - [ ] `flutter analyze --fatal-infos --fatal-warnings` passes
 - [ ] `flutter test --exclude-tags store-blocker` passes
-- [ ] GitHub Actions CI green on this PR
+- [ ] **PR merge gate** is green on this PR (requires all 7 checks below)
+- [ ] Coding standards
+- [ ] Architecture checks
+- [ ] Repository validation
+- [ ] Release readiness (iOS + Android)
+- [ ] Unit and widget tests
+- [ ] Build verification (apk, appbundle, web)
+- [ ] iOS TestFlight build check
 - [ ] No secrets or forbidden files committed
 
 ## Screenshots / recordings (optional)

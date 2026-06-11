@@ -96,6 +96,23 @@ void main() {
       }
     });
 
+    test('CI workflow defines PR merge gate for seven core checks', () {
+      final ci = File('.github/workflows/ci.yml').readAsStringSync();
+      expect(ci, contains('name: PR merge gate'));
+      expect(ci, contains('-lt 7'));
+      expect(ci, contains('Coding standards'));
+      expect(ci, contains('iOS TestFlight build check'));
+    });
+
+    test('branch protection setup script exists', () {
+      final script = File('scripts/setup-branch-protection.sh');
+      expect(script.existsSync(), isTrue);
+      expect(
+        script.readAsStringSync(),
+        contains('PR merge gate'),
+      );
+    });
+
     test('lib source avoids debug print statements', () {
       final violations = <String>[];
       final files = Directory('lib')
