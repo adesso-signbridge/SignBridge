@@ -7,6 +7,7 @@ import '../core/theme/app_typography.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/settings_drawer.dart';
 import '../features/shared/presentation/microservice_tab_screen.dart';
+import '../services/home/home_service.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -19,18 +20,20 @@ class _MainShellState extends State<MainShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   String _appVersion = '1.0.0';
+  String _languageCode = 'ENG';
+  late final HomeService _homeService = ServiceLocator.instance.home;
 
-  static const _tabs = [
-    _TabItem(icon: Icons.chat_bubble_outline, label: 'Talk'),
-    _TabItem(asset: 'assets/home/tabs/tab_book.png', label: 'Phrases'),
-  ];
+  HomeUiCopy get _uiCopy => _homeService.uiCopyFor(_languageCode);
 
   @override
   void initState() {
     super.initState();
-    ServiceLocator.instance.home.fetchHomeContent().then((content) {
+    _homeService.fetchHomeContent().then((content) {
       if (mounted) {
-        setState(() => _appVersion = content.appVersion);
+        setState(() {
+          _appVersion = content.appVersion;
+          _languageCode = content.selectedLanguageCode;
+        });
       }
     });
   }
@@ -38,6 +41,14 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final services = ServiceLocator.instance;
+    final uiCopy = _uiCopy;
+    final tabs = [
+      _TabItem(icon: Icons.chat_bubble_outline, label: uiCopy.talkTabLabel),
+      _TabItem(
+        asset: 'assets/home/tabs/tab_book.png',
+        label: uiCopy.phrasesTabLabel,
+      ),
+    ];
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -47,13 +58,17 @@ class _MainShellState extends State<MainShell> {
         key: _scaffoldKey,
         backgroundColor: AppColors.white,
         endDrawerEnableOpenDragGesture: true,
-        endDrawer: SettingsDrawer(appVersion: _appVersion),
+        endDrawer: SettingsDrawer(appVersion: _appVersion, uiCopy: uiCopy),
         body: IndexedStack(
           index: _selectedIndex,
           children: [
             HomeScreen(
-              homeService: services.home,
+              homeService: _homeService,
+              translateService: services.translate,
+              selectedLanguageCode: _languageCode,
+              uiCopy: uiCopy,
               onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+              onLanguageChanged: (code) => setState(() => _languageCode = code),
             ),
             MicroserviceTabScreen(
               serviceName: services.phrases.serviceName,
@@ -63,7 +78,7 @@ class _MainShellState extends State<MainShell> {
         ),
         bottomNavigationBar: _AppTabBar(
           selectedIndex: _selectedIndex,
-          tabs: _tabs,
+          tabs: tabs,
           onSelected: (index) => setState(() => _selectedIndex = index),
         ),
       ),
