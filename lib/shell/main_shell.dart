@@ -6,7 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/settings_drawer.dart';
-import '../features/shared/presentation/microservice_tab_screen.dart';
+import '../features/phrases/presentation/phrases_screen.dart';
 import '../services/home/home_service.dart';
 
 class MainShell extends StatefulWidget {
@@ -19,6 +19,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
+  bool _phrasesTabMounted = false;
   String _appVersion = '1.0.0';
   String _languageCode = 'ENG';
   late final HomeService _homeService = ServiceLocator.instance.home;
@@ -70,16 +71,29 @@ class _MainShellState extends State<MainShell> {
               onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
               onLanguageChanged: (code) => setState(() => _languageCode = code),
             ),
-            MicroserviceTabScreen(
-              serviceName: services.phrases.serviceName,
-              titleFuture: services.phrases.getStatusMessage(),
-            ),
+            if (_phrasesTabMounted)
+              PhrasesScreen(
+                homeService: _homeService,
+                phrasesService: services.phrases,
+                speechService: services.phraseSpeech,
+                languageCode: _languageCode,
+                onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+                onLanguageChanged: (code) =>
+                    setState(() => _languageCode = code),
+              )
+            else
+              const SizedBox.shrink(),
           ],
         ),
         bottomNavigationBar: _AppTabBar(
           selectedIndex: _selectedIndex,
           tabs: tabs,
-          onSelected: (index) => setState(() => _selectedIndex = index),
+          onSelected: (index) => setState(() {
+            if (index == 1) {
+              _phrasesTabMounted = true;
+            }
+            _selectedIndex = index;
+          }),
         ),
       ),
     );
