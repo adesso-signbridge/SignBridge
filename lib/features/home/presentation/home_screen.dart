@@ -1,21 +1,31 @@
 import 'dart:async';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/platform/camera_permission.dart';
+import '../../../core/platform/sign_camera_test_mode.dart';
 import '../../../core/platform/microphone_permission.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/home/home_service.dart';
+import '../../../services/phrases/phrase_speech_service.dart';
+import '../../../services/translate/sign_capture_service.dart';
 import '../../../services/translate/translate_service.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
+import 'widgets/talk_sign_session_content.dart';
+
+enum SignFlowPhase { idle, recording, analyzing, spoken }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.homeService,
     required this.translateService,
+    required this.signCaptureService,
+    required this.phraseSpeechService,
     required this.selectedLanguageCode,
     required this.uiCopy,
     required this.onMenuTap,
@@ -24,6 +34,8 @@ class HomeScreen extends StatefulWidget {
 
   final HomeService homeService;
   final TranslateService translateService;
+  final SignCaptureService signCaptureService;
+  final PhraseSpeechService phraseSpeechService;
   final String selectedLanguageCode;
   final HomeUiCopy uiCopy;
   final VoidCallback onMenuTap;
@@ -45,12 +57,18 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<TalkListenUpdate>? _listenSubscription;
   StreamSubscription<String>? _listenErrorSubscription;
   StreamSubscription<double>? _audioLevelSubscription;
+  SignFlowPhase _signPhase = SignFlowPhase.idle;
+  SignCaptureResult? _signResult;
+  bool _signRecordingActive = false;
+  int _signGeneration = 0;
+  CameraController? _signCameraController;
 
   @override
   void dispose() {
     _cancelSessionTimers();
     _listenSubscription?.cancel();
     _stopAudioLevelSubscription();
+    _disposeSignCamera();
     unawaited(widget.translateService.cancelListening());
     super.dispose();
   }
@@ -102,8 +120,115 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  TalkListenResult? get _heardForSignFlow {
+    final result = _listenResult;
+    if (result != null && result.hasTranscript) {
+      return result;
+    }
+    return null;
+  }
+
+  bool get _isSignFlowActive => _signPhase != SignFlowPhase.idle;
+
+  Future<void> _startSignRecording() async {
+    if (_signPhase != SignFlowPhase.idle || _isActiveListenPhase) {
+      return;
+    }
+
+    final generation = ++_signGeneration;
+
+    if (signCameraTestModeEnabled) {
+      if (!mounted || generation != _signGeneration) {
+        return;
+      }
+      setState(() {
+        _signPhase = SignFlowPhase.recording;
+        _signRecordingActive = true;
+      });
+      return;
+    }
+
+    final cameraGranted = await cameraPermissionRequester();
+    if (!cameraGranted) {
+      if (mounted) {
+        _showListenError(widget.uiCopy.cameraPermissionRequiredLabel);
+      }
+      return;
+    }
+    if (!mounted || generation != _signGeneration) {
+      return;
+    }
+    setState(() {
+      _signPhase = SignFlowPhase.recording;
+      _signRecordingActive = true;
+    });
+  }
+
+  Future<void> _stopSignAndAnalyze() async {
+    if (_signPhase != SignFlowPhase.recording) {
+      return;
+    }
+
+    if (signCameraTestModeEnabled) {
+      await _analyzeSignVideo('mock-sign-capture.mp4');
+      return;
+    }
+
+    setState(() => _signRecordingActive = false);
+  }
+
+  Future<void> _analyzeSignVideo(String videoPath) async {
+    final generation = _signGeneration;
+    setState(() => _signPhase = SignFlowPhase.analyzing);
+    try {
+      final result = await widget.signCaptureService.analyzeRecording(
+        videoPath: videoPath,
+        languageCode: widget.selectedLanguageCode,
+      );
+      if (!mounted || generation != _signGeneration) {
+        return;
+      }
+      setState(() {
+        _signResult = result;
+        _signPhase = SignFlowPhase.spoken;
+        _sessionPhase = TalkSessionPhase.stopped;
+      });
+      await _speakSignResult(result);
+    } on Object {
+      if (!mounted || generation != _signGeneration) {
+        return;
+      }
+      _showListenError(widget.uiCopy.signCaptureFailedLabel);
+      setState(() => _signPhase = SignFlowPhase.idle);
+    }
+  }
+
+  Future<void> _speakSignResult(SignCaptureResult result) async {
+    if (!result.hasText) {
+      return;
+    }
+    await widget.phraseSpeechService.speak(
+      result.text,
+      widget.selectedLanguageCode,
+    );
+  }
+
+  Future<void> _replaySpoken() async {
+    final result = _signResult;
+    if (result == null) {
+      return;
+    }
+    await _speakSignResult(result);
+  }
+
+  void _disposeSignCamera() {
+    _signCameraController?.dispose();
+    _signCameraController = null;
+  }
+
   Future<void> _startListening() async {
     if (_listenInFlight ||
+        _isSignFlowActive ||
         (_sessionPhase != TalkSessionPhase.idle &&
             _sessionPhase != TalkSessionPhase.stopped)) {
       return;
@@ -324,10 +449,18 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) {
       return;
     }
+    _disposeSignCamera();
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
+      _signGeneration++;
+      _signPhase = SignFlowPhase.idle;
+      _signResult = null;
+      _signRecordingActive = false;
     });
     unawaited(widget.translateService.cancelListening());
   }
@@ -342,16 +475,52 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _TalkControlsMode get _controlsMode {
-    return switch (_sessionPhase) {
-      TalkSessionPhase.idle => _TalkControlsMode.idle,
-      TalkSessionPhase.stopped => _TalkControlsMode.stopped,
-      TalkSessionPhase.listening ||
-      TalkSessionPhase.heard ||
-      TalkSessionPhase.signing => _TalkControlsMode.recording,
+    return switch (_signPhase) {
+      SignFlowPhase.recording => _TalkControlsMode.signRecording,
+      SignFlowPhase.analyzing => _TalkControlsMode.signAnalyzing,
+      SignFlowPhase.spoken => _TalkControlsMode.signSpoken,
+      SignFlowPhase.idle => switch (_sessionPhase) {
+        TalkSessionPhase.idle => _TalkControlsMode.idle,
+        TalkSessionPhase.stopped => _TalkControlsMode.stopped,
+        TalkSessionPhase.listening ||
+        TalkSessionPhase.heard ||
+        TalkSessionPhase.signing => _TalkControlsMode.listenRecording,
+      },
     };
   }
 
   Widget _buildSessionBody() {
+    if (_signPhase == SignFlowPhase.recording) {
+      return TalkSignRecordingContent(
+        key: const Key('talk_sign_recording_content'),
+        uiCopy: widget.uiCopy,
+        heardResult: _heardForSignFlow,
+        isRecording: _signRecordingActive,
+        onRecordingReady: (controller) => _signCameraController = controller,
+        onRecordingStopped: _analyzeSignVideo,
+        onCameraError: (message) {
+          _showListenError(widget.uiCopy.signCaptureFailedLabel);
+          setState(() => _signPhase = SignFlowPhase.idle);
+        },
+      );
+    }
+    if (_signPhase == SignFlowPhase.analyzing) {
+      return TalkSignAnalyzingContent(
+        key: const Key('talk_sign_analyzing_content'),
+        uiCopy: widget.uiCopy,
+        heardResult: _heardForSignFlow,
+      );
+    }
+    if (_signPhase == SignFlowPhase.spoken && _signResult != null) {
+      return TalkSignSpokenContent(
+        key: const Key('talk_sign_spoken_content'),
+        uiCopy: widget.uiCopy,
+        heardResult: _heardForSignFlow,
+        signResult: _signResult!,
+        onReplay: _replaySpoken,
+      );
+    }
+
     return switch (_sessionPhase) {
       TalkSessionPhase.idle => Center(
         child: Padding(
@@ -404,7 +573,8 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final isActiveSession = _sessionPhase != TalkSessionPhase.idle;
+    final isActiveSession =
+        _sessionPhase != TalkSessionPhase.idle || _isSignFlowActive;
 
     return SafeArea(
       bottom: false,
@@ -478,7 +648,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: AppSpacing.talkSessionWaveformToButtons,
                           ),
                         ],
-                        if (_sessionPhase == TalkSessionPhase.stopped) ...[
+                        if (_sessionPhase == TalkSessionPhase.stopped ||
+                            _signPhase == SignFlowPhase.spoken) ...[
                           TalkClearHistoryButton(
                             label: widget.uiCopy.clearHistoryLabel,
                             onTap: _clearHistory,
@@ -498,6 +669,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             mode: _controlsMode,
                             onListenTap: _startListening,
                             onStopTap: _stopListening,
+                            onSignTap: _startSignRecording,
+                            onTranslateTap: _stopSignAndAnalyze,
                           ),
                         ),
                       ],
@@ -695,7 +868,14 @@ class _LanguageMenu extends StatelessWidget {
   }
 }
 
-enum _TalkControlsMode { idle, recording, stopped }
+enum _TalkControlsMode {
+  idle,
+  listenRecording,
+  signRecording,
+  signAnalyzing,
+  stopped,
+  signSpoken,
+}
 
 class _TalkActionButtons extends StatelessWidget {
   const _TalkActionButtons({
@@ -703,16 +883,20 @@ class _TalkActionButtons extends StatelessWidget {
     required this.mode,
     required this.onListenTap,
     required this.onStopTap,
+    required this.onSignTap,
+    required this.onTranslateTap,
   });
 
   final HomeUiCopy uiCopy;
   final _TalkControlsMode mode;
   final VoidCallback onListenTap;
   final VoidCallback onStopTap;
+  final VoidCallback onSignTap;
+  final VoidCallback onTranslateTap;
 
   @override
   Widget build(BuildContext context) {
-    if (mode == _TalkControlsMode.recording) {
+    if (mode == _TalkControlsMode.listenRecording) {
       return Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -742,7 +926,69 @@ class _TalkActionButtons extends StatelessWidget {
       );
     }
 
-    if (mode == _TalkControlsMode.stopped) {
+    if (mode == _TalkControlsMode.signRecording) {
+      return Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Opacity(
+              opacity: AppSpacing.talkSessionSignMutedOpacity,
+              child: _TalkActionButton(
+                backgroundColor: AppColors.splashBlue,
+                shadowColor: AppColors.talkButtonShadow,
+                icon: Icons.mic_none_outlined,
+                label: uiCopy.tapToListen,
+                onTap: () {},
+              ),
+            ),
+            const SizedBox(width: AppSpacing.talkButtonGap),
+            _TalkActionButton(
+              key: const Key('talk_translate_button'),
+              backgroundColor: AppColors.talkStopRed,
+              ringShadow: true,
+              icon: Icons.translate_rounded,
+              label: uiCopy.tapToTranslate,
+              onTap: onTranslateTap,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (mode == _TalkControlsMode.signAnalyzing) {
+      return Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Opacity(
+              opacity: AppSpacing.talkSessionSignMutedOpacity,
+              child: _TalkActionButton(
+                backgroundColor: AppColors.splashBlue,
+                shadowColor: AppColors.talkButtonShadow,
+                icon: Icons.mic_none_outlined,
+                label: uiCopy.tapToListen,
+                onTap: () {},
+              ),
+            ),
+            const SizedBox(width: AppSpacing.talkButtonGap),
+            Opacity(
+              opacity: AppSpacing.talkSessionSignMutedOpacity,
+              child: _TalkActionButton(
+                backgroundColor: AppColors.splashBlue,
+                shadowColor: AppColors.talkButtonShadow,
+                icon: Icons.videocam_outlined,
+                label: uiCopy.tapToSign,
+                onTap: () {},
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (mode == _TalkControlsMode.stopped || mode == _TalkControlsMode.signSpoken) {
       return Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -758,11 +1004,12 @@ class _TalkActionButtons extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.talkButtonGap),
             _TalkActionButton(
+              key: const Key('talk_sign_button'),
               backgroundColor: AppColors.splashBlue,
               shadowColor: AppColors.talkButtonShadow,
               icon: Icons.videocam_outlined,
               label: uiCopy.tapToSign,
-              onTap: () {},
+              onTap: onSignTap,
             ),
           ],
         ),
@@ -785,11 +1032,12 @@ class _TalkActionButtons extends StatelessWidget {
         const SizedBox(width: AppSpacing.talkButtonGapMin),
         Expanded(
           child: _TalkActionButton(
+            key: const Key('talk_sign_button'),
             backgroundColor: AppColors.splashBlue,
             shadowColor: AppColors.talkButtonShadow,
             icon: Icons.videocam_outlined,
             label: uiCopy.tapToSign,
-            onTap: () {},
+            onTap: onSignTap,
           ),
         ),
       ],

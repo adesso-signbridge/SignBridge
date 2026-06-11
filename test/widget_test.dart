@@ -3,26 +3,33 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sign_bridge/app/sign_bridge_app.dart';
 import 'package:sign_bridge/core/di/service_locator.dart';
 import 'package:sign_bridge/core/platform/microphone_permission.dart';
+import 'package:sign_bridge/core/platform/sign_camera_test_mode.dart';
 import 'package:sign_bridge/services/translate/local_translate_service.dart';
 
 import 'services/mock_phrase_speech_service.dart';
+import 'services/mock_sign_capture_service.dart';
 import 'package:sign_bridge/features/splash/presentation/widgets/adesso_logo.dart';
 import 'package:sign_bridge/features/splash/presentation/widgets/sign_bridge_logo.dart';
 import 'package:sign_bridge/shell/main_shell.dart';
 
 void main() {
   final mockPhraseSpeech = MockPhraseSpeechService();
+  final mockSignCapture = MockSignCaptureService();
 
   setUp(() {
+    signCameraTestModeEnabled = true;
     ServiceLocator.bootstrap(
       translate: LocalTranslateService(forceMockListening: true),
+      signCapture: mockSignCapture,
       phraseSpeech: mockPhraseSpeech,
     );
     microphonePermissionRequester = () async => true;
     mockPhraseSpeech.lastSpokenText = null;
+    mockSignCapture.lastVideoPath = null;
   });
 
   tearDown(() async {
+    signCameraTestModeEnabled = false;
     await ServiceLocator.instance.translate.cancelListening();
   });
 
@@ -68,6 +75,35 @@ void main() {
     expect(find.text('SOS'), findsOneWidget);
     expect(find.text('Version'), findsOneWidget);
     expect(find.text('1.0.0'), findsOneWidget);
+  });
+
+  testWidgets('Tap sign records, analyzes, speaks, and shows spoken bubble', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const SignBridgeApp());
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('talk_sign_button')));
+    await tester.pump();
+
+    expect(find.text('Recording signs…'), findsOneWidget);
+    expect(find.text('Tap to translate'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk_translate_button')));
+    await tester.pump();
+
+    expect(find.text('Analyzing your signs…'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('talk_sign_spoken_content')), findsOneWidget);
+    expect(find.textContaining('My name is Alex. I am deaf.'), findsOneWidget);
+    expect(find.textContaining('Spoken · 01:00'), findsOneWidget);
+    expect(mockSignCapture.lastVideoPath, 'mock-sign-capture.mp4');
+    expect(mockPhraseSpeech.lastSpokenText, 'My name is Alex. I am deaf.');
   });
 
   testWidgets('Phrases tab shows categories and speaks on tap', (
