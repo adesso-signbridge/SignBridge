@@ -3,30 +3,17 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
-class SettingsSheet extends StatelessWidget {
-  const SettingsSheet({super.key, required this.appVersion});
+class SettingsDrawer extends StatelessWidget {
+  const SettingsDrawer({super.key, required this.appVersion});
 
   final String appVersion;
 
-  static Future<void> show(BuildContext context, {required String appVersion}) {
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => SettingsSheet(appVersion: appVersion),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.sizeOf(context).height * 0.92,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    return Drawer(
+      width: MediaQuery.sizeOf(context).width,
+      backgroundColor: AppColors.white,
       child: SafeArea(
-        top: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -81,7 +68,7 @@ class SettingsSheet extends StatelessWidget {
                     const _SectionLabel('ABOUT'),
                     const SizedBox(height: 8),
                     const _AboutRow(label: 'App', value: 'SignBridge'),
-                    Divider(color: AppColors.phraseBorder, height: 1),
+                    const Divider(color: AppColors.phraseBorder, height: 1),
                     _AboutRow(label: 'Version', value: appVersion),
                     const SizedBox(height: 48),
                     Center(

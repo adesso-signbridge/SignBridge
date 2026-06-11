@@ -5,6 +5,7 @@ import '../core/di/service_locator.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/home/presentation/settings_drawer.dart';
 import '../features/shared/presentation/microservice_tab_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -15,12 +16,24 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
+  String _appVersion = '1.0.0';
 
   static const _tabs = [
-    _TabItem(asset: 'assets/home/tabs/tab_convert.png', label: 'Talk'),
+    _TabItem(icon: Icons.chat_bubble_outline, label: 'Talk'),
     _TabItem(asset: 'assets/home/tabs/tab_book.png', label: 'Phrases'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    ServiceLocator.instance.home.fetchHomeContent().then((content) {
+      if (mounted) {
+        setState(() => _appVersion = content.appVersion);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +44,17 @@ class _MainShellState extends State<MainShell> {
         statusBarColor: Colors.transparent,
       ),
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: AppColors.white,
+        endDrawerEnableOpenDragGesture: true,
+        endDrawer: SettingsDrawer(appVersion: _appVersion),
         body: IndexedStack(
           index: _selectedIndex,
           children: [
-            HomeScreen(homeService: services.home),
+            HomeScreen(
+              homeService: services.home,
+              onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+            ),
             MicroserviceTabScreen(
               serviceName: services.phrases.serviceName,
               titleFuture: services.phrases.getStatusMessage(),
@@ -53,10 +72,12 @@ class _MainShellState extends State<MainShell> {
 }
 
 class _TabItem {
-  const _TabItem({required this.asset, required this.label});
+  const _TabItem({required this.label, this.asset, this.icon})
+    : assert(asset != null || icon != null);
 
-  final String asset;
   final String label;
+  final String? asset;
+  final IconData? icon;
 }
 
 class _AppTabBar extends StatelessWidget {
@@ -97,7 +118,7 @@ class _AppTabBar extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _TabIcon(
-                          asset: tabs[index].asset,
+                          tab: tabs[index],
                           selected: index == selectedIndex,
                         ),
                         const SizedBox(height: 4),
@@ -128,15 +149,21 @@ class _AppTabBar extends StatelessWidget {
 }
 
 class _TabIcon extends StatelessWidget {
-  const _TabIcon({required this.asset, required this.selected});
+  const _TabIcon({required this.tab, required this.selected});
 
-  final String asset;
+  final _TabItem tab;
   final bool selected;
 
   @override
   Widget build(BuildContext context) {
+    final color = selected ? AppColors.splashBlue : AppColors.tabInactive;
+
+    if (tab.icon != null) {
+      return Icon(tab.icon, size: AppTypography.tabIcon, color: color);
+    }
+
     final image = Image.asset(
-      asset,
+      tab.asset!,
       width: AppTypography.tabIcon,
       height: AppTypography.tabIcon,
       fit: BoxFit.contain,
@@ -147,10 +174,7 @@ class _TabIcon extends StatelessWidget {
     }
 
     return ColorFiltered(
-      colorFilter: const ColorFilter.mode(
-        AppColors.splashBlue,
-        BlendMode.srcIn,
-      ),
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
       child: image,
     );
   }
