@@ -34,23 +34,47 @@ The app is organized around five main areas:
 ## Talk listen flow
 
 ```
-Tap Listen → mic permission → speech-to-text (device)
-           → live caption (top bubble)
-           → ASL/ISL gloss (blue chip)
-           → native 3D avatar (same sign as chip)
-           → Heard → Signing (cycles gloss sequence)
-Stop       → saved transcript or "No speech detected"
-Clear      → return to idle
+Tap Listen  → mic permission → speech-to-text (device)
+            → live caption (scrollable bubble, top)
+            → ASL/ISL gloss chip + native 3D avatar (latest word)
+            → mic waveform (live audio level)
+Tap Stop    → full transcript on stopped screen (or “No speech detected”)
+Clear       → return to idle
 ```
+
+### Session behaviour
+
+| Action | What happens |
+|--------|----------------|
+| **Listen** | Starts a dictation session. Partial results update the caption in real time. |
+| **Pause while speaking** | After ~10s silence the OS ends the current chunk; the app commits that phrase and auto-resumes listening so longer conversations can continue. |
+| **Stop** | One tap ends the session, flushes the final transcript, and shows the stopped screen. |
+| **Clear history** | Discards the stopped transcript and returns to the idle Talk screen. |
+
+### Captions
+
+Live captions use the same model as common `speech_to_text` continuous-listen apps:
+
+- **Committed lines** — finalized phrases from each listen chunk or final result.
+- **Current hypothesis** — the recognizer’s in-progress `recognizedWords` for the active chunk.
+- **Display** — `committed + hypothesis`, in a scrollable bubble that follows the latest words.
+
+This supports multi-sentence and multi-pause conversations without dropping earlier text.
+
+### Sign mapping
 
 | Spoken language | Sign system |
 |-----------------|-------------|
 | English (ENG)   | ASL         |
 | Hindi, Tamil, Malayalam | ISL |
 
-**Permissions:** microphone and speech recognition (iOS `Info.plist`, Android `RECORD_AUDIO`).
+The gloss lexicon is a starter set; unknown words appear as uppercase fallback glosses on the avatar chip.
 
-**Simulator / CI:** uses a local mock speech pipeline (`LocalTranslateService(forceMockListening: true)` in tests).
+### Permissions and testing
+
+- **Permissions:** microphone and speech recognition (iOS `Info.plist`, Android `RECORD_AUDIO`).
+- **Physical device recommended** for real STT and avatar rendering (Samsung/Google recognizers behave differently from emulators).
+- **Simulator / CI:** tests use a mock speech pipeline (`LocalTranslateService(forceMockListening: true)`).
 
 ## Technology stack
 
@@ -65,6 +89,7 @@ Clear      → return to idle
 | Typography | Klavika Bold (brand font) |
 | Platforms | Android, iOS (scaffold also includes web, macOS, Linux, Windows) |
 | Testing | `flutter_test` widget + service tests, architecture guardrails, release readiness |
+| CI | GitHub Actions — 6 core jobs gated by **PR merge gate** on pull requests to `main` |
 
 ## Architecture
 
@@ -86,7 +111,7 @@ lib/
 │   └── shared/presentation/
 ├── services/
 │   ├── home/                         # HomeService + localized UI copy
-│   ├── translate/                    # STT, ASL/ISL catalog, listen stream
+│   ├── translate/                    # STT, transcript merge, ASL/ISL catalog
 │   ├── phrases/, sos/, settings/, splash/
 └── shell/main_shell.dart
 ```
@@ -97,9 +122,11 @@ lib/
 
 2. **Session generation tokens** — `HomeScreen` uses monotonic generation counters so async listen/stop/clear races cannot apply stale UI updates.
 
-3. **Native avatar bridge** — `SignAvatarChannel` + platform views keep 3D rendering on the platform thread; Flutter falls back to Figma illustrations in tests and on desktop.
+3. **Transcript accumulator** — `SpeechTranscriptAccumulator` keeps committed phrase lines separate from the live STT hypothesis, matching how continuous dictation apps handle pause/resume on Android and iOS.
 
-4. **Empty-stop semantics** — Stopping before speech returns `TalkListenResult.empty`, not demo sample text.
+4. **Native avatar bridge** — `SignAvatarChannel` + platform views keep 3D rendering on the platform thread; Flutter falls back to Figma illustrations in tests and on desktop.
+
+5. **Empty-stop semantics** — Stopping before speech returns `TalkListenResult.empty`, not demo sample text.
 
 ## Getting started
 
@@ -116,13 +143,44 @@ flutter pub get
 flutter run
 ```
 
+Run on a connected device:
+
+```bash
+flutter devices
+flutter run --device-id <device-id>
+```
+
 ### Run tests (matches CI)
 
 ```bash
 dart format --output=none --set-exit-if-changed .
 flutter analyze --fatal-infos --fatal-warnings
+flutter test test/architecture/
+flutter test test/validation/
 flutter test --exclude-tags store-blocker
 ```
+
+### Merge protection (6 CI checks)
+
+Pull requests to `main` run a **PR merge gate** job that fails unless all **6** core checks pass:
+
+1. Coding standards  
+2. Architecture checks  
+3. Repository validation  
+4. Release readiness (iOS + Android)  
+5. Unit and widget tests  
+6. Build verification (apk, appbundle, web)  
+
+> iOS TestFlight build check is disabled in CI for now and is not required to merge.
+
+To enforce this on GitHub (block merge when the gate is red), run once with admin access:
+
+```bash
+chmod +x scripts/setup-branch-protection.sh
+./scripts/setup-branch-protection.sh
+```
+
+Requires [GitHub CLI](https://cli.github.com/) (`gh auth login`). Use `--dry-run` to preview the ruleset.
 
 ### Configure backend URLs (optional)
 
