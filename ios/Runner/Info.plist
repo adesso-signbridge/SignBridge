@@ -28,6 +28,10 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SignBridge needs microphone access to hear speech and convert it into captions and sign language.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>SignBridge uses speech recognition to turn spoken words into captions and sign language.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

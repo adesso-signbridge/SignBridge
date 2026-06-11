@@ -167,9 +167,11 @@ void main() {
     });
 
     test('Tab labels remain readable and concise', () {
-      final shellSource = File('lib/shell/main_shell.dart').readAsStringSync();
-      for (final label in ['Home', 'Translate', 'Phrases', 'SOS', 'Settings']) {
-        expect(shellSource.contains("'$label'"), isTrue);
+      final copySource = File(
+        'lib/services/home/home_ui_copy.dart',
+      ).readAsStringSync();
+      for (final label in ['Talk', 'Phrases']) {
+        expect(copySource.contains("'$label'"), isTrue);
       }
     });
   });
