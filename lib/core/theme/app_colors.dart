@@ -8,4 +8,5 @@ abstract final class AppColors {
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color phraseBorder = Color(0xFFE5E7EB);
   static const Color tabInactive = Color(0xFF9CA3AF);
+  static const Color emergencyRed = Color(0xFFE53935);
 }

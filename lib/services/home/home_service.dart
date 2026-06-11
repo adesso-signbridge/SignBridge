@@ -1,29 +1,24 @@
 import '../../core/services/microservice.dart';
 
-class HomeActionCard {
-  const HomeActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.mode,
-  });
+class HomeLanguage {
+  const HomeLanguage({required this.code, required this.label});
 
-  final String title;
-  final String subtitle;
-  final HomeActionMode mode;
+  final String code;
+  final String label;
 }
-
-enum HomeActionMode { hearForMe, speakForMe }
 
 class HomeContent {
   const HomeContent({
-    required this.quickPhrases,
-    required this.actionCards,
-    required this.selectedLanguage,
+    required this.selectedLanguageCode,
+    required this.languages,
+    required this.emptyStateMessage,
+    required this.appVersion,
   });
 
-  final List<String> quickPhrases;
-  final List<HomeActionCard> actionCards;
-  final String selectedLanguage;
+  final String selectedLanguageCode;
+  final List<HomeLanguage> languages;
+  final String emptyStateMessage;
+  final String appVersion;
 }
 
 abstract class HomeService implements Microservice {

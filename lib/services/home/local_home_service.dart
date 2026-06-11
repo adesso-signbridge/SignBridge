@@ -7,24 +7,16 @@ final class LocalHomeService implements HomeService {
   @override
   Future<HomeContent> fetchHomeContent() async {
     return const HomeContent(
-      selectedLanguage: 'ENG',
-      actionCards: [
-        HomeActionCard(
-          title: 'Hear for me',
-          subtitle: 'Voice → Sign',
-          mode: HomeActionMode.hearForMe,
-        ),
-        HomeActionCard(
-          title: 'Speak for me',
-          subtitle: 'Sign → Voice',
-          mode: HomeActionMode.speakForMe,
-        ),
+      selectedLanguageCode: 'ENG',
+      languages: [
+        HomeLanguage(code: 'ENG', label: 'English'),
+        HomeLanguage(code: 'ML', label: 'മലയാളം'),
+        HomeLanguage(code: 'HI', label: 'हिन्दी'),
+        HomeLanguage(code: 'TA', label: 'தமிழ்'),
       ],
-      quickPhrases: [
-        'Hello, nice to meet you.',
-        'Please write it down.',
-        'I need help.',
-      ],
+      emptyStateMessage:
+          'No conversation yet.\nUse the buttons below to start.',
+      appVersion: '1.0.0',
     );
   }
 }
