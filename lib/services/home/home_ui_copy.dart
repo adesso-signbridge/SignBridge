@@ -4,7 +4,14 @@ class HomeUiCopy {
     required this.emptyStateMessage,
     required this.tapToListen,
     required this.tapToSign,
+    required this.tapToTranslate,
     required this.tapToStop,
+    required this.recordingSignsLabel,
+    required this.analyzingSignsLabel,
+    required this.spokenLabel,
+    required this.replayLabel,
+    required this.cameraPermissionRequiredLabel,
+    required this.signCaptureFailedLabel,
     required this.listeningLabel,
     required this.signingPrefix,
     required this.signingListeningWord,
@@ -28,7 +35,14 @@ class HomeUiCopy {
   final String emptyStateMessage;
   final String tapToListen;
   final String tapToSign;
+  final String tapToTranslate;
   final String tapToStop;
+  final String recordingSignsLabel;
+  final String analyzingSignsLabel;
+  final String spokenLabel;
+  final String replayLabel;
+  final String cameraPermissionRequiredLabel;
+  final String signCaptureFailedLabel;
   final String listeningLabel;
   final String signingPrefix;
   final String signingListeningWord;
@@ -54,7 +68,15 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emptyStateMessage: 'No conversation yet.\nUse the buttons below to start.',
     tapToListen: 'Tap to listen',
     tapToSign: 'Tap to sign',
+    tapToTranslate: 'Tap to translate',
     tapToStop: 'Tap to stop',
+    recordingSignsLabel: 'Recording signs…',
+    analyzingSignsLabel: 'Analyzing your signs…',
+    spokenLabel: 'Spoken',
+    replayLabel: 'Replay',
+    cameraPermissionRequiredLabel:
+        'Camera permission is required to record signs.',
+    signCaptureFailedLabel: 'Could not analyze signs. Please try again.',
     listeningLabel: 'Listening...',
     signingPrefix: 'Signing:',
     signingListeningWord: '...',
@@ -79,7 +101,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'ഇതുവരെ സംഭാഷണമില്ല.\nആരംഭിക്കാൻ താഴെയുള്ള ബട്ടണുകൾ ഉപയോഗിക്കുക.',
     tapToListen: 'കേൾക്കാൻ ടാപ്പ് ചെയ്യുക',
     tapToSign: 'സൈൻ ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
+    tapToTranslate: 'വിവർത്തനം ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
     tapToStop: 'നിർത്താൻ ടാപ്പ് ചെയ്യുക',
+    recordingSignsLabel: 'സൈനുകൾ റെക്കോർഡ് ചെയ്യുന്നു…',
+    analyzingSignsLabel: 'നിങ്ങളുടെ സൈനുകൾ വിശകലനം ചെയ്യുന്നു…',
+    spokenLabel: 'സംസാരിച്ചു',
+    replayLabel: 'വീണ്ടും കേൾക്കുക',
+    cameraPermissionRequiredLabel:
+        'സൈനുകൾ റെക്കോർഡ് ചെയ്യാൻ ക്യാമറ അനുമതി ആവശ്യമാണ്.',
+    signCaptureFailedLabel:
+        'സൈനുകൾ വിശകലനം ചെയ്യാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
     listeningLabel: 'കേൾക്കുന്നു...',
     signingPrefix: 'സൈൻ ചെയ്യുന്നു:',
     signingListeningWord: '...',
@@ -105,7 +136,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'अभी तक कोई बातचीत नहीं।\nशुरू करने के लिए नीचे दिए बटन का उपयोग करें।',
     tapToListen: 'सुनने के लिए टैप करें',
     tapToSign: 'साइन करने के लिए टैप करें',
+    tapToTranslate: 'अनुवाद के लिए टैप करें',
     tapToStop: 'रोकने के लिए टैप करें',
+    recordingSignsLabel: 'साइन रिकॉर्ड हो रहे हैं…',
+    analyzingSignsLabel: 'आपके साइन का विश्लेषण हो रहा है…',
+    spokenLabel: 'बोला गया',
+    replayLabel: 'फिर से सुनें',
+    cameraPermissionRequiredLabel:
+        'साइन रिकॉर्ड करने के लिए कैमरा अनुमति आवश्यक है।',
+    signCaptureFailedLabel:
+        'साइन का विश्लेषण नहीं हो सका। कृपया पुनः प्रयास करें।',
     listeningLabel: 'सुन रहा है...',
     signingPrefix: 'साइन कर रहा है:',
     signingListeningWord: '...',
@@ -130,7 +170,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'இன்னும் உரையாடல் இல்லை.\nதொடங்க கீழுள்ள பொத்தான்களைப் பயன்படுத்தவும்.',
     tapToListen: 'கேட்க தட்டவும்',
     tapToSign: 'சைகை செய்ய தட்டவும்',
+    tapToTranslate: 'மொழிபெயர்க்க தட்டவும்',
     tapToStop: 'நிறுத்த தட்டவும்',
+    recordingSignsLabel: 'சைகைகள் பதிவு செய்யப்படுகின்றன…',
+    analyzingSignsLabel: 'உங்கள் சைகைகள் பகுப்பாய்வு செய்யப்படுகின்றன…',
+    spokenLabel: 'பேசப்பட்டது',
+    replayLabel: 'மீண்டும் கேளுங்கள்',
+    cameraPermissionRequiredLabel:
+        'சைகைகளை பதிவு செய்ய கேமரா அனுமதி தேவை.',
+    signCaptureFailedLabel:
+        'சைகைகளை பகுப்பாய்வு செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
     listeningLabel: 'கேட்கிறது...',
     signingPrefix: 'சைகை செய்கிறது:',
     signingListeningWord: '...',
