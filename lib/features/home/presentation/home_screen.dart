@@ -37,7 +37,9 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: AppSpacing.cardsToQuickPhrases),
                 const _QuickPhrasesHeader(),
                 const SizedBox(height: AppSpacing.quickPhrasesToTiles),
-                ...content.quickPhrases.map((phrase) => _PhraseTile(text: phrase)),
+                ...content.quickPhrases.map(
+                  (phrase) => _PhraseTile(text: phrase),
+                ),
                 const SizedBox(height: AppSpacing.phrasesToFooter),
                 const _AdessoFooter(),
               ],
@@ -175,9 +177,9 @@ class _ActionCard extends StatelessWidget {
   final HomeActionCard card;
 
   IconData get _icon => switch (card.mode) {
-        HomeActionMode.hearForMe => Icons.hearing,
-        HomeActionMode.speakForMe => Icons.pan_tool_alt_outlined,
-      };
+    HomeActionMode.hearForMe => Icons.hearing,
+    HomeActionMode.speakForMe => Icons.pan_tool_alt_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +205,11 @@ class _ActionCard extends StatelessWidget {
               color: AppColors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(_icon, color: AppColors.white, size: AppTypography.cardIcon),
+            child: Icon(
+              _icon,
+              color: AppColors.white,
+              size: AppTypography.cardIcon,
+            ),
           ),
           const SizedBox(height: AppSpacing.cardIconToTitle),
           Text(
