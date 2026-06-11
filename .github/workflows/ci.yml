@@ -168,7 +168,6 @@ jobs:
     name: Dependency review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    continue-on-error: true
     permissions:
       contents: read
       pull-requests: read
@@ -178,12 +177,6 @@ jobs:
 
       - name: Dependency review
         uses: actions/dependency-review-action@v4
-
-      - name: Dependency graph setup hint
-        if: failure()
-        run: |
-          echo "::warning::Dependency review requires the Dependency graph."
-          echo "Enable it at: https://github.com/${{ github.repository }}/settings/security_analysis"
 
   workflow-lint:
     name: Workflow lint
@@ -213,24 +206,21 @@ jobs:
           check() {
             result="$1"
             name="$2"
-            optional="$3"
             if [ "$result" = "success" ] || [ "$result" = "skipped" ]; then
               echo "PASS: $name ($result)"
-            elif [ "$optional" = "true" ] && [ "$result" = "failure" ]; then
-              echo "WARN: $name skipped ($result)"
             else
               echo "FAIL: $name ($result)"
               exit 1
             fi
           }
 
-          check "${{ needs.coding-standards.result }}" "Coding standards" false
-          check "${{ needs.architecture.result }}" "Architecture checks" false
-          check "${{ needs.validation.result }}" "Repository validation" false
-          check "${{ needs.test.result }}" "Unit and widget tests" false
-          check "${{ needs.build.result }}" "Build verification" false
-          check "${{ needs.dependency-review.result }}" "Dependency review" true
-          check "${{ needs.workflow-lint.result }}" "Workflow lint" false
+          check "${{ needs.coding-standards.result }}" "Coding standards"
+          check "${{ needs.architecture.result }}" "Architecture checks"
+          check "${{ needs.validation.result }}" "Repository validation"
+          check "${{ needs.test.result }}" "Unit and widget tests"
+          check "${{ needs.build.result }}" "Build verification"
+          check "${{ needs.dependency-review.result }}" "Dependency review"
+          check "${{ needs.workflow-lint.result }}" "Workflow lint"
 
       - name: CI passed
         if: success()

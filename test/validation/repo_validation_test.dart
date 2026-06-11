@@ -57,13 +57,11 @@ void main() {
 
   group('repository hygiene', () {
     test('forbidden local artifact directories are not tracked', () {
-      const forbiddenPrefixes = [
-        '.cursor/',
-        '.venv_pdf/',
-        '.venv/',
-      ];
+      const forbiddenPrefixes = ['.cursor/', '.venv_pdf/', '.venv/'];
 
-      final trackedFiles = Process.runSync('git', ['ls-files']).stdout.toString().split('\n');
+      final trackedFiles = Process.runSync('git', [
+        'ls-files',
+      ]).stdout.toString().split('\n');
 
       for (final trackedFile in trackedFiles) {
         if (trackedFile.isEmpty) {
@@ -100,9 +98,10 @@ void main() {
 
     test('lib source avoids debug print statements', () {
       final violations = <String>[];
-      final files = Directory('lib').listSync(recursive: true).whereType<File>().where(
-            (file) => file.path.endsWith('.dart'),
-          );
+      final files = Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.dart'));
 
       for (final file in files) {
         final lines = file.readAsLinesSync();
@@ -117,7 +116,8 @@ void main() {
       expect(
         violations,
         isEmpty,
-        reason: 'Use logging abstractions instead of print() in lib/:\n${violations.join('\n')}',
+        reason:
+            'Use logging abstractions instead of print() in lib/:\n${violations.join('\n')}',
       );
     });
   });
