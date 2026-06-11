@@ -33,4 +33,6 @@ abstract final class AppTypography {
   static const double talkButtonIcon = 26;
   static const double talkButtonLabel = 13;
   static const double talkButtonLabelLineHeight = 20 / 13;
+  static const double talkListenLabelWidth = 67;
+  static const double talkSignLabelWidth = 59;
 }
