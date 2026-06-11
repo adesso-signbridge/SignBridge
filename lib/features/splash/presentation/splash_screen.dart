@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -20,18 +22,43 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  Timer? _safetyTimer;
+  bool _completed = false;
+
   @override
   void initState() {
     super.initState();
-    _start();
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: widget.splashService.displayDuration,
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            _finish();
+          }
+        });
+    _controller.forward();
+    _safetyTimer = Timer(const Duration(seconds: 5), _finish);
   }
 
-  Future<void> _start() async {
-    await widget.splashService.completeSplash();
-    if (mounted) {
-      widget.onFinished();
+  void _finish() {
+    if (_completed || !mounted) {
+      return;
     }
+    _completed = true;
+    _safetyTimer?.cancel();
+    _safetyTimer = null;
+    widget.onFinished();
+  }
+
+  @override
+  void dispose() {
+    _safetyTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
