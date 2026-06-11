@@ -9,4 +9,6 @@ abstract final class AppColors {
   static const Color phraseBorder = Color(0xFFE5E7EB);
   static const Color tabInactive = Color(0xFF9CA3AF);
   static const Color emergencyRed = Color(0xFFE53935);
+  static const Color talkMutedText = Color(0xFF9CA3AF);
+  static const Color talkButtonShadow = Color(0x59006EC7);
 }
