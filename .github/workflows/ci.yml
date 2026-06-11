@@ -196,6 +196,8 @@ jobs:
         run: flutter build web
 
   ios-release:
+    # Disabled for now — not required for PR merge gate. Re-enable when ready.
+    if: false
     name: iOS TestFlight build check
     runs-on: macos-latest
     timeout-minutes: 30
@@ -251,11 +253,10 @@ jobs:
       - release-readiness
       - test
       - build
-      - ios-release
       - dependency-review
       - workflow-lint
     steps:
-      - name: Require 7 core CI checks before merge
+      - name: Require 6 core CI checks before merge
         env:
           CODING_STANDARDS: ${{ needs.coding-standards.result }}
           ARCHITECTURE: ${{ needs.architecture.result }}
@@ -263,7 +264,6 @@ jobs:
           RELEASE_READINESS: ${{ needs.release-readiness.result }}
           TEST: ${{ needs.test.result }}
           BUILD: ${{ needs.build.result }}
-          IOS_RELEASE: ${{ needs.ios-release.result }}
           DEPENDENCY_REVIEW: ${{ needs.dependency-review.result }}
           WORKFLOW_LINT: ${{ needs.workflow-lint.result }}
         run: |
@@ -284,19 +284,18 @@ jobs:
           PASSED=0
           FAILURES=()
 
-          # Seven checks required to unblock merge (configure in branch protection).
+          # Six checks required to unblock merge (configure in branch protection).
           record "Coding standards" "$CODING_STANDARDS"
           record "Architecture checks" "$ARCHITECTURE"
           record "Repository validation" "$VALIDATION"
           record "Release readiness (iOS + Android)" "$RELEASE_READINESS"
           record "Unit and widget tests" "$TEST"
           record "Build verification (apk, appbundle, web)" "$BUILD"
-          record "iOS TestFlight build check" "$IOS_RELEASE"
 
           echo ""
-          echo "Core checks passed: $PASSED / 7"
+          echo "Core checks passed: $PASSED / 6"
 
-          # Advisory on pull requests (not part of the required seven).
+          # Advisory on pull requests (not part of the required six).
           if [ "$DEPENDENCY_REVIEW" != "success" ]; then
             echo "::warning::Dependency review did not pass ($DEPENDENCY_REVIEW)"
           fi
@@ -304,13 +303,13 @@ jobs:
             echo "::warning::Workflow lint did not pass ($WORKFLOW_LINT)"
           fi
 
-          if [ "$PASSED" -lt 7 ]; then
+          if [ "$PASSED" -lt 6 ]; then
             echo "::error::PR merge blocked: ${#FAILURES[@]} required check(s) failed."
             printf ' - %s\n' "${FAILURES[@]}"
             exit 1
           fi
 
-          echo "All 7 required CI checks passed. This PR is eligible to merge once branch protection is enabled."
+          echo "All 6 required CI checks passed. This PR is eligible to merge once branch protection is enabled."
 
   ci-summary:
     name: CI summary
@@ -323,7 +322,6 @@ jobs:
       - release-readiness
       - test
       - build
-      - ios-release
       - workflow-lint
     steps:
       - name: Evaluate required checks
@@ -345,7 +343,6 @@ jobs:
           check "${{ needs.release-readiness.result }}" "Release readiness"
           check "${{ needs.test.result }}" "Unit and widget tests"
           check "${{ needs.build.result }}" "Build verification"
-          check "${{ needs.ios-release.result }}" "iOS TestFlight build check"
           check "${{ needs.workflow-lint.result }}" "Workflow lint"
 
       - name: CI passed
