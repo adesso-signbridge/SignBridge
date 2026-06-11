@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "sign_bridge" "\0"
+            VALUE "CompanyName", "adesso SE" "\0"
+            VALUE "FileDescription", "SignBridge" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "sign_bridge" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 adesso SE. All rights reserved." "\0"
             VALUE "OriginalFilename", "sign_bridge.exe" "\0"
-            VALUE "ProductName", "sign_bridge" "\0"
+            VALUE "ProductName", "SignBridge" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
