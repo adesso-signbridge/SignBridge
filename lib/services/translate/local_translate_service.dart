@@ -31,6 +31,7 @@ final class LocalTranslateService implements TranslateService {
   DateTime? _startedAt;
   String _languageCode = 'ENG';
   String _latestWords = '';
+  String _sessionCaption = '';
   final SpeechTranscriptAccumulator _transcript = SpeechTranscriptAccumulator();
   String? _activeLocaleId;
   bool _isListening = false;
@@ -208,6 +209,8 @@ final class LocalTranslateService implements TranslateService {
     _shuttingDown = true;
     await _stopCapture(flushFinal: true);
     _shuttingDown = false;
+    _transcript.finalizeOpenDraft();
+    _syncSessionCaption(_transcript.live);
 
     final elapsed = DateTime.now().difference(_startedAt ?? DateTime.now());
     if (_latestWords.trim().isEmpty) {
@@ -235,6 +238,7 @@ final class LocalTranslateService implements TranslateService {
     await _closeLevelStream();
     await _closeErrorStream();
     _latestWords = '';
+    _sessionCaption = '';
     _transcript.reset();
     _latestUpdate = null;
     _startedAt = null;
@@ -252,6 +256,7 @@ final class LocalTranslateService implements TranslateService {
     _languageCode = languageCode;
     _startedAt = DateTime.now();
     _latestWords = '';
+    _sessionCaption = '';
     _transcript.reset();
     _sessionActive = true;
     _autoResumeEnabled = true;
@@ -306,8 +311,8 @@ final class LocalTranslateService implements TranslateService {
     if (status == SpeechToText.doneStatus || status == 'doneNoResult') {
       // Continuous dictation: commit this chunk, then start a fresh listen session
       // (speech_to_text issue #63 / plugin stress-test pattern).
-      _transcript.finalizeOpenDraft();
-      _latestWords = _transcript.live;
+      _transcript.onRecognizerReset();
+      _syncSessionCaption(_transcript.live);
       if (_latestWords.trim().isNotEmpty) {
         _emitUpdate(isFinal: false);
       }
@@ -333,7 +338,7 @@ final class LocalTranslateService implements TranslateService {
     }
     _resumeInFlight = true;
     _isListening = false;
-    _latestWords = _transcript.live;
+    _syncSessionCaption(_transcript.live);
     try {
       await Future<void>.delayed(const Duration(milliseconds: 120));
       if (!_sessionActive ||
@@ -530,10 +535,25 @@ final class LocalTranslateService implements TranslateService {
     if (nextLive.isEmpty) {
       return;
     }
-    _latestWords = nextLive;
-    if (nextLive != previousLive || result.finalResult) {
+    final captionBefore = _sessionCaption;
+    _syncSessionCaption(nextLive);
+    if (_sessionCaption != captionBefore ||
+        nextLive != previousLive ||
+        result.finalResult) {
       _emitUpdate(isFinal: result.finalResult);
     }
+  }
+
+  void _syncSessionCaption(String incoming) {
+    final merged = SpeechTranscriptAccumulator.mergeSessionCaption(
+      _sessionCaption,
+      incoming,
+    );
+    if (merged.isEmpty) {
+      return;
+    }
+    _sessionCaption = merged;
+    _latestWords = merged;
   }
 
   void _startMockListening() {
@@ -556,8 +576,8 @@ final class LocalTranslateService implements TranslateService {
 
       _mockWordIndex++;
       final partial = words.take(_mockWordIndex).join(' ');
-      _latestWords = partial;
-      _emitUpdate(isFinal: false, overrideText: partial);
+      _syncSessionCaption(partial);
+      _emitUpdate(isFinal: false);
     });
   }
 

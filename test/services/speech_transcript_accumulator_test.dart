@@ -132,6 +132,45 @@ void main() {
     );
   });
 
+  test('mergeSessionCaption grows across unrelated STT chunks', () {
+    var caption = '';
+    caption = SpeechTranscriptAccumulator.mergeSessionCaption(
+      caption,
+      'Good morning everyone.',
+    );
+    caption = SpeechTranscriptAccumulator.mergeSessionCaption(
+      caption,
+      'Thanks for joining today.',
+    );
+    caption = SpeechTranscriptAccumulator.mergeSessionCaption(
+      caption,
+      'Let us begin.',
+    );
+
+    expect(
+      caption,
+      'Good morning everyone. Thanks for joining today. Let us begin.',
+    );
+  });
+
+  test('mergeSessionCaption never shortens on regressive STT text', () {
+    const previous = 'Hello how are you today';
+    expect(
+      SpeechTranscriptAccumulator.mergeSessionCaption(previous, 'Hello how'),
+      previous,
+    );
+  });
+
+  test('mergeSessionCaption joins overlapping chunk boundaries once', () {
+    expect(
+      SpeechTranscriptAccumulator.mergeSessionCaption(
+        'I need help',
+        'help now please',
+      ),
+      'I need help now please',
+    );
+  });
+
   test('segment-only partial after long committed text is not rejected', () {
     final transcript = SpeechTranscriptAccumulator();
     transcript.applyFinal('One.');

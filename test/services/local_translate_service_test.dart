@@ -18,6 +18,26 @@ void main() {
       },
     );
 
+    test('mock captions only grow until stop', () async {
+      final service = LocalTranslateService(forceMockListening: true);
+      await service.prepareListening('ENG');
+
+      final updates = <TalkListenUpdate>[];
+      final sub = service.listenUpdates().listen(updates.add);
+      await service.activateListening();
+
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      await sub.cancel();
+
+      expect(updates.length, greaterThan(2));
+      var previousLength = 0;
+      for (final update in updates) {
+        expect(update.fullTranscript.length, greaterThanOrEqualTo(previousLength));
+        previousLength = update.fullTranscript.length;
+      }
+      expect(updates.last.fullTranscript, contains('Hello'));
+    });
+
     test('subscribe before activate receives partial captions', () async {
       final service = LocalTranslateService(forceMockListening: true);
       await service.prepareListening('ENG');

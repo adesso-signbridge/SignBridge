@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 /// Merges partial and final speech-recognition segments into one live caption.
 ///
 /// Follows the same model as [speech_to_text] samples and continuous-listen apps:
@@ -111,6 +113,66 @@ final class SpeechTranscriptAccumulator {
       return;
     }
     _lines.add(phrase);
+  }
+
+  /// Keeps the longest caption for a listen session — never shortens on STT resets.
+  static String mergeSessionCaption(String previous, String incoming) {
+    final prev = previous.trim();
+    final next = incoming.trim();
+    if (next.isEmpty) {
+      return prev;
+    }
+    if (prev.isEmpty) {
+      return next;
+    }
+    if (next == prev) {
+      return prev;
+    }
+    if (next.startsWith(prev)) {
+      return next;
+    }
+    if (prev.startsWith(next)) {
+      return prev;
+    }
+    if (prev.endsWith(next)) {
+      return prev;
+    }
+    final overlapWords = _sharedWordOverlapCount(prev, next);
+    if (overlapWords != null && overlapWords > 0) {
+      final rightWords = next.split(RegExp(r'\s+'));
+      final remainder = rightWords.sublist(overlapWords).join(' ');
+      if (remainder.isEmpty) {
+        return prev;
+      }
+      return '$prev $remainder';
+    }
+    return '$prev $next';
+  }
+
+  static int? _sharedWordOverlapCount(String left, String right) {
+    final leftWords = left.split(RegExp(r'\s+'));
+    final rightWords = right.split(RegExp(r'\s+'));
+    final max = math.min(leftWords.length, rightWords.length);
+    for (var size = max; size > 0; size--) {
+      final suffix = leftWords.sublist(leftWords.length - size);
+      final prefix = rightWords.sublist(0, size);
+      if (_wordListsEqual(suffix, prefix)) {
+        return size;
+      }
+    }
+    return null;
+  }
+
+  static bool _wordListsEqual(List<String> a, List<String> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].toLowerCase() != b[i].toLowerCase()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   static bool _isDuplicateTail(String committed, String segment) {

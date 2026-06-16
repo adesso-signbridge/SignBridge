@@ -43,7 +43,7 @@ class TalkListeningContent extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: _hasCaption
-                ? _TranscriptBubble(transcript: liveResult!.transcript)
+                ? _TranscriptBubble(transcript: liveResult!.fullTranscript)
                 : _SessionStatusBubble(label: uiCopy.listeningLabel),
           ),
         ),
