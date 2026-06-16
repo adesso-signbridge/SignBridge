@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import '../../../core/platform/camera_permission.dart';
 import '../../../core/platform/sign_camera_test_mode.dart';
 import '../../../core/platform/microphone_permission.dart';
+import '../../../core/platform/speech_permission.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/home/home_service.dart';
+import '../../../services/caption/caption_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_service.dart';
 import '../../../services/translate/translate_service.dart';
@@ -26,6 +28,7 @@ class HomeScreen extends StatefulWidget {
     required this.translateService,
     required this.signCaptureService,
     required this.phraseSpeechService,
+    required this.captionService,
     required this.selectedLanguageCode,
     required this.uiCopy,
     required this.onMenuTap,
@@ -36,6 +39,7 @@ class HomeScreen extends StatefulWidget {
   final TranslateService translateService;
   final SignCaptureService signCaptureService;
   final PhraseSpeechService phraseSpeechService;
+  final CaptionService captionService;
   final String selectedLanguageCode;
   final HomeUiCopy uiCopy;
   final VoidCallback onMenuTap;
@@ -51,9 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
   TalkSessionPhase _sessionPhase = TalkSessionPhase.idle;
   TalkListenResult? _listenResult;
   bool _listenInFlight = false;
+  bool _stopInFlight = false;
   int _listenGeneration = 0;
   int _signPulse = 0;
   double _audioLevel = 0;
+  String _captionSessionId = '';
+  String _lastPauseSubmittedCaption = '';
+  bool _pauseSubmitInFlight = false;
+  String _pendingPauseCaption = '';
   StreamSubscription<TalkListenUpdate>? _listenSubscription;
   StreamSubscription<String>? _listenErrorSubscription;
   StreamSubscription<double>? _audioLevelSubscription;
@@ -67,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _cancelSessionTimers();
     _listenSubscription?.cancel();
+    _listenErrorSubscription?.cancel();
     _stopAudioLevelSubscription();
     _disposeSignCamera();
     unawaited(widget.translateService.cancelListening());
@@ -189,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _analyzeSignVideo(String videoPath) async {
     final generation = _signGeneration;
+    _disposeSignCamera();
     setState(() => _signPhase = SignFlowPhase.analyzing);
     try {
       final result = await widget.signCaptureService.analyzeRecording(
@@ -217,6 +228,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!result.hasText) {
       return;
     }
+    _disposeSignCamera();
+    await widget.translateService.cancelListening();
     await widget.phraseSpeechService.speak(
       result.text,
       widget.selectedLanguageCode,
@@ -232,8 +245,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _disposeSignCamera() {
-    _signCameraController?.dispose();
+    final controller = _signCameraController;
     _signCameraController = null;
+    if (controller != null && controller.value.isInitialized) {
+      unawaited(controller.dispose());
+    }
   }
 
   Future<void> _startListening() async {
@@ -254,6 +270,14 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    final speechGranted = await speechPermissionRequester();
+    if (!speechGranted) {
+      if (mounted) {
+        _showListenError(widget.uiCopy.listenStartFailedLabel);
+      }
+      return;
+    }
+
     if (!mounted || generation != _listenGeneration) {
       return;
     }
@@ -264,6 +288,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = null;
       _audioLevel = 0;
       _signPulse = 0;
+      _captionSessionId = DateTime.now().millisecondsSinceEpoch.toString();
+      _lastPauseSubmittedCaption = '';
+      _pauseSubmitInFlight = false;
+      _pendingPauseCaption = '';
     });
 
     await _listenSubscription?.cancel();
@@ -367,6 +395,71 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (update.isFinal && update.fullTranscript.trim().isEmpty) {
       unawaited(_handleNoSpeechDetected(generation));
+      return;
+    }
+
+    // Send to Firebase only when the user pauses speaking long enough for the
+    // recognizer to end the chunk (see LocalTranslateService pauseFor).
+    if (update.isFinal) {
+      unawaited(_submitPauseCaption(update: update, generation: generation));
+    }
+  }
+
+  Future<void> _submitPauseCaption({
+    required TalkListenUpdate update,
+    required int generation,
+  }) async {
+    final sessionId = _captionSessionId;
+    if (sessionId.isEmpty || generation != _listenGeneration) {
+      return;
+    }
+
+    final caption = update.fullTranscript.trim();
+    if (caption.isEmpty) {
+      return;
+    }
+
+    if (caption == _lastPauseSubmittedCaption) {
+      return;
+    }
+
+    if (_pauseSubmitInFlight) {
+      _pendingPauseCaption = caption;
+      return;
+    }
+
+    _pauseSubmitInFlight = true;
+    try {
+      await widget.captionService.submitCaption(
+        caption: caption,
+        signLanguage: update.signSystem.label,
+        spokenLanguageCode: widget.selectedLanguageCode,
+        sessionId: sessionId,
+      );
+      if (generation == _listenGeneration && sessionId == _captionSessionId) {
+        _lastPauseSubmittedCaption = caption;
+      }
+    } finally {
+      _pauseSubmitInFlight = false;
+    }
+
+    // If we received another final while the write was in flight, send the
+    // latest one once (no recursion, no overlap).
+    final pending = _pendingPauseCaption;
+    _pendingPauseCaption = '';
+    if (pending.isNotEmpty &&
+        pending != _lastPauseSubmittedCaption &&
+        generation == _listenGeneration &&
+        sessionId == _captionSessionId) {
+      await widget.captionService.submitCaption(
+        caption: pending,
+        signLanguage: update.signSystem.label,
+        spokenLanguageCode: widget.selectedLanguageCode,
+        sessionId: sessionId,
+      );
+      if (generation == _listenGeneration && sessionId == _captionSessionId) {
+        _lastPauseSubmittedCaption = pending;
+      }
     }
   }
 
@@ -386,6 +479,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
     });
+    _captionSessionId = '';
+    _lastPauseSubmittedCaption = '';
+    _pauseSubmitInFlight = false;
+    _pendingPauseCaption = '';
     _showListenError(widget.uiCopy.noSpeechDetectedLabel);
   }
 
@@ -406,6 +503,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
     });
+    _captionSessionId = '';
+    _lastPauseSubmittedCaption = '';
+    _pauseSubmitInFlight = false;
+    _pendingPauseCaption = '';
   }
 
   Future<void> _stopListening() async {
@@ -413,6 +514,11 @@ class _HomeScreenState extends State<HomeScreen> {
         _sessionPhase == TalkSessionPhase.stopped) {
       return;
     }
+    if (_stopInFlight) {
+      return;
+    }
+
+    setState(() => _stopInFlight = true);
 
     _cancelSessionTimers();
     final generation = ++_listenGeneration;
@@ -443,6 +549,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _listenInFlight = false;
+      _stopInFlight = false;
       _listenResult = result;
       _sessionPhase = TalkSessionPhase.stopped;
     });
@@ -906,96 +1013,88 @@ class _TalkActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (mode == _TalkControlsMode.listenRecording) {
-      return Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _TalkActionButton(
-              key: const Key('talk_stop_button'),
-              backgroundColor: AppColors.talkStopRed,
-              icon: Icons.mic_off_outlined,
-              label: uiCopy.tapToStop,
-              onTap: onStopTap,
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _TalkActionButton(
+            key: const Key('talk_stop_button'),
+            backgroundColor: AppColors.talkStopRed,
+            icon: Icons.mic_off_outlined,
+            label: uiCopy.tapToStop,
+            onTap: onStopTap,
+          ),
+          Opacity(
+            opacity: AppSpacing.talkSessionSignMutedOpacity,
+            child: _TalkActionButton(
+              backgroundColor: AppColors.splashBlue,
+              shadowColor: AppColors.talkButtonShadow,
+              icon: Icons.videocam_outlined,
+              label: uiCopy.tapToSign,
+              onTap: () {},
             ),
-            const SizedBox(width: AppSpacing.talkButtonGap),
-            Opacity(
-              opacity: AppSpacing.talkSessionSignMutedOpacity,
-              child: _TalkActionButton(
-                backgroundColor: AppColors.splashBlue,
-                shadowColor: AppColors.talkButtonShadow,
-                icon: Icons.videocam_outlined,
-                label: uiCopy.tapToSign,
-                onTap: () {},
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
     if (mode == _TalkControlsMode.signRecording) {
-      return Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Opacity(
-              opacity: AppSpacing.talkSessionSignMutedOpacity,
-              child: _TalkActionButton(
-                backgroundColor: AppColors.splashBlue,
-                shadowColor: AppColors.talkButtonShadow,
-                icon: Icons.mic_none_outlined,
-                label: uiCopy.tapToListen,
-                onTap: () {},
-              ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Opacity(
+            opacity: AppSpacing.talkSessionSignMutedOpacity,
+            child: _TalkActionButton(
+              backgroundColor: AppColors.splashBlue,
+              shadowColor: AppColors.talkButtonShadow,
+              icon: Icons.mic_none_outlined,
+              label: uiCopy.tapToListen,
+              onTap: () {},
             ),
-            const SizedBox(width: AppSpacing.talkButtonGap),
-            _TalkActionButton(
-              key: const Key('talk_translate_button'),
-              backgroundColor: AppColors.talkStopRed,
-              icon: Icons.translate_rounded,
-              label: uiCopy.tapToTranslate,
-              onTap: onTranslateTap,
-            ),
-          ],
-        ),
+          ),
+          _TalkActionButton(
+            key: const Key('talk_translate_button'),
+            backgroundColor: AppColors.talkStopRed,
+            icon: Icons.translate_rounded,
+            label: uiCopy.tapToTranslate,
+            onTap: onTranslateTap,
+          ),
+        ],
       );
     }
 
     if (mode == _TalkControlsMode.signAnalyzing) {
-      return Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Opacity(
-              opacity: AppSpacing.talkSessionSignMutedOpacity,
-              child: _TalkActionButton(
-                backgroundColor: AppColors.splashBlue,
-                shadowColor: AppColors.talkButtonShadow,
-                icon: Icons.mic_none_outlined,
-                label: uiCopy.tapToListen,
-                onTap: () {},
-              ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Opacity(
+            opacity: AppSpacing.talkSessionSignMutedOpacity,
+            child: _TalkActionButton(
+              backgroundColor: AppColors.splashBlue,
+              shadowColor: AppColors.talkButtonShadow,
+              icon: Icons.mic_none_outlined,
+              label: uiCopy.tapToListen,
+              onTap: () {},
             ),
-            const SizedBox(width: AppSpacing.talkButtonGap),
-            Opacity(
-              opacity: AppSpacing.talkSessionSignMutedOpacity,
-              child: _TalkActionButton(
-                backgroundColor: AppColors.splashBlue,
-                shadowColor: AppColors.talkButtonShadow,
-                icon: Icons.videocam_outlined,
-                label: uiCopy.tapToSign,
-                onTap: () {},
-              ),
+          ),
+          Opacity(
+            opacity: AppSpacing.talkSessionSignMutedOpacity,
+            child: _TalkActionButton(
+              backgroundColor: AppColors.splashBlue,
+              shadowColor: AppColors.talkButtonShadow,
+              icon: Icons.videocam_outlined,
+              label: uiCopy.tapToSign,
+              onTap: () {},
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
-    if (mode == _TalkControlsMode.stopped || mode == _TalkControlsMode.signSpoken) {
+    if (mode == _TalkControlsMode.stopped ||
+        mode == _TalkControlsMode.signSpoken) {
       return Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1057,7 +1156,6 @@ class _TalkActionButton extends StatelessWidget {
     super.key,
     required this.backgroundColor,
     this.shadowColor = AppColors.talkButtonShadow,
-    this.ringShadow = false,
     required this.icon,
     required this.label,
     required this.onTap,
@@ -1065,7 +1163,6 @@ class _TalkActionButton extends StatelessWidget {
 
   final Color backgroundColor;
   final Color shadowColor;
-  final bool ringShadow;
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -1077,6 +1174,7 @@ class _TalkActionButton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: Container(
             width: AppTypography.talkButtonSize,
@@ -1084,21 +1182,13 @@ class _TalkActionButton extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: backgroundColor,
-              boxShadow: ringShadow
-                  ? const [
-                      BoxShadow(
-                        color: AppColors.talkStopRing,
-                        spreadRadius: AppSpacing.talkSessionStopRing,
-                        blurRadius: 0,
-                      ),
-                    ]
-                  : [
-                      BoxShadow(
-                        color: shadowColor,
-                        blurRadius: 16,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
+              boxShadow: [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 16,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: Icon(
               icon,
@@ -1108,17 +1198,20 @@ class _TalkActionButton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.talkButtonToLabel),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          softWrap: true,
-          style: const TextStyle(
-            fontFamily: 'Klavika',
-            fontWeight: FontWeight.w400,
-            fontSize: AppTypography.talkButtonLabel,
-            height: AppTypography.talkButtonLabelLineHeight,
-            color: AppColors.talkMutedText,
+        SizedBox(
+          width: AppTypography.talkButtonSize,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            softWrap: true,
+            style: const TextStyle(
+              fontFamily: 'Klavika',
+              fontWeight: FontWeight.w400,
+              fontSize: AppTypography.talkButtonLabel,
+              height: AppTypography.talkButtonLabelLineHeight,
+              color: AppColors.talkMutedText,
+            ),
           ),
         ),
       ],

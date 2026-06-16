@@ -4,6 +4,7 @@ import 'package:sign_bridge/app/sign_bridge_app.dart';
 import 'package:sign_bridge/core/di/service_locator.dart';
 import 'package:sign_bridge/core/platform/microphone_permission.dart';
 import 'package:sign_bridge/core/platform/sign_camera_test_mode.dart';
+import 'package:sign_bridge/core/platform/speech_permission.dart';
 import 'package:sign_bridge/services/translate/local_translate_service.dart';
 
 import 'services/mock_phrase_speech_service.dart';
@@ -24,6 +25,7 @@ void main() {
       phraseSpeech: mockPhraseSpeech,
     );
     microphonePermissionRequester = () async => true;
+    speechPermissionRequester = () async => true;
     mockPhraseSpeech.lastSpokenText = null;
     mockSignCapture.lastVideoPath = null;
   });

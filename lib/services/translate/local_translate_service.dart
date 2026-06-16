@@ -17,7 +17,13 @@ final class LocalTranslateService implements TranslateService {
   LocalTranslateService({
     SpeechToText? speechToText,
     @visibleForTesting this.forceMockListening = false,
-  }) : _speech = speechToText ?? SpeechToText();
+    bool? iosRollingRefinement,
+  }) : _speech = speechToText ?? SpeechToText(),
+       _transcript = SpeechTranscriptAccumulator(
+         iosRollingRefinement:
+             iosRollingRefinement ??
+             (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS),
+       );
 
   final SpeechToText _speech;
 
@@ -32,7 +38,8 @@ final class LocalTranslateService implements TranslateService {
   String _languageCode = 'ENG';
   String _latestWords = '';
   String _sessionCaption = '';
-  final SpeechTranscriptAccumulator _transcript = SpeechTranscriptAccumulator();
+  String _lastDoneEmittedCaption = '';
+  final SpeechTranscriptAccumulator _transcript;
   String? _activeLocaleId;
   bool _isListening = false;
   bool _sessionActive = false;
@@ -115,17 +122,29 @@ final class LocalTranslateService implements TranslateService {
       return true;
     }
 
-    if (!await _speech.hasPermission) {
-      return false;
-    }
-
     final engineReady = await _ensureSpeechEngineReady();
     if (!engineReady) {
       return false;
     }
 
-    // Use device default locale first — explicit tags can fail on some Samsung
-    // recognizers. Resolved locale is used only on retry after language errors.
+    // On iOS, `hasPermission` can remain false until after initialize() runs
+    // and the user is prompted. So we check it after ensuring engineReady.
+    if (!await _speech.hasPermission) {
+      return false;
+    }
+
+    // Prefer an explicit locale for non-English so the recognizer returns the
+    // native script (e.g., Hindi in Devanagari instead of romanization).
+    // Some OEM recognizers can be flaky with explicit tags, so fall back to the
+    // device default if startup fails.
+    final preferredLocaleId = _languageCode == 'ENG'
+        ? null
+        : await SpeechLocaleResolver.resolve(_speech, _languageCode);
+
+    final started = await _startSpeechCapture(localeId: preferredLocaleId);
+    if (started) {
+      return true;
+    }
     return _startSpeechCapture(localeId: null);
   }
 
@@ -239,6 +258,7 @@ final class LocalTranslateService implements TranslateService {
     await _closeErrorStream();
     _latestWords = '';
     _sessionCaption = '';
+    _lastDoneEmittedCaption = '';
     _transcript.reset();
     _latestUpdate = null;
     _startedAt = null;
@@ -257,6 +277,7 @@ final class LocalTranslateService implements TranslateService {
     _startedAt = DateTime.now();
     _latestWords = '';
     _sessionCaption = '';
+    _lastDoneEmittedCaption = '';
     _transcript.reset();
     _sessionActive = true;
     _autoResumeEnabled = true;
@@ -312,9 +333,14 @@ final class LocalTranslateService implements TranslateService {
       // Continuous dictation: commit this chunk, then start a fresh listen session
       // (speech_to_text issue #63 / plugin stress-test pattern).
       _transcript.onRecognizerReset();
+      final captionBefore = _sessionCaption;
       _syncSessionCaption(_transcript.live);
-      if (_latestWords.trim().isNotEmpty) {
-        _emitUpdate(isFinal: false);
+      final captionNow = _sessionCaption.trim();
+      if (captionNow.isNotEmpty &&
+          captionNow != _lastDoneEmittedCaption &&
+          captionNow != captionBefore) {
+        _lastDoneEmittedCaption = captionNow;
+        _emitUpdate(isFinal: true);
       }
       if (status == SpeechToText.doneStatus &&
           _autoResumeEnabled &&
@@ -340,7 +366,10 @@ final class LocalTranslateService implements TranslateService {
     _isListening = false;
     _syncSessionCaption(_transcript.live);
     try {
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+      // Some Android recognizers need a bit of breathing room after a chunk ends
+      // (doneStatus) before a new listen() starts, otherwise they can return
+      // transient "busy" / "client" errors.
+      await Future<void>.delayed(const Duration(milliseconds: 450));
       if (!_sessionActive ||
           !_autoResumeEnabled ||
           _controller == null ||
@@ -362,7 +391,7 @@ final class LocalTranslateService implements TranslateService {
           }
           return;
         }
-        await Future<void>.delayed(const Duration(milliseconds: 180));
+        await Future<void>.delayed(const Duration(milliseconds: 350));
       }
     } finally {
       _resumeInFlight = false;
@@ -545,15 +574,30 @@ final class LocalTranslateService implements TranslateService {
   }
 
   void _syncSessionCaption(String incoming) {
-    final merged = SpeechTranscriptAccumulator.mergeSessionCaption(
-      _sessionCaption,
-      incoming,
-    );
-    if (merged.isEmpty) {
+    final next = incoming.trim();
+    if (next.isEmpty) {
       return;
     }
-    _sessionCaption = merged;
-    _latestWords = merged;
+
+    final prev = _sessionCaption.trim();
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      // iOS emits rolling refinements; merging the previous session string here
+      // caused stacks like "Hello one Hello 12 Hello 123...".
+      if (prev.isNotEmpty && prev.startsWith(next)) {
+        return;
+      }
+      _sessionCaption = next;
+    } else {
+      final merged = SpeechTranscriptAccumulator.mergeSessionCaption(
+        prev,
+        next,
+      );
+      if (merged.isEmpty) {
+        return;
+      }
+      _sessionCaption = merged;
+    }
+    _latestWords = _sessionCaption;
   }
 
   void _startMockListening() {

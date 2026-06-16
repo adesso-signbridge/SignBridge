@@ -118,11 +118,7 @@ class _DrawerCloseButton extends StatelessWidget {
         child: const SizedBox(
           width: _size,
           height: _size,
-          child: Icon(
-            Icons.close,
-            size: 20,
-            color: AppColors.white,
-          ),
+          child: Icon(Icons.close, size: 20, color: AppColors.white),
         ),
       ),
     );

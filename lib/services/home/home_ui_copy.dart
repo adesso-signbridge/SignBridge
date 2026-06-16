@@ -176,8 +176,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     analyzingSignsLabel: 'உங்கள் சைகைகள் பகுப்பாய்வு செய்யப்படுகின்றன…',
     spokenLabel: 'பேசப்பட்டது',
     replayLabel: 'மீண்டும் கேளுங்கள்',
-    cameraPermissionRequiredLabel:
-        'சைகைகளை பதிவு செய்ய கேமரா அனுமதி தேவை.',
+    cameraPermissionRequiredLabel: 'சைகைகளை பதிவு செய்ய கேமரா அனுமதி தேவை.',
     signCaptureFailedLabel:
         'சைகைகளை பகுப்பாய்வு செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
     listeningLabel: 'கேட்கிறது...',

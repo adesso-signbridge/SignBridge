@@ -618,7 +618,7 @@ class _ScrollableTranscriptTextState extends State<_ScrollableTranscriptText> {
   }
 
   void _scrollToEnd() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    void scrollOnce() {
       if (!_scrollController.hasClients) {
         return;
       }
@@ -626,8 +626,20 @@ class _ScrollableTranscriptTextState extends State<_ScrollableTranscriptText> {
       if (target <= 0) {
         return;
       }
-      _scrollController.jumpTo(target);
-    });
+      try {
+        _scrollController.animateTo(
+          target,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+        );
+      } catch (_) {
+        // Ignore transient scroll attach/detach during rapid rebuilds.
+      }
+    }
+
+    // Run after layout, and once again shortly after to catch fast-growing text.
+    WidgetsBinding.instance.addPostFrameCallback((_) => scrollOnce());
+    Future<void>.delayed(const Duration(milliseconds: 40), scrollOnce);
   }
 
   @override
@@ -651,7 +663,11 @@ class _ScrollableTranscriptTextState extends State<_ScrollableTranscriptText> {
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: widget.maxHeight),
-      child: SingleChildScrollView(controller: _scrollController, child: body),
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const ClampingScrollPhysics(),
+        child: body,
+      ),
     );
   }
 }
@@ -736,10 +752,7 @@ class TalkFullTranscriptHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _FullTranscriptHeader(
-      transcript: transcript,
-      metaLabel: metaLabel,
-    );
+    return _FullTranscriptHeader(transcript: transcript, metaLabel: metaLabel);
   }
 }
 

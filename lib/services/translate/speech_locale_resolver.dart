@@ -30,7 +30,10 @@ abstract final class SpeechLocaleResolver {
       }
     }
 
-    return locales.first.localeId;
+    // Don't fall back to an arbitrary locale (some devices return e.g. zh-CN as
+    // the first supported locale). Returning null lets the recognizer choose the
+    // device default instead.
+    return null;
   }
 
   static List<String> _candidatesFor(String languageCode) {
