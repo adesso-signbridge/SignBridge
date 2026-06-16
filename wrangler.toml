@@ -1,6 +1,7 @@
 name = "signbridge-gloss"
 main = "workers/gloss/index.js"
 compatibility_date = "2026-06-16"
+# Trigger redeploy: 2026-06-16
 
 # Non-secret defaults. Secrets (ADESSO_KEY, ADESSO_API_URL, FIREBASE_DB_SECRET,
 # WORKER_SHARED_KEY) are added in the Cloudflare dashboard, NOT here.
