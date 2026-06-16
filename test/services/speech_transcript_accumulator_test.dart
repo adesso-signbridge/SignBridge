@@ -1,6 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sign_bridge/services/translate/speech_transcript_accumulator.dart';
 
+SpeechTranscriptAccumulator _iosTranscript() {
+  return SpeechTranscriptAccumulator(iosRollingRefinement: true);
+}
+
 void main() {
   test('partial refinements grow one utterance', () {
     final transcript = SpeechTranscriptAccumulator();
@@ -168,6 +172,82 @@ void main() {
         'help now please',
       ),
       'I need help now please',
+    );
+  });
+
+  test('session caption sync trusts accumulator live text', () {
+    final transcript = _iosTranscript();
+    var session = '';
+
+    void syncSession(String incoming) {
+      final next = incoming.trim();
+      if (next.isEmpty) {
+        return;
+      }
+      final prev = session.trim();
+      if (prev.isNotEmpty && prev.startsWith(next)) {
+        return;
+      }
+      session = next;
+    }
+
+    for (final part in [
+      'Hello one',
+      'Hello 12',
+      'Hello 123 Mike test',
+      'Hello 123 Mike testing am I audible yes you are audible',
+    ]) {
+      transcript.applyFinal(part);
+      syncSession(transcript.live);
+    }
+
+    expect(session, 'Hello 123 Mike testing am I audible yes you are audible');
+    expect(session.contains('Hello one Hello 12'), isFalse);
+  });
+
+  test('ios progressive finals collapse to latest refinement', () {
+    final transcript = _iosTranscript();
+    for (final part in ['Hello one', 'Hello 12', 'Hello 123 Mike test']) {
+      transcript.applyFinal(part);
+    }
+
+    expect(transcript.live, 'Hello 123 Mike test');
+  });
+
+  test('ios progressive partials refine last commit not duplicate live', () {
+    final transcript = _iosTranscript();
+    transcript.applyFinal('Hello one');
+    transcript.applyPartial('Hello 12');
+    transcript.applyPartial('Hello 123 Mike test');
+
+    expect(transcript.live, 'Hello 123 Mike test');
+  });
+
+  test('new sentence after pause still appends', () {
+    final transcript = SpeechTranscriptAccumulator();
+    transcript.applyFinal('Hello world');
+    transcript.onRecognizerReset();
+    transcript.applyFinal('Second sentence');
+
+    expect(transcript.live, 'Hello world Second sentence');
+  });
+
+  test('ios replay partial does not repeat committed phrase', () {
+    final transcript = _iosTranscript();
+    transcript.applyFinal('hello world');
+    transcript.onRecognizerReset();
+    transcript.applyPartial('hello world hello world how are you');
+
+    expect(transcript.live, 'hello world how are you');
+  });
+
+  test('mergeSessionCaption strips ios replay in suffix', () {
+    expect(
+      SpeechTranscriptAccumulator.mergeSessionCaption(
+        'hello world',
+        'hello world hello world how are you',
+      ),
+      'hello world how are you',
     );
   });
 

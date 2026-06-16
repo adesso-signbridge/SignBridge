@@ -12,6 +12,12 @@ import 'dart:math' as math;
 /// This matches [accessibility_platform]'s caption list (one entry per segment)
 /// while staying on device STT instead of Whisper sliding windows.
 final class SpeechTranscriptAccumulator {
+  SpeechTranscriptAccumulator({this.iosRollingRefinement = false});
+
+  /// When true, applies iOS-specific dedupe for rolling phrase refinements
+  /// ("Hello one" -> "Hello 12" -> "Hello 123...") and chunk replay stripping.
+  final bool iosRollingRefinement;
+
   final List<String> _lines = [];
   String _hypothesis = '';
 
@@ -59,8 +65,12 @@ final class SpeechTranscriptAccumulator {
       }
       final anchor = base.trimRight();
       if (words.startsWith(base) || words.startsWith(anchor)) {
-        final offset = words.startsWith(base) ? base.length : anchor.length;
-        _hypothesis = words.substring(offset).trimLeft();
+        final prefix = words.startsWith(base) ? base : anchor;
+        final tail = _tailAfterPrefix(prefix, words);
+        if (tail == null) {
+          return;
+        }
+        _hypothesis = tail;
         return;
       }
       if (_lines.isNotEmpty) {
@@ -72,7 +82,19 @@ final class SpeechTranscriptAccumulator {
           }
           return;
         }
+        if (iosRollingRefinement && _replaceLastLineIfRefinement(words)) {
+          return;
+        }
       }
+    }
+
+    if (iosRollingRefinement &&
+        _hypothesis.isNotEmpty &&
+        _isSameUtteranceRefinement(_hypothesis, words)) {
+      if (!_hypothesis.startsWith(words)) {
+        _hypothesis = words;
+      }
+      return;
     }
 
     if (_hypothesis.startsWith(words) && words.length < _hypothesis.length) {
@@ -88,7 +110,22 @@ final class SpeechTranscriptAccumulator {
       return;
     }
     _hypothesis = '';
+    if (iosRollingRefinement && _replaceLastLineIfRefinement(text)) {
+      return;
+    }
     _commit(text);
+  }
+
+  bool _replaceLastLineIfRefinement(String words) {
+    if (_lines.isEmpty) {
+      return false;
+    }
+    final last = _lines.last.trim();
+    if (!_isSameUtteranceRefinement(last, words)) {
+      return false;
+    }
+    _lines[_lines.length - 1] = words.length >= last.length ? words : last;
+    return true;
   }
 
   void _commit(String text) {
@@ -103,8 +140,8 @@ final class SpeechTranscriptAccumulator {
       return;
     }
     if (phrase.startsWith(base)) {
-      final tail = phrase.substring(base.length).trimLeft();
-      if (tail.isNotEmpty && !_isDuplicateTail(base, tail)) {
+      final tail = _tailAfterPrefix(base, phrase);
+      if (tail != null) {
         _lines.add(tail);
       }
       return;
@@ -112,7 +149,60 @@ final class SpeechTranscriptAccumulator {
     if (_isDuplicateTail(base, phrase)) {
       return;
     }
+    if (iosRollingRefinement && _lines.isNotEmpty) {
+      final last = _lines.last.trim();
+      if (_isSameUtteranceRefinement(last, phrase)) {
+        _lines[_lines.length - 1] = phrase.length >= last.length
+            ? phrase
+            : last;
+        return;
+      }
+    }
     _lines.add(phrase);
+  }
+
+  /// iOS often emits several finals for the same rolling phrase (e.g. "Hello one"
+  /// then "Hello 12" then "Hello 123 Mike test"). Treat those as refinements.
+  static bool _isSameUtteranceRefinement(String previous, String next) {
+    final prev = previous.trim();
+    final nextText = next.trim();
+    if (prev.isEmpty || nextText.isEmpty) {
+      return false;
+    }
+    if (nextText == prev) {
+      return true;
+    }
+    if (nextText.startsWith(prev)) {
+      return true;
+    }
+    if (prev.startsWith(nextText)) {
+      return false;
+    }
+
+    final prevWords = prev.split(RegExp(r'\s+'));
+    final nextWords = nextText.split(RegExp(r'\s+'));
+    if (prevWords.isEmpty || nextWords.isEmpty) {
+      return false;
+    }
+    if (prevWords.first.toLowerCase() != nextWords.first.toLowerCase()) {
+      return false;
+    }
+
+    var sharedPrefixWords = 0;
+    final limit = math.min(prevWords.length, nextWords.length);
+    for (var i = 0; i < limit; i++) {
+      if (prevWords[i].toLowerCase() != nextWords[i].toLowerCase()) {
+        break;
+      }
+      sharedPrefixWords++;
+    }
+    if (sharedPrefixWords == 0) {
+      return false;
+    }
+
+    // iOS keeps refining the same rolling phrase; length may shrink briefly
+    // ("Hello one" -> "Hello 12") before growing again.
+    return true;
   }
 
   /// Keeps the longest caption for a listen session — never shortens on STT resets.
@@ -129,13 +219,39 @@ final class SpeechTranscriptAccumulator {
       return prev;
     }
     if (next.startsWith(prev)) {
-      return next;
+      var suffix = next.substring(prev.length).trimLeft();
+      if (suffix.isEmpty) {
+        return prev;
+      }
+      suffix = _stripReplayedPrefix(prev, suffix);
+      if (suffix.isEmpty || _isDuplicateTail(prev, suffix)) {
+        return prev;
+      }
+      return '$prev $suffix';
     }
     if (prev.startsWith(next)) {
       return prev;
     }
     if (prev.endsWith(next)) {
       return prev;
+    }
+    if (_isDuplicateTail(prev, next)) {
+      return prev;
+    }
+    if (next.length > prev.length && next.contains(prev)) {
+      final replayAt = next.indexOf(prev);
+      if (replayAt > 0) {
+        final prefix = next.substring(0, replayAt).trimRight();
+        var suffix = next.substring(replayAt + prev.length).trimLeft();
+        suffix = _stripReplayedPrefix(prev, suffix);
+        if (suffix.isEmpty) {
+          return prefix.isEmpty ? prev : '$prefix $prev'.trim();
+        }
+        if (prefix.isEmpty) {
+          return '$prev $suffix';
+        }
+        return '$prefix $prev $suffix';
+      }
     }
     final overlapWords = _sharedWordOverlapCount(prev, next);
     if (overlapWords != null && overlapWords > 0) {
@@ -173,6 +289,39 @@ final class SpeechTranscriptAccumulator {
       }
     }
     return true;
+  }
+
+  /// Extracts only the new words after [prefix], optionally stripping iOS replay.
+  String? _tailAfterPrefix(String prefix, String words) {
+    final anchor = prefix.trim();
+    final full = words.trim();
+    if (!full.startsWith(anchor)) {
+      return null;
+    }
+    var tail = full.substring(anchor.length).trimLeft();
+    if (tail.isEmpty) {
+      return null;
+    }
+    if (iosRollingRefinement) {
+      tail = _stripReplayedPrefix(anchor, tail);
+    }
+    if (tail.isEmpty || _isDuplicateTail(anchor, tail)) {
+      return null;
+    }
+    return tail;
+  }
+
+  /// iOS often replays the previous chunk inside the next partial/final.
+  static String _stripReplayedPrefix(String anchor, String text) {
+    var current = text.trim();
+    final replay = anchor.trim();
+    if (replay.isEmpty) {
+      return current;
+    }
+    while (current.startsWith(replay)) {
+      current = current.substring(replay.length).trimLeft();
+    }
+    return current;
   }
 
   static bool _isDuplicateTail(String committed, String segment) {

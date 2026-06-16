@@ -3,12 +3,20 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import 'phrase_speech_service.dart';
 
+typedef AudioSessionRelease = Future<void> Function();
+
 final class LocalPhraseSpeechService implements PhraseSpeechService {
-  LocalPhraseSpeechService({FlutterTts? tts}) : _ttsOverride = tts;
+  LocalPhraseSpeechService({
+    FlutterTts? tts,
+    AudioSessionRelease? releaseAudioSession,
+  }) : _ttsOverride = tts,
+       _releaseAudioSession = releaseAudioSession ?? (() async {});
 
   final FlutterTts? _ttsOverride;
+  final AudioSessionRelease _releaseAudioSession;
   FlutterTts? _tts;
   bool _initialized = false;
+  bool _iosAudioConfigured = false;
 
   FlutterTts get _engine => _tts ??= _ttsOverride ?? FlutterTts();
 
@@ -19,7 +27,27 @@ final class LocalPhraseSpeechService implements PhraseSpeechService {
     'ML': 'ml-IN',
   };
 
+  Future<void> _configureIosPlaybackSession() async {
+    if (_iosAudioConfigured ||
+        kIsWeb ||
+        defaultTargetPlatform != TargetPlatform.iOS) {
+      return;
+    }
+    await _engine.setSharedInstance(true);
+    await _engine.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playback,
+      [
+        IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
+        IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+      ],
+      IosTextToSpeechAudioMode.spokenAudio,
+    );
+    _iosAudioConfigured = true;
+  }
+
   Future<void> _ensureInitialized(String languageCode) async {
+    await _configureIosPlaybackSession();
+
     if (!_initialized) {
       await _engine.setSpeechRate(0.48);
       await _engine.setVolume(1);
@@ -28,13 +56,15 @@ final class LocalPhraseSpeechService implements PhraseSpeechService {
       _initialized = true;
     }
 
+    await _setLanguage(languageCode);
+  }
+
+  Future<void> _setLanguage(String languageCode) async {
     final locale = _localeByLanguage[languageCode] ?? 'en-US';
     try {
       await _engine.setLanguage(locale);
     } on Object {
-      if (kDebugMode) {
-        await _engine.setLanguage('en-US');
-      }
+      await _engine.setLanguage('en-US');
     }
   }
 
@@ -44,6 +74,13 @@ final class LocalPhraseSpeechService implements PhraseSpeechService {
     if (trimmed.isEmpty) {
       return;
     }
+
+    // Release STT / mic capture so iOS can route audio to the speaker.
+    await _releaseAudioSession();
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+    }
+
     await _ensureInitialized(languageCode);
     await _engine.stop();
     await _engine.speak(trimmed);
