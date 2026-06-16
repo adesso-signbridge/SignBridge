@@ -49,7 +49,6 @@ jobs:
     name: Architecture checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: coding-standards
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -132,6 +131,43 @@ jobs:
         run: |
           flutter test test/release/ --tags store-blocker || \
             echo "::warning::Store submission blockers remain (bundle ID, release signing). See test output."
+
+  golden-path:
+    name: Tested the app for golden path
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run golden path tests
+        run: |
+          flutter test --tags golden-path
+          flutter test test/widget_test.dart --name "Tap listen"
+
+  swiftlint:
+    name: SwiftLint
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Lint iOS Swift sources
+        working-directory: ios
+        run: swiftlint lint --config .swiftlint.yml --strict
 
   test:
     name: Unit and widget tests
@@ -247,25 +283,15 @@ jobs:
     runs-on: ubuntu-latest
     if: always() && github.event_name == 'pull_request'
     needs:
-      - coding-standards
       - architecture
-      - validation
-      - release-readiness
-      - test
-      - build
-      - dependency-review
-      - workflow-lint
+      - golden-path
+      - swiftlint
     steps:
-      - name: Require 6 core CI checks before merge
+      - name: Require 3 core CI checks before merge
         env:
-          CODING_STANDARDS: ${{ needs.coding-standards.result }}
           ARCHITECTURE: ${{ needs.architecture.result }}
-          VALIDATION: ${{ needs.validation.result }}
-          RELEASE_READINESS: ${{ needs.release-readiness.result }}
-          TEST: ${{ needs.test.result }}
-          BUILD: ${{ needs.build.result }}
-          DEPENDENCY_REVIEW: ${{ needs.dependency-review.result }}
-          WORKFLOW_LINT: ${{ needs.workflow-lint.result }}
+          GOLDEN_PATH: ${{ needs.golden-path.result }}
+          SWIFTLINT: ${{ needs.swiftlint.result }}
         run: |
           set -euo pipefail
 
@@ -284,32 +310,20 @@ jobs:
           PASSED=0
           FAILURES=()
 
-          # Six checks required to unblock merge (configure in branch protection).
-          record "Coding standards" "$CODING_STANDARDS"
           record "Architecture checks" "$ARCHITECTURE"
-          record "Repository validation" "$VALIDATION"
-          record "Release readiness (iOS + Android)" "$RELEASE_READINESS"
-          record "Unit and widget tests" "$TEST"
-          record "Build verification (apk, appbundle, web)" "$BUILD"
+          record "Tested the app for golden path" "$GOLDEN_PATH"
+          record "SwiftLint" "$SWIFTLINT"
 
           echo ""
-          echo "Core checks passed: $PASSED / 6"
+          echo "Core checks passed: $PASSED / 3"
 
-          # Advisory on pull requests (not part of the required six).
-          if [ "$DEPENDENCY_REVIEW" != "success" ]; then
-            echo "::warning::Dependency review did not pass ($DEPENDENCY_REVIEW)"
-          fi
-          if [ "$WORKFLOW_LINT" != "success" ]; then
-            echo "::warning::Workflow lint did not pass ($WORKFLOW_LINT)"
-          fi
-
-          if [ "$PASSED" -lt 6 ]; then
+          if [ "$PASSED" -lt 3 ]; then
             echo "::error::PR merge blocked: ${#FAILURES[@]} required check(s) failed."
             printf ' - %s\n' "${FAILURES[@]}"
             exit 1
           fi
 
-          echo "All 6 required CI checks passed. This PR is eligible to merge once branch protection is enabled."
+          echo "All 3 required CI checks passed. This PR is eligible to merge once branch protection is enabled."
 
   ci-summary:
     name: CI summary

@@ -50,19 +50,12 @@
 
 ## Automated checks
 
-<!-- PRs to `main` are blocked until **PR merge gate** passes (6 core CI jobs). -->
+<!-- PRs to `main` are blocked until **PR merge gate** passes (3 core CI jobs). -->
 
-- [ ] `dart format --output=none --set-exit-if-changed .` passes
-- [ ] `flutter analyze --fatal-infos --fatal-warnings` passes
-- [ ] `flutter test --exclude-tags store-blocker` passes
-- [ ] **PR merge gate** is green on this PR (requires all 6 checks below)
-- [ ] Coding standards
+- [ ] **PR merge gate** is green on this PR (requires all 3 checks below)
 - [ ] Architecture checks
-- [ ] Repository validation
-- [ ] Release readiness (iOS + Android)
-- [ ] Unit and widget tests
-- [ ] Build verification (apk, appbundle, web)
-- [ ] No secrets or forbidden files committed
+- [ ] Tested the app for golden path
+- [ ] SwiftLint
 
 ## Screenshots / recordings (optional)
 

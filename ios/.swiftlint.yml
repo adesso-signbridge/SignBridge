@@ -1,0 +1,11 @@
+included:
+  - Runner
+  - RunnerTests
+excluded:
+  - Pods
+  - .symlinks
+  - Flutter
+reporter: github-actions-logging
+line_length: 140
+identifier_name:
+  min_length: 2
