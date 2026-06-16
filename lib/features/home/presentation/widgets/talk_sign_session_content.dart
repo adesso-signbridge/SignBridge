@@ -144,7 +144,9 @@ class TalkSignSpokenContent extends StatelessWidget {
         Align(
           alignment: Alignment.centerRight,
           child: Padding(
-            padding: const EdgeInsets.only(top: AppSpacing.talkSessionStatusBottom),
+            padding: const EdgeInsets.only(
+              top: AppSpacing.talkSessionStatusBottom,
+            ),
             child: TalkSignSpokenMessage(
               transcript: signResult.text,
               metaLabel:
@@ -399,11 +401,7 @@ class TalkHeardSummaryHeader extends StatelessWidget {
 }
 
 class TalkReplayButton extends StatelessWidget {
-  const TalkReplayButton({
-    super.key,
-    required this.label,
-    required this.onTap,
-  });
+  const TalkReplayButton({super.key, required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;
@@ -416,7 +414,9 @@ class TalkReplayButton extends StatelessWidget {
       child: InkWell(
         key: const Key('talk_replay_button'),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.talkSignReplayPillRadius),
+        borderRadius: BorderRadius.circular(
+          AppSpacing.talkSignReplayPillRadius,
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           child: Row(

@@ -172,10 +172,7 @@ class SignCameraStageFrame extends StatelessWidget {
         ),
         child: Stack(
           fit: StackFit.expand,
-          children: [
-            child,
-            const SignCameraCornerBrackets(),
-          ],
+          children: [child, const SignCameraCornerBrackets()],
         ),
       ),
     );
@@ -196,22 +193,42 @@ class SignCameraCornerBrackets extends StatelessWidget {
         Positioned(
           top: inset,
           left: inset,
-          child: _SignCameraCorner(top: true, left: true, size: size, radius: radius),
+          child: _SignCameraCorner(
+            top: true,
+            left: true,
+            size: size,
+            radius: radius,
+          ),
         ),
         Positioned(
           top: inset,
           right: inset,
-          child: _SignCameraCorner(top: true, left: false, size: size, radius: radius),
+          child: _SignCameraCorner(
+            top: true,
+            left: false,
+            size: size,
+            radius: radius,
+          ),
         ),
         Positioned(
           bottom: inset,
           left: inset,
-          child: _SignCameraCorner(top: false, left: true, size: size, radius: radius),
+          child: _SignCameraCorner(
+            top: false,
+            left: true,
+            size: size,
+            radius: radius,
+          ),
         ),
         Positioned(
           bottom: inset,
           right: inset,
-          child: _SignCameraCorner(top: false, left: false, size: size, radius: radius),
+          child: _SignCameraCorner(
+            top: false,
+            left: false,
+            size: size,
+            radius: radius,
+          ),
         ),
       ],
     );
