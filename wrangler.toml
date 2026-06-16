@@ -1,0 +1,12 @@
+name = "signbridge-gloss"
+main = "workers/gloss/index.js"
+compatibility_date = "2026-06-16"
+
+# Non-secret defaults. Secrets (ADESSO_KEY, ADESSO_API_URL, FIREBASE_DB_SECRET,
+# WORKER_SHARED_KEY) are added in the Cloudflare dashboard, NOT here.
+# ADESSO_API_URL is intentionally NOT listed here because it is set as an
+# encrypted secret in the dashboard; defining it here too would conflict.
+[vars]
+ADESSO_MODEL = "qwen-3.6-35b-sovereign"
+FIREBASE_DB_URL = "https://signbridge-af728-default-rtdb.asia-southeast1.firebasedatabase.app"
+CAPTION_JOBS_PATH = "caption_jobs"
