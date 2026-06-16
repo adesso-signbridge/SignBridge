@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "201386548601",
+    "project_id": "signbridge-af728",
+    "storage_bucket": "signbridge-af728.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201386548601:android:1e27d737071f6c8996a3a8",
+        "android_client_info": {
+          "package_name": "com.adesso.signbridge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8c-VxR-wvuGOL3-lWAlFNkmhL5lka6qw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

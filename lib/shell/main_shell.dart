@@ -68,6 +68,7 @@ class _MainShellState extends State<MainShell> {
               translateService: services.translate,
               signCaptureService: services.signCapture,
               phraseSpeechService: services.phraseSpeech,
+              captionService: services.caption,
               selectedLanguageCode: _languageCode,
               uiCopy: uiCopy,
               onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
