@@ -205,6 +205,24 @@ abstract final class SignLanguageCatalog {
     return sequence.last;
   }
 
+  static SignToken tokenForGloss(String gloss, SignLanguageSystem system) {
+    final normalizedGloss = gloss.trim().toUpperCase();
+    if (normalizedGloss.isEmpty) {
+      return _fallbackToken('', system);
+    }
+
+    final lexicon = system == SignLanguageSystem.asl
+        ? _aslLexicon
+        : _islLexicon;
+    for (final token in lexicon.values) {
+      if (token.gloss == normalizedGloss) {
+        return token;
+      }
+    }
+
+    return _fallbackToken(normalizedGloss.toLowerCase(), system);
+  }
+
   static String glossLabel(SignToken token) => token.gloss;
 
   static SignToken _fallbackToken(

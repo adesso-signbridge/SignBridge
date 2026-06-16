@@ -34,14 +34,10 @@ final class LocalPhraseSpeechService implements PhraseSpeechService {
       return;
     }
     await _engine.setSharedInstance(true);
-    await _engine.setIosAudioCategory(
-      IosTextToSpeechAudioCategory.playback,
-      [
-        IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
-        IosTextToSpeechAudioCategoryOptions.mixWithOthers,
-      ],
-      IosTextToSpeechAudioMode.spokenAudio,
-    );
+    await _engine.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+      IosTextToSpeechAudioCategoryOptions.defaultToSpeaker,
+      IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+    ], IosTextToSpeechAudioMode.spokenAudio);
     _iosAudioConfigured = true;
   }
 

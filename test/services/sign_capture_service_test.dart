@@ -5,10 +5,7 @@ void main() {
   test('peekResult returns localized sample spoken text', () {
     final service = LocalSignCaptureService();
 
-    expect(
-      service.peekResult('ENG').text,
-      'My name is Alex. I am deaf.',
-    );
+    expect(service.peekResult('ENG').text, 'My name is Alex. I am deaf.');
     expect(service.peekResult('ENG').formattedDuration(), '01:00');
   });
 }

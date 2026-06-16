@@ -32,7 +32,10 @@ void main() {
       expect(updates.length, greaterThan(2));
       var previousLength = 0;
       for (final update in updates) {
-        expect(update.fullTranscript.length, greaterThanOrEqualTo(previousLength));
+        expect(
+          update.fullTranscript.length,
+          greaterThanOrEqualTo(previousLength),
+        );
         previousLength = update.fullTranscript.length;
       }
       expect(updates.last.fullTranscript, contains('Hello'));
