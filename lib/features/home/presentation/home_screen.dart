@@ -14,10 +14,10 @@ import '../../../core/theme/app_typography.dart';
 import '../../../services/caption/gloss_sequence_mapper.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_service.dart';
+import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_service.dart';
-import '../../../services/translate/sign_language_catalog.dart';
 import '../../../services/translate/translate_service.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
@@ -71,8 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _signRecordingActive = false;
   int _signGeneration = 0;
   CameraController? _signCameraController;
-  bool _isOnline = false;
   bool _cloudGlossInFlight = false;
+  String? _cloudGlossWord;
+  final LocalGlossService _localGlossService = LocalGlossService();
 
   @override
   void dispose() {
@@ -290,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = null;
       _audioLevel = 0;
       _signPulse = 0;
+      _cloudGlossWord = null;
     });
 
     await _listenSubscription?.cancel();
@@ -378,21 +380,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final previousTokenId = _listenResult?.signTokenId;
-  final previousGloss = _listenResult?.signingWord ?? '';
     setState(() {
       _listenInFlight = false;
-      final decorated = _decorateChip(update.toResult());
-      final nextResult = !update.isFinal &&
-              previousGloss.isNotEmpty &&
-              previousGloss != widget.uiCopy.signingListeningWord
-          ? decorated.copyWith(
-              signingWord: previousGloss,
-              signSequence: _listenResult?.signSequence ?? decorated.signSequence,
-              signTokenId: _listenResult?.signTokenId ?? decorated.signTokenId,
-            )
-          : decorated;
-      _listenResult = nextResult;
-      if (previousTokenId != nextResult.signTokenId) {
+      _listenResult = _listenResultForAvatar(update.toResult());
+      if (_cloudGlossWord != null &&
+          previousTokenId != _listenResult?.signTokenId) {
         _signPulse++;
       }
     });
@@ -406,28 +398,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Live chip gloss for the current phrase only (not accumulated session text).
-  TalkListenResult _decorateChip(TalkListenResult result) {
-    final caption = result.signingCaption.trim().isNotEmpty
-        ? result.signingCaption.trim()
-        : result.fullTranscript.trim();
-    if (caption.isEmpty) {
-      return result.copyWith(signingWord: '');
+  /// Keeps transcript live while the avatar waits for cloud gloss.
+  TalkListenResult _listenResultForAvatar(TalkListenResult raw) {
+    if (_cloudGlossWord != null && _listenResult != null) {
+      return raw.copyWith(
+        signingWord: _listenResult!.signingWord,
+        signTokenId: _listenResult!.signTokenId,
+        signSequence: _listenResult!.signSequence,
+        signSystem: _listenResult!.signSystem,
+      );
     }
 
-    final sequence = SignLanguageCatalog.sequenceFor(
-      caption,
+    final system = SignLanguageSystem.forSpokenLanguage(
       widget.selectedLanguageCode,
     );
-    final glossWord = sequence.map((token) => token.gloss).join(' ');
-    if (glossWord.isEmpty) {
-      return result.copyWith(signingWord: widget.uiCopy.signingListeningWord);
-    }
-
-    return result.copyWith(
-      signingWord: glossWord,
-      signSequence: sequence,
-      signTokenId: sequence.last.id,
+    return raw.copyWith(
+      signingWord: SignToken.thinking.gloss,
+      signTokenId: SignToken.thinking.id,
+      signSequence: const [],
+      signSystem: system,
     );
   }
 
@@ -510,29 +499,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _listenInFlight = false;
       _stopInFlight = false;
-      _listenResult = result;
+      _listenResult = _listenResultForAvatar(result);
       _sessionPhase = TalkSessionPhase.stopped;
     });
-    unawaited(_refreshConnectivity());
-  }
-
-  Future<void> _refreshConnectivity() async {
-    final online = await NetworkConnectivity.hasInternetConnection();
-    if (mounted) {
-      setState(() => _isOnline = online);
-    }
   }
 
   Future<void> _sendCaptionToCloud() async {
     final result = _listenResult;
     if (result == null || !result.hasTranscript) {
-      return;
-    }
-    if (!CloudflareGlossConfig.isConfigured) {
-      return;
-    }
-    if (!_isOnline) {
-      _showListenError(widget.uiCopy.noInternetLabel);
       return;
     }
     if (_cloudGlossInFlight) {
@@ -544,43 +518,89 @@ class _HomeScreenState extends State<HomeScreen> {
       final system = SignLanguageSystem.forSpokenLanguage(
         widget.selectedLanguageCode,
       );
-      final glossTokens = await widget.glossService.requestGloss(
-        jobId: DateTime.now().millisecondsSinceEpoch.toString(),
-        caption: result.fullTranscript,
-        signLanguage: system.label,
+      final jobId = DateTime.now().millisecondsSinceEpoch.toString();
+      final caption = result.fullTranscript;
+      final signLanguage = system.label;
+
+      final glossResult = await _requestGlossWithFallback(
+        jobId: jobId,
+        caption: caption,
+        signLanguage: signLanguage,
       );
       if (!mounted) {
         return;
       }
-      if (glossTokens.isEmpty) {
+      if (glossResult.tokens.isEmpty) {
         _showListenError(widget.uiCopy.cloudGlossFailedLabel);
         return;
       }
 
-      final sequence = GlossSequenceMapper.tokensFor(
-        glossSequence: glossTokens,
-        system: system,
-      );
-      setState(() {
-        _listenResult = result.copyWith(
-          signingWord: glossTokens.join(' '),
-          signSequence: sequence,
-          signTokenId: sequence.isNotEmpty
-              ? sequence.last.id
-              : result.signTokenId,
-          signSystem: system,
-        );
-        _signPulse++;
-      });
-    } on Object {
-      if (mounted) {
-        _showListenError(widget.uiCopy.cloudGlossFailedLabel);
+      if (glossResult.usedLocalFallback) {
+        _showListenError(widget.uiCopy.localGlossFallbackLabel);
       }
+
+      _applyGlossResult(
+        glossTokens: glossResult.tokens,
+        system: system,
+        result: result,
+      );
     } finally {
       if (mounted) {
         setState(() => _cloudGlossInFlight = false);
       }
     }
+  }
+
+  Future<({List<String> tokens, bool usedLocalFallback})> _requestGlossWithFallback({
+    required String jobId,
+    required String caption,
+    required String signLanguage,
+  }) async {
+    if (CloudflareGlossConfig.isConfigured) {
+      final online = await NetworkConnectivity.hasInternetConnection();
+      if (online) {
+        try {
+          final tokens = await widget.glossService.requestGloss(
+            jobId: jobId,
+            caption: caption,
+            signLanguage: signLanguage,
+          );
+          if (tokens.isNotEmpty) {
+            return (tokens: tokens, usedLocalFallback: false);
+          }
+        } on Object {
+          // Fall through to on-device gloss.
+        }
+      }
+    }
+
+    final localTokens = await _localGlossService.requestGloss(
+      jobId: jobId,
+      caption: caption,
+      signLanguage: signLanguage,
+    );
+    return (tokens: localTokens, usedLocalFallback: true);
+  }
+
+  void _applyGlossResult({
+    required List<String> glossTokens,
+    required SignLanguageSystem system,
+    required TalkListenResult result,
+  }) {
+    final sequence = GlossSequenceMapper.tokensFor(
+      glossSequence: glossTokens,
+      system: system,
+    );
+    setState(() {
+      _cloudGlossWord = glossTokens.join(' ');
+      _listenResult = _listenResultForAvatar(result).copyWith(
+        signingWord: _cloudGlossWord,
+        signSequence: sequence,
+        signTokenId: sequence.isNotEmpty ? sequence.last.id : result.signTokenId,
+        signSystem: system,
+      );
+      _signPulse++;
+    });
   }
 
   Future<void> _clearHistory() async {
@@ -602,6 +622,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
+      _cloudGlossWord = null;
       _signGeneration++;
       _signPhase = SignFlowPhase.idle;
       _signResult = null;
@@ -687,6 +708,9 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         liveResult: _listenResult,
         signPulse: _signPulse,
+        onSendCaption: _sendCaptionToCloud,
+        isSendingCaption: _cloudGlossInFlight,
+        cloudGlossWord: _cloudGlossWord,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -705,10 +729,9 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         result: _listenResult!,
         signPulse: _signPulse,
-        onSendCaption: CloudflareGlossConfig.isConfigured
-            ? _sendCaptionToCloud
-            : null,
+        onSendCaption: _sendCaptionToCloud,
         isSendingCaption: _cloudGlossInFlight,
+        cloudGlossWord: _cloudGlossWord,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),

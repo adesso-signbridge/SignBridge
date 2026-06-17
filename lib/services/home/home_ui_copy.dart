@@ -24,6 +24,7 @@ class HomeUiCopy {
     required this.noInternetLabel,
     required this.cloudGlossFailedLabel,
     required this.cloudGlossLoadingLabel,
+    required this.localGlossFallbackLabel,
     required this.talkTabLabel,
     required this.phrasesTabLabel,
     required this.settingsTitle,
@@ -59,6 +60,7 @@ class HomeUiCopy {
   final String noInternetLabel;
   final String cloudGlossFailedLabel;
   final String cloudGlossLoadingLabel;
+  final String localGlossFallbackLabel;
   final String talkTabLabel;
   final String phrasesTabLabel;
   final String settingsTitle;
@@ -97,6 +99,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noInternetLabel: 'Internet connection required to send caption.',
     cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     cloudGlossLoadingLabel: 'Getting AI gloss…',
+    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'Talk',
     phrasesTabLabel: 'Phrases',
     settingsTitle: 'Settings',
@@ -136,6 +139,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noInternetLabel: 'Internet connection required to send caption.',
     cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     cloudGlossLoadingLabel: 'Getting AI gloss…',
+    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'സംസാരം',
     phrasesTabLabel: 'വാചകങ്ങൾ',
     settingsTitle: 'ക്രമീകരണങ്ങൾ',
@@ -174,6 +178,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noInternetLabel: 'Internet connection required to send caption.',
     cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     cloudGlossLoadingLabel: 'Getting AI gloss…',
+    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'बातचीत',
     phrasesTabLabel: 'वाक्यांश',
     settingsTitle: 'सेटिंग्स',
@@ -212,6 +217,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noInternetLabel: 'Internet connection required to send caption.',
     cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     cloudGlossLoadingLabel: 'Getting AI gloss…',
+    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'பேச்சு',
     phrasesTabLabel: 'சொற்றொடர்கள்',
     settingsTitle: 'அமைப்புகள்',
