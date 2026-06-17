@@ -35,6 +35,18 @@ final class SpeechTranscriptAccumulator {
     return '$base $hypothesis';
   }
 
+  /// Current utterance for live signing gloss — not the full session history.
+  String get currentPhrase {
+    final open = _hypothesis.trim();
+    if (open.isNotEmpty) {
+      return open;
+    }
+    if (_lines.isEmpty) {
+      return '';
+    }
+    return _lines.last.trim();
+  }
+
   void reset() {
     _lines.clear();
     _hypothesis = '';

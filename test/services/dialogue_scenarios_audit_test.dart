@@ -1,0 +1,80 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:sign_bridge/services/translate/asl_sign_lexicon.dart';
+import 'package:sign_bridge/services/translate/english_lexicon.dart';
+import 'package:sign_bridge/services/translate/sign_gloss_mapper.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    await EnglishLexicon.load();
+    await AslSignLexicon.load();
+  });
+
+  test('dialogue scenarios audit report', () {
+    final sentences = File('test/fixtures/dialogue_scenarios_sentences.txt')
+        .readAsLinesSync()
+        .where((l) => l.trim().isNotEmpty)
+        .toList();
+    expect(sentences.length, greaterThan(60));
+
+    var hidden = 0;
+    var withGloss = 0;
+    var fingerspell3 = 0;
+
+    final hiddenSamples = <String>[];
+    final spellSamples = <String>[];
+
+    for (final sentence in sentences) {
+      final glosses =
+          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+
+      if (glosses.isEmpty) {
+        hidden++;
+        if (hiddenSamples.length < 20) {
+          hiddenSamples.add(sentence);
+        }
+        continue;
+      }
+
+      withGloss++;
+      final letters = glosses.where((g) => g.length == 1).length;
+      if (letters >= 3) {
+        fingerspell3++;
+        if (spellSamples.length < 25) {
+          spellSamples.add('$sentence => ${glosses.join(' ')}');
+        }
+      }
+    }
+
+    final n = sentences.length;
+    // ignore: avoid_print
+    print('=== DIALOGUE SCENARIOS AUDIT ($n utterances) ===');
+    // ignore: avoid_print
+    print('Coverage: $withGloss/$n (${(withGloss / n * 100).toStringAsFixed(1)}%)');
+    // ignore: avoid_print
+    print('Hidden: $hidden');
+    // ignore: avoid_print
+    print(
+      'Fingerspell 3+: $fingerspell3 (${(fingerspell3 / n * 100).toStringAsFixed(1)}%)',
+    );
+    // ignore: avoid_print
+    print('--- HIDDEN ---');
+    for (final s in hiddenSamples) {
+      // ignore: avoid_print
+      print('  $s');
+    }
+    // ignore: avoid_print
+    print('--- FINGERSPELL ---');
+    for (final s in spellSamples) {
+      // ignore: avoid_print
+      print('  $s');
+    }
+
+    expect(hidden, 0);
+    expect(withGloss, n);
+    expect(fingerspell3, 0);
+  });
+}

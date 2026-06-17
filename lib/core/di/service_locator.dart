@@ -2,6 +2,10 @@ import '../../services/home/home_service.dart';
 import '../../services/home/local_home_service.dart';
 import '../../services/caption/caption_service.dart';
 import '../../services/caption/local_caption_service.dart';
+import '../../services/gloss/cloudflare_gloss_config.dart';
+import '../../services/gloss/cloudflare_gloss_service.dart';
+import '../../services/gloss/gloss_service.dart';
+import '../../services/gloss/local_gloss_service.dart';
 import '../../services/phrases/local_phrase_speech_service.dart';
 import '../../services/phrases/local_phrases_service.dart';
 import '../../services/phrases/phrases_service.dart';
@@ -24,6 +28,7 @@ final class ServiceLocator {
     required this.translate,
     required this.signCapture,
     required this.caption,
+    required this.gloss,
     required this.phrases,
     required this.phraseSpeech,
     required this.sos,
@@ -38,6 +43,7 @@ final class ServiceLocator {
   final TranslateService translate;
   final SignCaptureService signCapture;
   final CaptionService caption;
+  final GlossService gloss;
   final PhrasesService phrases;
   final PhraseSpeechService phraseSpeech;
   final SosService sos;
@@ -47,6 +53,7 @@ final class ServiceLocator {
     TranslateService? translate,
     SignCaptureService? signCapture,
     CaptionService? caption,
+    GlossService? gloss,
     PhraseSpeechService? phraseSpeech,
   }) {
     final translateService = translate ?? LocalTranslateService();
@@ -56,6 +63,7 @@ final class ServiceLocator {
       translate: translateService,
       signCapture: signCapture ?? LocalSignCaptureService(),
       caption: caption ?? LocalCaptionService(),
+      gloss: gloss ?? _defaultGlossService(),
       phrases: LocalPhrasesService(),
       phraseSpeech:
           phraseSpeech ??
@@ -65,5 +73,12 @@ final class ServiceLocator {
       sos: LocalSosService(),
       settings: LocalSettingsService(),
     );
+  }
+
+  static GlossService _defaultGlossService() {
+    if (CloudflareGlossConfig.isConfigured) {
+      return CloudflareGlossService();
+    }
+    return LocalGlossService();
   }
 }

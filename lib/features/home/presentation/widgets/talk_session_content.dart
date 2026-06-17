@@ -22,8 +22,13 @@ class TalkListeningContent extends StatelessWidget {
 
   bool get _hasCaption => liveResult?.fullTranscript.isNotEmpty ?? false;
 
-  String get _signingWord =>
-      liveResult?.signingWord ?? uiCopy.signingListeningWord;
+  String get _signingWord {
+    final word = liveResult?.signingWord ?? '';
+    if (word.isNotEmpty) {
+      return word;
+    }
+    return _hasCaption ? uiCopy.signingListeningWord : '';
+  }
 
   String get _avatarAsset => _hasCaption
       ? 'assets/home/talk_flow/illu_signing.png'
@@ -142,10 +147,16 @@ class TalkStoppedContent extends StatelessWidget {
     super.key,
     required this.uiCopy,
     required this.result,
+    this.signPulse = 0,
+    this.onSendCaption,
+    this.isSendingCaption = false,
   });
 
   final HomeUiCopy uiCopy;
   final TalkListenResult result;
+  final int signPulse;
+  final VoidCallback? onSendCaption;
+  final bool isSendingCaption;
 
   @override
   Widget build(BuildContext context) {
@@ -157,23 +168,23 @@ class TalkStoppedContent extends StatelessWidget {
         metaLabel: result.hasTranscript
             ? '${uiCopy.heardLabel} · ${result.heardDuration}'
             : result.heardDuration,
+        onSendCaption: result.hasTranscript ? onSendCaption : null,
+        isSendingCaption: isSendingCaption,
+        sendTooltip: uiCopy.sendCaptionLabel,
       ),
-      stage: (height) => Opacity(
-        opacity: 0,
-        child: _TalkAvatarCardStage(
-          height: height,
-          fallbackAsset: 'assets/home/talk_flow/illu_signing.png',
-          signTokenId: result.signTokenId,
-          signSystem: result.signSystem,
-          signingWord: result.signingWord,
-          signPulse: 0,
-          signingChip: _OverlaySigningChip(
-            prefix: uiCopy.signingPrefix,
-            word: result.signingWord,
-            systemLabel: result.signSystem.label,
-          ),
-          thinkingDotsCount: 0,
+      stage: (height) => _TalkAvatarCardStage(
+        height: height,
+        fallbackAsset: 'assets/home/talk_flow/illu_signing.png',
+        signTokenId: result.signTokenId,
+        signSystem: result.signSystem,
+        signingWord: result.signingWord,
+        signPulse: signPulse,
+        signingChip: _OverlaySigningChip(
+          prefix: uiCopy.signingPrefix,
+          word: result.signingWord,
+          systemLabel: result.signSystem.label,
         ),
+        thinkingDotsCount: isSendingCaption ? 2 : 0,
       ),
     );
   }
@@ -328,10 +339,16 @@ class _FullTranscriptHeader extends StatelessWidget {
   const _FullTranscriptHeader({
     required this.transcript,
     required this.metaLabel,
+    this.onSendCaption,
+    this.isSendingCaption = false,
+    this.sendTooltip,
   });
 
   final String transcript;
   final String metaLabel;
+  final VoidCallback? onSendCaption;
+  final bool isSendingCaption;
+  final String? sendTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -347,7 +364,12 @@ class _FullTranscriptHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _SigningTranscriptBubble(transcript: transcript),
+              _SigningTranscriptBubble(
+                transcript: transcript,
+                onSendCaption: onSendCaption,
+                isSendingCaption: isSendingCaption,
+                sendTooltip: sendTooltip,
+              ),
               const SizedBox(height: AppSpacing.talkSessionMetaTop),
               _HeardMetaRow(label: metaLabel),
             ],
@@ -488,17 +510,28 @@ TextStyle get _transcriptTextStyle => const TextStyle(
 );
 
 class _SigningTranscriptBubble extends StatelessWidget {
-  const _SigningTranscriptBubble({required this.transcript});
+  const _SigningTranscriptBubble({
+    required this.transcript,
+    this.onSendCaption,
+    this.isSendingCaption = false,
+    this.sendTooltip,
+  });
 
   final String transcript;
+  final VoidCallback? onSendCaption;
+  final bool isSendingCaption;
+  final String? sendTooltip;
 
   @override
   Widget build(BuildContext context) {
     return _TalkBubbleContainer(
       borderColor: AppColors.talkHeardBubbleBorder,
-      child: _ScrollableTranscriptText(
+      child: _CaptionBubbleBody(
         transcript: transcript,
         maxHeight: AppSpacing.talkSessionFullTranscriptMaxHeight,
+        onSendCaption: onSendCaption,
+        isSendingCaption: isSendingCaption,
+        sendTooltip: sendTooltip,
       ),
     );
   }
@@ -571,13 +604,110 @@ class _TranscriptBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return _TalkBubbleContainer(
       borderColor: AppColors.splashBlue,
-      child: _ScrollableTranscriptText(
+      child: _CaptionBubbleBody(
         transcript: transcript,
         maxHeight: AppSpacing.talkSessionLiveTranscriptMaxHeight,
         trailing: Container(
           width: AppSpacing.talkSessionCursorWidth,
           height: AppSpacing.talkSessionCursorHeight,
           color: AppColors.splashBlue.withValues(alpha: 0.71),
+        ),
+      ),
+    );
+  }
+}
+
+class _CaptionBubbleBody extends StatelessWidget {
+  const _CaptionBubbleBody({
+    required this.transcript,
+    required this.maxHeight,
+    this.trailing,
+    this.onSendCaption,
+    this.isSendingCaption = false,
+    this.sendTooltip,
+  });
+
+  final String transcript;
+  final double maxHeight;
+  final Widget? trailing;
+  final VoidCallback? onSendCaption;
+  final bool isSendingCaption;
+  final String? sendTooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            right: onSendCaption != null ? 36 : 0,
+            bottom: onSendCaption != null ? 4 : 0,
+          ),
+          child: _ScrollableTranscriptText(
+            transcript: transcript,
+            maxHeight: maxHeight,
+            trailing: trailing,
+          ),
+        ),
+        if (onSendCaption != null)
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: _CaptionSendButton(
+              onPressed: isSendingCaption ? null : onSendCaption,
+              isLoading: isSendingCaption,
+              tooltip: sendTooltip ?? 'Send',
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CaptionSendButton extends StatelessWidget {
+  const _CaptionSendButton({
+    required this.onPressed,
+    required this.isLoading,
+    required this.tooltip,
+  });
+
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(20),
+          child: Ink(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: onPressed != null || isLoading
+                  ? AppColors.splashBlue
+                  : AppColors.splashBlue.withValues(alpha: 0.35),
+              shape: BoxShape.circle,
+            ),
+            child: isLoading
+                ? const Padding(
+                    padding: EdgeInsets.all(7),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.white,
+                    ),
+                  )
+                : const Icon(
+                    Icons.send_rounded,
+                    size: 16,
+                    color: AppColors.white,
+                  ),
+          ),
         ),
       ),
     );
@@ -685,6 +815,9 @@ class _OverlaySigningChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (word.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
     final systemSuffix = systemLabel == null ? '' : ' · $systemLabel';
     return Container(
       constraints: const BoxConstraints(maxWidth: 280),
