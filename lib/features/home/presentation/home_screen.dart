@@ -6,14 +6,18 @@ import 'package:flutter/material.dart';
 import '../../../core/platform/camera_permission.dart';
 import '../../../core/platform/sign_camera_test_mode.dart';
 import '../../../core/platform/microphone_permission.dart';
+import '../../../core/platform/network_connectivity.dart';
 import '../../../core/platform/speech_permission.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../services/caption/gloss_sequence_mapper.dart';
+import '../../../services/gloss/cloudflare_gloss_config.dart';
+import '../../../services/gloss/gloss_service.dart';
 import '../../../services/home/home_service.dart';
-import '../../../services/caption/caption_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_service.dart';
+import '../../../services/translate/sign_language_catalog.dart';
 import '../../../services/translate/translate_service.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
@@ -28,7 +32,7 @@ class HomeScreen extends StatefulWidget {
     required this.translateService,
     required this.signCaptureService,
     required this.phraseSpeechService,
-    required this.captionService,
+    required this.glossService,
     required this.selectedLanguageCode,
     required this.uiCopy,
     required this.onMenuTap,
@@ -39,7 +43,7 @@ class HomeScreen extends StatefulWidget {
   final TranslateService translateService;
   final SignCaptureService signCaptureService;
   final PhraseSpeechService phraseSpeechService;
-  final CaptionService captionService;
+  final GlossService glossService;
   final String selectedLanguageCode;
   final HomeUiCopy uiCopy;
   final VoidCallback onMenuTap;
@@ -59,10 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _listenGeneration = 0;
   int _signPulse = 0;
   double _audioLevel = 0;
-  String _captionSessionId = '';
-  String _lastPauseSubmittedCaption = '';
-  bool _pauseSubmitInFlight = false;
-  String _pendingPauseCaption = '';
   StreamSubscription<TalkListenUpdate>? _listenSubscription;
   StreamSubscription<String>? _listenErrorSubscription;
   StreamSubscription<double>? _audioLevelSubscription;
@@ -71,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _signRecordingActive = false;
   int _signGeneration = 0;
   CameraController? _signCameraController;
+  bool _isOnline = false;
+  bool _cloudGlossInFlight = false;
 
   @override
   void dispose() {
@@ -288,10 +290,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = null;
       _audioLevel = 0;
       _signPulse = 0;
-      _captionSessionId = DateTime.now().millisecondsSinceEpoch.toString();
-      _lastPauseSubmittedCaption = '';
-      _pauseSubmitInFlight = false;
-      _pendingPauseCaption = '';
     });
 
     await _listenSubscription?.cancel();
@@ -380,9 +378,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final previousTokenId = _listenResult?.signTokenId;
-    final nextResult = update.toResult();
+  final previousGloss = _listenResult?.signingWord ?? '';
     setState(() {
       _listenInFlight = false;
+      final decorated = _decorateChip(update.toResult());
+      final nextResult = !update.isFinal &&
+              previousGloss.isNotEmpty &&
+              previousGloss != widget.uiCopy.signingListeningWord
+          ? decorated.copyWith(
+              signingWord: previousGloss,
+              signSequence: _listenResult?.signSequence ?? decorated.signSequence,
+              signTokenId: _listenResult?.signTokenId ?? decorated.signTokenId,
+            )
+          : decorated;
       _listenResult = nextResult;
       if (previousTokenId != nextResult.signTokenId) {
         _signPulse++;
@@ -395,72 +403,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (update.isFinal && update.fullTranscript.trim().isEmpty) {
       unawaited(_handleNoSpeechDetected(generation));
-      return;
-    }
-
-    // Send to Firebase only when the user pauses speaking long enough for the
-    // recognizer to end the chunk (see LocalTranslateService pauseFor).
-    if (update.isFinal) {
-      unawaited(_submitPauseCaption(update: update, generation: generation));
     }
   }
 
-  Future<void> _submitPauseCaption({
-    required TalkListenUpdate update,
-    required int generation,
-  }) async {
-    final sessionId = _captionSessionId;
-    if (sessionId.isEmpty || generation != _listenGeneration) {
-      return;
-    }
-
-    final caption = update.fullTranscript.trim();
+  /// Live chip gloss for the current phrase only (not accumulated session text).
+  TalkListenResult _decorateChip(TalkListenResult result) {
+    final caption = result.signingCaption.trim().isNotEmpty
+        ? result.signingCaption.trim()
+        : result.fullTranscript.trim();
     if (caption.isEmpty) {
-      return;
+      return result.copyWith(signingWord: '');
     }
 
-    if (caption == _lastPauseSubmittedCaption) {
-      return;
+    final sequence = SignLanguageCatalog.sequenceFor(
+      caption,
+      widget.selectedLanguageCode,
+    );
+    final glossWord = sequence.map((token) => token.gloss).join(' ');
+    if (glossWord.isEmpty) {
+      return result.copyWith(signingWord: widget.uiCopy.signingListeningWord);
     }
 
-    if (_pauseSubmitInFlight) {
-      _pendingPauseCaption = caption;
-      return;
-    }
-
-    _pauseSubmitInFlight = true;
-    try {
-      await widget.captionService.submitCaption(
-        caption: caption,
-        signLanguage: update.signSystem.label,
-        spokenLanguageCode: widget.selectedLanguageCode,
-        sessionId: sessionId,
-      );
-      if (generation == _listenGeneration && sessionId == _captionSessionId) {
-        _lastPauseSubmittedCaption = caption;
-      }
-    } finally {
-      _pauseSubmitInFlight = false;
-    }
-
-    // If we received another final while the write was in flight, send the
-    // latest one once (no recursion, no overlap).
-    final pending = _pendingPauseCaption;
-    _pendingPauseCaption = '';
-    if (pending.isNotEmpty &&
-        pending != _lastPauseSubmittedCaption &&
-        generation == _listenGeneration &&
-        sessionId == _captionSessionId) {
-      await widget.captionService.submitCaption(
-        caption: pending,
-        signLanguage: update.signSystem.label,
-        spokenLanguageCode: widget.selectedLanguageCode,
-        sessionId: sessionId,
-      );
-      if (generation == _listenGeneration && sessionId == _captionSessionId) {
-        _lastPauseSubmittedCaption = pending;
-      }
-    }
+    return result.copyWith(
+      signingWord: glossWord,
+      signSequence: sequence,
+      signTokenId: sequence.last.id,
+    );
   }
 
   Future<void> _handleNoSpeechDetected(int generation) async {
@@ -479,10 +447,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
     });
-    _captionSessionId = '';
-    _lastPauseSubmittedCaption = '';
-    _pauseSubmitInFlight = false;
-    _pendingPauseCaption = '';
     _showListenError(widget.uiCopy.noSpeechDetectedLabel);
   }
 
@@ -503,10 +467,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
     });
-    _captionSessionId = '';
-    _lastPauseSubmittedCaption = '';
-    _pauseSubmitInFlight = false;
-    _pendingPauseCaption = '';
   }
 
   Future<void> _stopListening() async {
@@ -553,6 +513,74 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = result;
       _sessionPhase = TalkSessionPhase.stopped;
     });
+    unawaited(_refreshConnectivity());
+  }
+
+  Future<void> _refreshConnectivity() async {
+    final online = await NetworkConnectivity.hasInternetConnection();
+    if (mounted) {
+      setState(() => _isOnline = online);
+    }
+  }
+
+  Future<void> _sendCaptionToCloud() async {
+    final result = _listenResult;
+    if (result == null || !result.hasTranscript) {
+      return;
+    }
+    if (!CloudflareGlossConfig.isConfigured) {
+      return;
+    }
+    if (!_isOnline) {
+      _showListenError(widget.uiCopy.noInternetLabel);
+      return;
+    }
+    if (_cloudGlossInFlight) {
+      return;
+    }
+
+    setState(() => _cloudGlossInFlight = true);
+    try {
+      final system = SignLanguageSystem.forSpokenLanguage(
+        widget.selectedLanguageCode,
+      );
+      final glossTokens = await widget.glossService.requestGloss(
+        jobId: DateTime.now().millisecondsSinceEpoch.toString(),
+        caption: result.fullTranscript,
+        signLanguage: system.label,
+      );
+      if (!mounted) {
+        return;
+      }
+      if (glossTokens.isEmpty) {
+        _showListenError(widget.uiCopy.cloudGlossFailedLabel);
+        return;
+      }
+
+      final sequence = GlossSequenceMapper.tokensFor(
+        glossSequence: glossTokens,
+        system: system,
+      );
+      setState(() {
+        _listenResult = result.copyWith(
+          signingWord: glossTokens.join(' '),
+          signSequence: sequence,
+          signTokenId: sequence.isNotEmpty
+              ? sequence.last.id
+              : result.signTokenId,
+          signSystem: system,
+        );
+        _signPulse++;
+      });
+    } on Object {
+      if (mounted) {
+        _showListenError(widget.uiCopy.cloudGlossFailedLabel);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _cloudGlossInFlight = false);
+      }
+    }
   }
 
   Future<void> _clearHistory() async {
@@ -676,6 +704,11 @@ class _HomeScreenState extends State<HomeScreen> {
         key: const Key('talk_stopped_content'),
         uiCopy: widget.uiCopy,
         result: _listenResult!,
+        signPulse: _signPulse,
+        onSendCaption: CloudflareGlossConfig.isConfigured
+            ? _sendCaptionToCloud
+            : null,
+        isSendingCaption: _cloudGlossInFlight,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),

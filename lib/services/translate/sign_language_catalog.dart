@@ -1,195 +1,214 @@
+import 'asl_nmm_markers.dart';
+import 'isl_nmm_markers.dart';
+import 'sign_grammar_engine.dart';
 import 'sign_language_system.dart';
+import 'sign_lexicon_builder.dart';
 import 'sign_token.dart';
+import 'asl_grammar_rules.dart';
+import 'spoken_text_prep.dart';
 
 /// Lexicon mapping spoken words to ASL / ISL gloss tokens and avatar pose ids.
 abstract final class SignLanguageCatalog {
   static const _thinking = SignToken.thinking;
 
-  static const _aslLexicon = <String, SignToken>{
-    'hello': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.asl,
-    ),
-    'hi': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.asl,
-    ),
-    'how': SignToken(id: 'how', gloss: 'HOW', system: SignLanguageSystem.asl),
-    'are': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.asl),
-    'you': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.asl),
-    'today': SignToken(
-      id: 'today',
-      gloss: 'TODAY',
-      system: SignLanguageSystem.asl,
-    ),
-    'thank': SignToken(
-      id: 'thank_you',
-      gloss: 'THANK-YOU',
-      system: SignLanguageSystem.asl,
-    ),
-    'thanks': SignToken(
-      id: 'thank_you',
-      gloss: 'THANK-YOU',
-      system: SignLanguageSystem.asl,
-    ),
-    'please': SignToken(
-      id: 'please',
-      gloss: 'PLEASE',
-      system: SignLanguageSystem.asl,
-    ),
-    'help': SignToken(
-      id: 'help',
-      gloss: 'HELP',
-      system: SignLanguageSystem.asl,
-    ),
-    'yes': SignToken(id: 'yes', gloss: 'YES', system: SignLanguageSystem.asl),
-    'no': SignToken(id: 'no', gloss: 'NO', system: SignLanguageSystem.asl),
-    'my': SignToken(id: 'my', gloss: 'MY', system: SignLanguageSystem.asl),
-    'name': SignToken(
-      id: 'name',
-      gloss: 'NAME',
-      system: SignLanguageSystem.asl,
-    ),
-    'is': SignToken(id: 'is', gloss: 'IS', system: SignLanguageSystem.asl),
-    'good': SignToken(
-      id: 'good',
-      gloss: 'GOOD',
-      system: SignLanguageSystem.asl,
-    ),
-    'looking': SignToken(
-      id: 'looking',
-      gloss: 'LOOK',
-      system: SignLanguageSystem.asl,
-    ),
-    'everything': SignToken(
-      id: 'everything',
-      gloss: 'ALL',
-      system: SignLanguageSystem.asl,
-    ),
-  };
-
-  static const _islLexicon = <String, SignToken>{
-    'hello': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.isl,
-    ),
-    'hi': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.isl,
-    ),
-    'how': SignToken(id: 'how', gloss: 'HOW', system: SignLanguageSystem.isl),
-    'are': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.isl),
-    'you': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.isl),
-    'today': SignToken(
-      id: 'today',
-      gloss: 'TODAY',
-      system: SignLanguageSystem.isl,
-    ),
-    'thank': SignToken(
-      id: 'thank_you',
-      gloss: 'THANK-YOU',
-      system: SignLanguageSystem.isl,
-    ),
-    'thanks': SignToken(
-      id: 'thank_you',
-      gloss: 'THANK-YOU',
-      system: SignLanguageSystem.isl,
-    ),
-    'please': SignToken(
-      id: 'please',
-      gloss: 'PLEASE',
-      system: SignLanguageSystem.isl,
-    ),
-    'help': SignToken(
-      id: 'help',
-      gloss: 'HELP',
-      system: SignLanguageSystem.isl,
-    ),
-    'yes': SignToken(id: 'yes', gloss: 'YES', system: SignLanguageSystem.isl),
-    'no': SignToken(id: 'no', gloss: 'NO', system: SignLanguageSystem.isl),
-    'my': SignToken(id: 'my', gloss: 'MY', system: SignLanguageSystem.isl),
-    'name': SignToken(
-      id: 'name',
-      gloss: 'NAME',
-      system: SignLanguageSystem.isl,
-    ),
-    'is': SignToken(id: 'is', gloss: 'IS', system: SignLanguageSystem.isl),
-    'good': SignToken(
-      id: 'good',
-      gloss: 'GOOD',
-      system: SignLanguageSystem.isl,
-    ),
-    'looking': SignToken(
-      id: 'looking',
-      gloss: 'LOOK',
-      system: SignLanguageSystem.isl,
-    ),
-    'everything': SignToken(
-      id: 'everything',
-      gloss: 'ALL',
-      system: SignLanguageSystem.isl,
-    ),
-    // Hindi
-    'नमस्ते': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.isl,
-    ),
-    'कैसे': SignToken(id: 'how', gloss: 'HOW', system: SignLanguageSystem.isl),
-    'हैं': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.isl),
-    'आप': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.isl),
-    'आज': SignToken(
-      id: 'today',
-      gloss: 'TODAY',
-      system: SignLanguageSystem.isl,
-    ),
-    // Tamil
-    'வணக்கம்': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.isl,
-    ),
-    'எப்படி': SignToken(
-      id: 'how',
-      gloss: 'HOW',
-      system: SignLanguageSystem.isl,
-    ),
-    // Malayalam
-    'ഹലോ': SignToken(
-      id: 'hello',
-      gloss: 'HELLO',
-      system: SignLanguageSystem.isl,
-    ),
-    'സുഖമാണോ': SignToken(
-      id: 'how',
-      gloss: 'HOW',
-      system: SignLanguageSystem.isl,
-    ),
-  };
-
   static List<SignToken> sequenceFor(String transcript, String languageCode) {
-    final system = SignLanguageSystem.forSpokenLanguage(languageCode);
-    final lexicon = system == SignLanguageSystem.asl
-        ? _aslLexicon
-        : _islLexicon;
-    final words = _words(transcript);
-    if (words.isEmpty) {
+    final trimmed = transcript.trim();
+    if (trimmed.isEmpty) {
+      return const [];
+    }
+
+    final fullEndsWithQuestion = trimmed.endsWith('?');
+
+    final clauses = trimmed
+        .split(RegExp(r'[.!?]+'))
+        .map((c) => c.trim())
+        .where((c) => c.isNotEmpty)
+        .toList();
+
+    if (clauses.isEmpty) {
       return const [];
     }
 
     final tokens = <SignToken>[];
-    for (final word in words) {
-      final normalized = _normalize(word);
-      final token = lexicon[normalized] ?? _fallbackToken(normalized, system);
-      if (tokens.isEmpty || tokens.last.id != token.id) {
-        tokens.add(token);
-      }
+    for (var i = 0; i < clauses.length; i++) {
+      final clause = clauses[i];
+      final clauseIsQuestion =
+          _clauseIsQuestion(clause) ||
+          (fullEndsWithQuestion && i == clauses.length - 1);
+      tokens.addAll(
+        _sequenceForClause(
+          clause,
+          languageCode,
+          clauseIsQuestion: clauseIsQuestion,
+        ),
+      );
     }
     return tokens;
+  }
+
+  static bool _clauseIsQuestion(String clause) {
+    final trimmed = clause.trim();
+    if (trimmed.endsWith('?')) {
+      return true;
+    }
+    if (SpokenTextPrep.inferWhQuestion(clause)) {
+      return true;
+    }
+    return SpokenTextPrep.inferYesNoQuestion(clause);
+  }
+
+  static List<SignToken> _sequenceForClause(
+    String transcript,
+    String languageCode, {
+    bool clauseIsQuestion = false,
+  }) {
+    final system = SignLanguageSystem.forSpokenLanguage(languageCode);
+    final prepared = SpokenTextPrep.normalizeForGloss(transcript, languageCode);
+    final rawWords = splitWords(prepared);
+    if (rawWords.isEmpty) {
+      return const [];
+    }
+
+    final isWhQuestion = _isWhQuestion(rawWords);
+    final isYesNoQuestion = clauseIsQuestion && !isWhQuestion;
+
+    final words = SignGrammarEngine.applyRules(
+      rawWords,
+      system,
+      isWhQuestion: isWhQuestion,
+      isYesNoQuestion: isYesNoQuestion,
+      clauseIsQuestion: clauseIsQuestion,
+    );
+    if (words.isEmpty) {
+      return const [];
+    }
+
+    final fingerspellIndices = system == SignLanguageSystem.asl ||
+            system == SignLanguageSystem.isl
+        ? SignGrammarEngine.fingerspellWordIndices(words)
+        : const <int>{};
+
+    final tokens = <SignToken>[];
+    for (var wordIndex = 0; wordIndex < words.length; wordIndex++) {
+      final word = words[wordIndex];
+      final normalized = normalize(word);
+      if (normalized.isEmpty) {
+        continue;
+      }
+
+      if (AslNmmMarkers.isMarker(word) || IslNmmMarkers.isMarker(word)) {
+        tokens.add(AslNmmMarkers.token(word, system));
+        continue;
+      }
+
+      if (fingerspellIndices.contains(wordIndex)) {
+        final spelled = SignLexiconBuilder.fingerspell(
+          normalized,
+          system,
+          fsLabel: true,
+        );
+        if (spelled.isEmpty) {
+          _addToken(tokens, _fallbackToken(normalized, system));
+          continue;
+        }
+        tokens.addAll(spelled);
+        continue;
+      }
+
+      final token = SignLexiconBuilder.resolve(normalized, system);
+      if (token == null) {
+        final spelled = SignLexiconBuilder.fingerspell(normalized, system);
+        if (spelled.isNotEmpty) {
+          tokens.addAll(spelled);
+          continue;
+        }
+        _addToken(tokens, _fallbackToken(normalized, system));
+        continue;
+      }
+      _addToken(tokens, token);
+    }
+
+    if (system == SignLanguageSystem.isl) {
+      return _applyIslConversationalGlossLabels(
+        _stripIslChipNmm(tokens),
+        clauseIsQuestion: clauseIsQuestion,
+        isWhQuestion: isWhQuestion,
+        isYesNoQuestion: isYesNoQuestion,
+      );
+    }
+    return tokens;
+  }
+
+  static List<SignToken> _stripIslChipNmm(List<SignToken> tokens) {
+    return tokens
+        .where(
+          (t) =>
+              t.gloss == '[y/n-q]' ||
+              (!t.gloss.startsWith('[') && !t.gloss.endsWith(']')),
+        )
+        .toList();
+  }
+
+  static List<SignToken> _applyIslConversationalGlossLabels(
+    List<SignToken> tokens, {
+    required bool clauseIsQuestion,
+    required bool isWhQuestion,
+    required bool isYesNoQuestion,
+  }) {
+    if (!clauseIsQuestion || tokens.isEmpty) {
+      return _applyIslImperativeExclamation(tokens);
+    }
+    final out = tokens
+        .where((t) => t.gloss != '[wh-q]')
+        .map((t) => t)
+        .toList();
+    if (out.isEmpty) {
+      return out;
+    }
+    if (isYesNoQuestion) {
+      final last = out.last;
+      if (!last.gloss.endsWith('?') && last.gloss != 'NEED') {
+        out[out.length - 1] = last.copyWith(gloss: '${last.gloss}?');
+      }
+      return out;
+    }
+    if (isWhQuestion) {
+      for (var i = out.length - 1; i >= 0; i--) {
+        final upper = out[i].gloss.toUpperCase();
+        if (AslGrammarRules.questionWords.contains(out[i].gloss.toLowerCase()) ||
+            upper == 'HOW-MANY' ||
+            upper == 'HOW-MUCH') {
+          if (!out[i].gloss.endsWith('?')) {
+            out[i] = out[i].copyWith(gloss: '${out[i].gloss}?');
+          }
+          break;
+        }
+      }
+    }
+    return _applyIslImperativeExclamation(out);
+  }
+
+  /// AMBULANCE CALL QUICK! — curriculum imperatives use trailing `!`.
+  static List<SignToken> _applyIslImperativeExclamation(List<SignToken> tokens) {
+    if (tokens.isEmpty) {
+      return tokens;
+    }
+    final last = tokens.last;
+    if (last.gloss.endsWith('!') || last.gloss.endsWith('?')) {
+      return tokens;
+    }
+    if (last.gloss == 'QUICK' || last.gloss == 'CALL') {
+      final out = List<SignToken>.from(tokens);
+      out[out.length - 1] = last.copyWith(gloss: '${last.gloss}!');
+      return out;
+    }
+    return tokens;
+  }
+
+  static void _addToken(List<SignToken> tokens, SignToken token) {
+    if (tokens.isEmpty || tokens.last.id != token.id) {
+      tokens.add(token);
+    }
   }
 
   static SignToken activeToken(String transcript, String languageCode) {
@@ -206,21 +225,11 @@ abstract final class SignLanguageCatalog {
   }
 
   static SignToken tokenForGloss(String gloss, SignLanguageSystem system) {
-    final normalizedGloss = gloss.trim().toUpperCase();
-    if (normalizedGloss.isEmpty) {
-      return _fallbackToken('', system);
+    final resolved = SignLexiconBuilder.tokenForGloss(gloss, system);
+    if (resolved != null) {
+      return resolved;
     }
-
-    final lexicon = system == SignLanguageSystem.asl
-        ? _aslLexicon
-        : _islLexicon;
-    for (final token in lexicon.values) {
-      if (token.gloss == normalizedGloss) {
-        return token;
-      }
-    }
-
-    return _fallbackToken(normalizedGloss.toLowerCase(), system);
+    return _fallbackToken(gloss.trim().toLowerCase(), system);
   }
 
   static String glossLabel(SignToken token) => token.gloss;
@@ -240,20 +249,137 @@ abstract final class SignLanguageCatalog {
     return SignToken(id: normalized, gloss: gloss, system: system);
   }
 
-  static List<String> _words(String transcript) {
-    return transcript
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty)
-        .toList();
+  static const _hyphenCompounds = {
+    'check-in',
+    'check-ins',
+    'eco-friendly',
+    'sci-fi',
+    'ride-share',
+    'ride-sharing',
+    'km/l',
+    'not-can',
+    'pass-me',
+    'wake-up',
+    'tear-open',
+    'too-much',
+    'take-away',
+    'two-pieces',
+    'jump-over',
+    'write-wrong',
+    'three-times',
+    'high-speed',
+    'oat-milk',
+    'credit-card',
+    'cold-brew',
+    'gluten-free',
+    'new-york',
+    'new-delhi',
+    'excuse-me',
+    'text-me',
+    'go-there',
+    'help-me',
+    'for-me',
+    'call-me',
+    'send-back',
+    'move-here',
+    'co-worker',
+    'all-night',
+    'all-day',
+    'look-at',
+    'two-times',
+    'clean-all',
+    'cover-all',
+    'knock-over',
+    'cool-down',
+    'clap-loud',
+    'try-on',
+    'fly-here',
+    'leave-behind',
+    'locked-out',
+    'not-allow',
+    'next-to-you',
+    'snow-storm',
+    'wi-fi',
+    'give-you',
+    'give-me',
+    'tell-you',
+    'tell-me',
+    'two-days',
+    'five-years',
+    'three-weeks-ago',
+    'years-old',
+    'book-on',
+    'point-there',
+    'point-there-plural',
+    '3-day',
+    'one-day',
+    'two-day',
+    'three-day',
+    'how-many',
+    'how-much',
+    'deep/far',
+    'will-be',
+    '10-o\'clock',
+  };
+
+  static List<String> splitWords(String transcript) {
+    final tokens = <String>[];
+    for (final word in transcript.trim().split(RegExp(r'\s+'))) {
+      if (word.isEmpty) {
+        continue;
+      }
+      final lower = word.toLowerCase().replaceAll(RegExp(r"^[\p{P}\p{S}']+|[\p{P}\p{S}']+$", unicode: true), '');
+      if (lower.startsWith('fs-') || lower.contains('/')) {
+        tokens.add(word);
+        continue;
+      }
+      if (RegExp(r'^\d{1,2}-o.clock', caseSensitive: false).hasMatch(lower)) {
+        tokens.add(word);
+        continue;
+      }
+      if (_hyphenCompounds.contains(lower)) {
+        tokens.add(word);
+        continue;
+      }
+      for (final part in word.split(RegExp(r'-+'))) {
+        if (part.isNotEmpty) {
+          tokens.add(part);
+        }
+      }
+    }
+    return tokens;
   }
 
-  static String _normalize(String word) {
+  static String normalize(String word) {
     final trimmed = word.trim();
     final stripped = trimmed.replaceAll(
       RegExp(r"^[\p{P}\p{S}']+|[\p{P}\p{S}']+$", unicode: true),
       '',
     );
-    return stripped.toLowerCase();
+    var lower = stripped.toLowerCase();
+    // Currency symbols: ₹2000 → 2000
+    lower = lower.replaceAll(RegExp(r'[₹$€£]'), '');
+    if (lower.endsWith('%') && lower.length > 1) {
+      lower = lower.substring(0, lower.length - 1);
+    }
+  // Possessive 's: cat's → cat (HandsSpeak: possession shown in context).
+    if (lower.length > 3 && (lower.endsWith("'s") || lower.endsWith('\u2019s'))) {
+      lower = lower.substring(0, lower.length - 2);
+    }
+    return lower;
   }
+
+  static bool _isWhQuestion(List<String> rawWords) {
+    for (final word in rawWords) {
+      final n = normalize(word);
+      if (AslGrammarRules.questionWords.contains(n)) {
+        return true;
+      }
+      if (n == 'how-much' || n == 'how-many') {
+        return true;
+      }
+    }
+    return false;
+  }
+
 }

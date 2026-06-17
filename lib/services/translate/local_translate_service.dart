@@ -65,6 +65,7 @@ final class LocalTranslateService implements TranslateService {
     return TalkListenResult(
       transcript: transcript,
       fullTranscript: fullTranscript,
+      signingCaption: fullTranscript,
       signingWord: active.gloss,
       signTokenId: active.id,
       signSystem: active.system,
@@ -166,7 +167,6 @@ final class LocalTranslateService implements TranslateService {
           listenMode: ListenMode.dictation,
           localeId: localeId,
           cancelOnError: false,
-          pauseFor: const Duration(seconds: 10),
           listenFor: const Duration(minutes: 30),
         ),
       );
@@ -656,14 +656,17 @@ final class LocalTranslateService implements TranslateService {
       return;
     }
 
+    final signingCaption = _transcript.currentPhrase.trim();
+    final glossSource = signingCaption.isNotEmpty ? signingCaption : text.trim();
     final elapsed = DateTime.now().difference(_startedAt ?? DateTime.now());
-    final active = SignGlossMapper.activeSign(text, _languageCode);
+    final active = SignGlossMapper.activeSign(glossSource, _languageCode);
     final sequence = isFinal
-        ? SignGlossMapper.signSequence(text, _languageCode)
+        ? SignGlossMapper.signSequence(glossSource, _languageCode)
         : (_latestUpdate?.signSequence ?? const []);
     final update = TalkListenUpdate(
       transcript: SignGlossMapper.liveCaption(text),
       fullTranscript: text.trim(),
+      signingCaption: signingCaption,
       signingWord: active.gloss,
       signTokenId: active.id,
       signSystem: active.system,
@@ -681,13 +684,18 @@ final class LocalTranslateService implements TranslateService {
   }
 
   TalkListenResult _buildResult({required Duration elapsed}) {
+    final full = _latestWords.trim();
     final caption = SignGlossMapper.liveCaption(_latestWords);
-    final active = SignGlossMapper.activeSign(_latestWords, _languageCode);
-    final sequence = SignGlossMapper.signSequence(_latestWords, _languageCode);
+    final sequence = SignGlossMapper.signSequence(full, _languageCode);
+    final glossWord = sequence.map((t) => t.gloss).join(' ');
+    final active = sequence.isNotEmpty
+        ? sequence.last
+        : SignGlossMapper.activeSign(full, _languageCode);
     return TalkListenResult(
       transcript: caption,
-      fullTranscript: _latestWords.trim(),
-      signingWord: active.gloss,
+      fullTranscript: full,
+      signingCaption: '',
+      signingWord: glossWord.isNotEmpty ? glossWord : active.gloss,
       signTokenId: active.id,
       signSystem: active.system,
       signSequence: sequence,
