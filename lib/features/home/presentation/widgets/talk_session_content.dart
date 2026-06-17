@@ -181,7 +181,9 @@ class TalkStoppedContent extends StatelessWidget {
         signPulse: signPulse,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
-          word: result.signingWord,
+          word: isSendingCaption
+              ? uiCopy.cloudGlossLoadingLabel
+              : result.signingWord,
           systemLabel: result.signSystem.label,
         ),
         thinkingDotsCount: isSendingCaption ? 2 : 0,
