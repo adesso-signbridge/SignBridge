@@ -2,7 +2,7 @@
 abstract final class CloudflareGlossConfig {
   static const workerUrl = String.fromEnvironment(
     'CLOUDFLARE_GLOSS_WORKER_URL',
-    defaultValue: '',
+    defaultValue: 'https://signbridge-gloss.signbridge-adesso.workers.dev',
   );
 
   static const sharedKey = String.fromEnvironment(

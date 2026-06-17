@@ -63,32 +63,54 @@ function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
 }
 
-function glossProvider(env) {
-  const configured = (env.GLOSS_PROVIDER || "gemini").trim().toLowerCase();
-  if (configured === "adesso" && env.ADESSO_KEY && env.ADESSO_API_URL) {
-    return "adesso";
-  }
-  if (geminiApiKey(env)) {
-    return "gemini";
-  }
-  if (env.ADESSO_KEY && env.ADESSO_API_URL) {
-    return "adesso";
-  }
-  return configured;
+function adessoConfigured(env) {
+  return Boolean(env.ADESSO_KEY && env.ADESSO_API_URL);
 }
 
 async function captionToGloss(caption, signLanguage, env) {
-  const provider = glossProvider(env);
-  if (provider === "adesso") {
+  const providerPref = (env.GLOSS_PROVIDER || "gemini").trim().toLowerCase();
+  const hasGemini = Boolean(geminiApiKey(env));
+  const hasAdesso = adessoConfigured(env);
+
+  if (providerPref === "adesso" && hasAdesso && !hasGemini) {
     const glossSequence = await captionToGlossAdesso(caption, signLanguage, env);
-    return { glossSequence, modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign" };
+    return {
+      glossSequence,
+      modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
+    };
   }
-  return captionToGlossGemini(caption, signLanguage, env);
+
+  let geminiError = null;
+  if (hasGemini) {
+    try {
+      return await captionToGlossGemini(caption, signLanguage, env);
+    } catch (err) {
+      geminiError = err;
+    }
+  }
+
+  if (hasAdesso) {
+    try {
+      const glossSequence = await captionToGlossAdesso(caption, signLanguage, env);
+      return {
+        glossSequence,
+        modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
+      };
+    } catch (adessoErr) {
+      const geminiDetail = geminiError ? String(geminiError).slice(0, 120) : "skipped";
+      throw new Error(
+        `Adesso failed after Gemini: ${String(adessoErr).slice(0, 120)} ` +
+          `(Gemini: ${geminiDetail})`,
+      );
+    }
+  }
+
+  throw geminiError || new Error("No gloss provider configured");
 }
 
 function geminiModelChain(env) {
   const primary = (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
-  const fallbacks = (env.GEMINI_FALLBACK_MODELS || "gemini-2.0-flash,gemini-1.5-flash")
+  const fallbacks = (env.GEMINI_FALLBACK_MODELS || "gemini-3.1-flash-lite,gemini-2.5-flash")
     .split(",")
     .map((model) => model.trim())
     .filter(Boolean);
@@ -97,6 +119,10 @@ function geminiModelChain(env) {
 
 function isRetryableGeminiStatus(status) {
   return status === 429 || status === 500 || status === 503 || status === 504;
+}
+
+function isModelUnavailableStatus(status) {
+  return status === 404 || status === 400;
 }
 
 function sleep(ms) {
@@ -125,6 +151,9 @@ async function captionToGlossGemini(caption, signLanguage, env) {
       } catch (err) {
         lastError = err;
         const status = err.status || 0;
+        if (isModelUnavailableStatus(status)) {
+          break;
+        }
         if (!isRetryableGeminiStatus(status) || attempt === 2) {
           break;
         }
