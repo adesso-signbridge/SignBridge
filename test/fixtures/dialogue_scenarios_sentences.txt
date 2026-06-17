@@ -1,0 +1,65 @@
+You look tired today.
+Yeah, I stayed up late working on a project.
+Want some coffee?
+Definitely. I need it right now.
+Same here. Let's grab a cappuccino.
+How's the new project going?
+It's progressing well, but we need more time for testing.
+Any major issues?
+Just a few bugs. The team is fixing them.
+Great. Keep me updated.
+Do you think this jacket looks good on me?
+Yes, it suits you really well.
+Should I buy it?
+If you like it and it's within your budget, go for it.
+How was your day?
+It was good. Work was a bit busy though.
+Did you have lunch on time?
+Yes, I did.
+Good. Dinner is ready.
+Excuse me, how do I get to the railway station?
+Go straight and take the second left.
+Is it far from here?
+No, it's about a ten-minute walk.
+Thank you!
+What seems to be the problem?
+I've had a fever for two days.
+Any cough or headache?
+Yes, both.
+I'll prescribe some medicine and recommend rest.
+How often do you work out?
+About three times a week.
+What's your goal?
+I want to lose some weight and build strength.
+Great, let's create a plan for you.
+Did you watch the new movie?
+Yes, I watched it yesterday.
+How was it?
+The story was great, but the ending surprised me.
+Now I'm excited to watch it.
+Which gate is Flight 302 departing from?
+Gate 12. Boarding starts in 20 minutes.
+Thank you.
+You're welcome. Have a pleasant journey.
+Tell me about yourself.
+I'm a software developer with five years of experience in mobile applications.
+Why do you want to join our company?
+I like the projects you're working on and want to contribute my skills.
+Where should we go this weekend?
+How about Coorg?
+Sounds good. How are we travelling?
+We can drive there.
+Perfect. Let's book a hotel.
+Where can I find the rice?
+It's in aisle five.
+Thanks. Do you have any discounts today?
+Yes, there's a 10% discount on groceries above ₹2000.
+Have you tried the new AI tool?
+Yes, it's pretty impressive.
+What do you use it for?
+Mostly coding assistance and content generation.
+What's the mileage of this car?
+Around 19 km/l.
+Does it have cruise control?
+Yes, this variant includes cruise control.
+I'd like to take a test drive.

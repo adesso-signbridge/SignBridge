@@ -6,6 +6,7 @@ class TalkListenResult {
   const TalkListenResult({
     required this.transcript,
     required this.fullTranscript,
+    required this.signingCaption,
     required this.signingWord,
     required this.signTokenId,
     required this.signSystem,
@@ -18,6 +19,9 @@ class TalkListenResult {
 
   /// Complete transcript shown on the Signing screen.
   final String fullTranscript;
+
+  /// Spoken text for the live signing chip (current phrase, not session tail).
+  final String signingCaption;
 
   /// Gloss label in the blue signing chip (matches avatar pose).
   final String signingWord;
@@ -35,6 +39,7 @@ class TalkListenResult {
   TalkListenResult copyWith({
     String? transcript,
     String? fullTranscript,
+    String? signingCaption,
     String? signingWord,
     String? signTokenId,
     SignLanguageSystem? signSystem,
@@ -44,6 +49,7 @@ class TalkListenResult {
     return TalkListenResult(
       transcript: transcript ?? this.transcript,
       fullTranscript: fullTranscript ?? this.fullTranscript,
+      signingCaption: signingCaption ?? this.signingCaption,
       signingWord: signingWord ?? this.signingWord,
       signTokenId: signTokenId ?? this.signTokenId,
       signSystem: signSystem ?? this.signSystem,
@@ -63,6 +69,7 @@ class TalkListenResult {
     return TalkListenResult(
       transcript: '',
       fullTranscript: '',
+      signingCaption: '',
       signingWord: SignToken.thinking.gloss,
       signTokenId: SignToken.thinking.id,
       signSystem: system,

@@ -7,6 +7,7 @@ class TalkListenUpdate {
   const TalkListenUpdate({
     required this.transcript,
     required this.fullTranscript,
+    required this.signingCaption,
     required this.signingWord,
     required this.signTokenId,
     required this.signSystem,
@@ -17,6 +18,9 @@ class TalkListenUpdate {
 
   final String transcript;
   final String fullTranscript;
+
+  /// Spoken text for the live signing chip (current phrase, not session tail).
+  final String signingCaption;
   final String signingWord;
   final String signTokenId;
   final SignLanguageSystem signSystem;
@@ -28,6 +32,7 @@ class TalkListenUpdate {
     return TalkListenResult(
       transcript: transcript,
       fullTranscript: fullTranscript,
+      signingCaption: signingCaption,
       signingWord: signingWord,
       signTokenId: signTokenId,
       signSystem: signSystem,
