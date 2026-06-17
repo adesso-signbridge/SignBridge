@@ -160,6 +160,7 @@ async function requestGeminiGloss(model, caption, signLanguage, apiKey) {
       ],
       generationConfig: {
         temperature: 0.2,
+        maxOutputTokens: 128,
         responseMimeType: "application/json",
       },
     }),
