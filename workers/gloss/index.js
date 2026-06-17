@@ -45,8 +45,9 @@ export default {
     }
 
     let glossSequence;
+    let modelUsed;
     try {
-      glossSequence = await captionToGloss(caption, signLanguage, env);
+      ({ glossSequence, modelUsed } = await captionToGloss(caption, signLanguage, env));
     } catch (err) {
       return json(
         { error: "Gloss request failed", detail: String(err).slice(0, 300), jobId },
@@ -54,7 +55,7 @@ export default {
       );
     }
 
-    return json({ ok: true, jobId, glossSequence });
+    return json({ ok: true, jobId, glossSequence, modelUsed });
   },
 };
 
@@ -79,9 +80,27 @@ function glossProvider(env) {
 async function captionToGloss(caption, signLanguage, env) {
   const provider = glossProvider(env);
   if (provider === "adesso") {
-    return captionToGlossAdesso(caption, signLanguage, env);
+    const glossSequence = await captionToGlossAdesso(caption, signLanguage, env);
+    return { glossSequence, modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign" };
   }
   return captionToGlossGemini(caption, signLanguage, env);
+}
+
+function geminiModelChain(env) {
+  const primary = (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
+  const fallbacks = (env.GEMINI_FALLBACK_MODELS || "gemini-2.0-flash,gemini-1.5-flash")
+    .split(",")
+    .map((model) => model.trim())
+    .filter(Boolean);
+  return [...new Set([primary, ...fallbacks])];
+}
+
+function isRetryableGeminiStatus(status) {
+  return status === 429 || status === 500 || status === 503 || status === 504;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function captionToGlossGemini(caption, signLanguage, env) {
@@ -90,7 +109,34 @@ async function captionToGlossGemini(caption, signLanguage, env) {
     throw new Error("GEMINI_KEY not configured");
   }
 
-  const model = env.GEMINI_MODEL || "gemini-3.5-flash";
+  const models = geminiModelChain(env);
+  let lastError = null;
+
+  for (const model of models) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const glossSequence = await requestGeminiGloss(
+          model,
+          caption,
+          signLanguage,
+          apiKey,
+        );
+        return { glossSequence, modelUsed: model };
+      } catch (err) {
+        lastError = err;
+        const status = err.status || 0;
+        if (!isRetryableGeminiStatus(status) || attempt === 2) {
+          break;
+        }
+        await sleep(400 * (attempt + 1));
+      }
+    }
+  }
+
+  throw lastError || new Error("Gemini request failed");
+}
+
+async function requestGeminiGloss(model, caption, signLanguage, apiKey) {
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${model}` +
     `:generateContent?key=${encodeURIComponent(apiKey)}`;
@@ -120,7 +166,10 @@ async function captionToGlossGemini(caption, signLanguage, env) {
   });
 
   if (!res.ok) {
-    throw new Error(`Gemini ${res.status}: ${await res.text()}`);
+    const detail = await res.text();
+    const error = new Error(`Gemini ${res.status}: ${detail}`);
+    error.status = res.status;
+    throw error;
   }
 
   const data = await res.json();
