@@ -20,6 +20,9 @@ class HomeUiCopy {
     required this.noSpeechDetectedLabel,
     required this.micPermissionRequiredLabel,
     required this.listenStartFailedLabel,
+    required this.sendCaptionLabel,
+    required this.noInternetLabel,
+    required this.cloudGlossFailedLabel,
     required this.talkTabLabel,
     required this.phrasesTabLabel,
     required this.settingsTitle,
@@ -51,6 +54,9 @@ class HomeUiCopy {
   final String noSpeechDetectedLabel;
   final String micPermissionRequiredLabel;
   final String listenStartFailedLabel;
+  final String sendCaptionLabel;
+  final String noInternetLabel;
+  final String cloudGlossFailedLabel;
   final String talkTabLabel;
   final String phrasesTabLabel;
   final String settingsTitle;
@@ -85,6 +91,9 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noSpeechDetectedLabel: 'No speech detected.',
     micPermissionRequiredLabel: 'Microphone permission is required to listen.',
     listenStartFailedLabel: 'Could not start listening. Please try again.',
+    sendCaptionLabel: 'Send caption for AI gloss',
+    noInternetLabel: 'Internet connection required to send caption.',
+    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     talkTabLabel: 'Talk',
     phrasesTabLabel: 'Phrases',
     settingsTitle: 'Settings',
@@ -120,6 +129,9 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     micPermissionRequiredLabel: 'കേൾക്കാൻ മൈക്രോഫോൺ അനുമതി ആവശ്യമാണ്.',
     listenStartFailedLabel:
         'കേൾക്കൽ ആരംഭിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
+    sendCaptionLabel: 'Send caption for AI gloss',
+    noInternetLabel: 'Internet connection required to send caption.',
+    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     talkTabLabel: 'സംസാരം',
     phrasesTabLabel: 'വാചകങ്ങൾ',
     settingsTitle: 'ക്രമീകരണങ്ങൾ',
@@ -154,6 +166,9 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noSpeechDetectedLabel: 'कोई भाषण नहीं मिला।',
     micPermissionRequiredLabel: 'सुनने के लिए माइक्रोफ़ोन अनुमति आवश्यक है।',
     listenStartFailedLabel: 'सुनना शुरू नहीं हो सका। कृपया पुनः प्रयास करें।',
+    sendCaptionLabel: 'Send caption for AI gloss',
+    noInternetLabel: 'Internet connection required to send caption.',
+    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     talkTabLabel: 'बातचीत',
     phrasesTabLabel: 'वाक्यांश',
     settingsTitle: 'सेटिंग्स',
@@ -188,6 +203,9 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     micPermissionRequiredLabel: 'கேட்க மைக்ரோஃபோன் அனுமதி தேவை.',
     listenStartFailedLabel:
         'கேட்பதைத் தொடங்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
+    sendCaptionLabel: 'Send caption for AI gloss',
+    noInternetLabel: 'Internet connection required to send caption.',
+    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
     talkTabLabel: 'பேச்சு',
     phrasesTabLabel: 'சொற்றொடர்கள்',
     settingsTitle: 'அமைப்புகள்',

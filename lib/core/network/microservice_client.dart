@@ -22,6 +22,10 @@ abstract final class MicroserviceEndpoints {
     'SETTINGS_SERVICE_URL',
     defaultValue: 'https://api.signbridge.local/settings',
   );
+  static const String glossWorkerUrl = String.fromEnvironment(
+    'CLOUDFLARE_GLOSS_WORKER_URL',
+    defaultValue: '',
+  );
 }
 
 class MicroserviceClient {
