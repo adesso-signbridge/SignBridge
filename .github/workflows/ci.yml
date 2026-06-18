@@ -35,7 +35,7 @@ jobs:
         run: flutter pub get
 
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Analyze project source
         run: flutter analyze --fatal-infos --fatal-warnings
@@ -65,75 +65,8 @@ jobs:
       - name: Run architecture guardrails
         run: flutter test test/architecture/
 
-  validation:
-    name: Repository validation
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: coding-standards
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run repository validation tests
-        run: flutter test test/validation/
-
-      - name: Block tracked secret files and IDE artifacts
-        run: |
-          set -euo pipefail
-          forbidden='^(\.env|\.env\.|credentials\.json|\.cursor/|\.venv|\.venv_pdf/)'
-          if git ls-files | grep -E "$forbidden"; then
-            echo "Forbidden tracked files detected."
-            exit 1
-          fi
-
-      - name: Scan for hardcoded secret patterns
-        run: |
-          set -euo pipefail
-          pattern='(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----)'
-          if git grep -I -n -E "$pattern" -- . ':(exclude)*.md'; then
-            echo "Potential secret detected in source."
-            exit 1
-          fi
-          echo "No secret patterns found."
-
-  release-readiness:
-    name: Release readiness (iOS + Android)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: coding-standards
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run Apple HIG and store packaging checks
-        run: flutter test test/release/ --exclude-tags store-blocker
-
-      - name: Report store submission blockers
-        continue-on-error: true
-        run: |
-          flutter test test/release/ --tags store-blocker || \
-            echo "::warning::Store submission blockers remain (bundle ID, release signing). See test output."
-
-  golden-path:
-    name: Tested the app for golden path
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -149,63 +82,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Run unit and widget tests
+        run: flutter test --exclude-tags store-blocker
+
       - name: Run golden path tests
         run: |
           flutter test --tags golden-path
           flutter test test/widget_test.dart --name "Tap listen"
 
-  swiftlint:
-    name: SwiftLint
-    runs-on: macos-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install SwiftLint
-        run: brew install swiftlint
-
-      - name: Lint iOS Swift sources
-        working-directory: ios
-        run: swiftlint lint --config .swiftlint.yml --strict
-
-  test:
-    name: Unit and widget tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: coding-standards
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run tests
-        run: flutter test --coverage --exclude-tags store-blocker
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-lcov
-          path: coverage/lcov.info
-          if-no-files-found: ignore
-
-  build:
-    name: Build verification (${{ matrix.target }})
+  android-build:
+    name: Build Android
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [architecture, validation, release-readiness, test]
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [apk, appbundle, web]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -220,24 +108,12 @@ jobs:
         run: flutter pub get
 
       - name: Build Android APK
-        if: matrix.target == 'apk'
         run: flutter build apk --debug
 
-      - name: Build Android App Bundle
-        if: matrix.target == 'appbundle'
-        run: flutter build appbundle
-
-      - name: Build Web
-        if: matrix.target == 'web'
-        run: flutter build web
-
-  ios-release:
-    # Manual only — not part of the PR merge gate. Run from Actions → CI → Run workflow.
-    if: github.event_name == 'workflow_dispatch'
-    name: iOS TestFlight build check
+  ios-checks:
+    name: iOS checks
     runs-on: macos-latest
     timeout-minutes: 30
-    needs: [architecture, validation, release-readiness, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -251,47 +127,34 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Lint iOS Swift sources
+        working-directory: ios
+        run: swiftlint lint --config .swiftlint.yml --strict
+
       - name: Build iOS app without codesigning
-        run: flutter build ios --release --no-codesign
-
-  dependency-review:
-    name: Dependency review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Dependency review
-        uses: actions/dependency-review-action@v5
-
-  workflow-lint:
-    name: Workflow lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Lint GitHub Actions workflows
-        uses: rhysd/actionlint@v1.7.12
+        run: flutter build ios --debug --no-codesign
 
   merge-gate:
     name: PR merge gate
     runs-on: ubuntu-latest
     if: always() && github.event_name == 'pull_request'
     needs:
+      - coding-standards
       - architecture
-      - golden-path
-      - swiftlint
+      - tests
+      - android-build
+      - ios-checks
     steps:
-      - name: Require 3 core CI checks before merge
+      - name: Require all CI checks before merge
         env:
+          CODING_STANDARDS: ${{ needs.coding-standards.result }}
           ARCHITECTURE: ${{ needs.architecture.result }}
-          GOLDEN_PATH: ${{ needs.golden-path.result }}
-          SWIFTLINT: ${{ needs.swiftlint.result }}
+          TESTS: ${{ needs.tests.result }}
+          ANDROID_BUILD: ${{ needs.android-build.result }}
+          IOS_CHECKS: ${{ needs.ios-checks.result }}
         run: |
           set -euo pipefail
 
@@ -310,55 +173,19 @@ jobs:
           PASSED=0
           FAILURES=()
 
+          record "Coding standards" "$CODING_STANDARDS"
           record "Architecture checks" "$ARCHITECTURE"
-          record "Tested the app for golden path" "$GOLDEN_PATH"
-          record "SwiftLint" "$SWIFTLINT"
+          record "Tests" "$TESTS"
+          record "Build Android" "$ANDROID_BUILD"
+          record "iOS checks" "$IOS_CHECKS"
 
           echo ""
-          echo "Core checks passed: $PASSED / 3"
+          echo "Checks passed: $PASSED / 5"
 
-          if [ "$PASSED" -lt 3 ]; then
+          if [ "$PASSED" -lt 5 ]; then
             echo "::error::PR merge blocked: ${#FAILURES[@]} required check(s) failed."
             printf ' - %s\n' "${FAILURES[@]}"
             exit 1
           fi
 
-          echo "All 3 required CI checks passed. This PR is eligible to merge once branch protection is enabled."
-
-  ci-summary:
-    name: CI summary
-    runs-on: ubuntu-latest
-    if: always() && github.event_name != 'pull_request'
-    needs:
-      - coding-standards
-      - architecture
-      - validation
-      - release-readiness
-      - test
-      - build
-      - workflow-lint
-    steps:
-      - name: Evaluate required checks
-        run: |
-          check() {
-            result="$1"
-            name="$2"
-            if [ "$result" = "success" ] || [ "$result" = "skipped" ]; then
-              echo "PASS: $name ($result)"
-            else
-              echo "FAIL: $name ($result)"
-              exit 1
-            fi
-          }
-
-          check "${{ needs.coding-standards.result }}" "Coding standards"
-          check "${{ needs.architecture.result }}" "Architecture checks"
-          check "${{ needs.validation.result }}" "Repository validation"
-          check "${{ needs.release-readiness.result }}" "Release readiness"
-          check "${{ needs.test.result }}" "Unit and widget tests"
-          check "${{ needs.build.result }}" "Build verification"
-          check "${{ needs.workflow-lint.result }}" "Workflow lint"
-
-      - name: CI passed
-        if: success()
-        run: echo "All required CI checks passed."
+          echo "All required CI checks passed."

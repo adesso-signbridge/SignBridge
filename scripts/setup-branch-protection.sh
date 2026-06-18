@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Enable merge blocking on main: PRs must pass the "PR merge gate" check (3 core CI jobs).
+# Enable merge blocking on main: PRs must pass the "PR merge gate" check (5 core CI jobs).
 #
 # Prerequisites:
 #   - GitHub CLI: brew install gh && gh auth login
@@ -26,7 +26,7 @@ DEFAULT_BRANCH="$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name
 
 echo "Repository: $REPO"
 echo "Default branch: $DEFAULT_BRANCH"
-echo "Required status check: PR merge gate (3 core CI jobs)"
+echo "Required status check: PR merge gate (5 core CI jobs)"
 echo ""
 
 RULESET_PAYLOAD="$(cat <<EOF
@@ -77,7 +77,7 @@ gh api "repos/$REPO/rulesets" --method POST --input - <<<"$RULESET_PAYLOAD"
 
 echo ""
 echo "Done. Pull requests targeting $DEFAULT_BRANCH are blocked until:"
-echo "  1. All 3 core CI jobs pass, and"
+echo "  1. All 5 core CI jobs pass, and"
 echo "  2. The PR merge gate check is green."
 echo ""
 echo "Verify under: GitHub → Settings → Rules → Rulesets"

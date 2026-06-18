@@ -96,15 +96,15 @@ void main() {
       }
     });
 
-    test('CI workflow defines PR merge gate for three core checks', () {
+    test('CI workflow defines PR merge gate for five core checks', () {
       final ci = File('.github/workflows/ci.yml').readAsStringSync();
       expect(ci, contains('name: PR merge gate'));
-      expect(ci, contains('-lt 3'));
-      expect(ci, contains('Architecture checks'));
-      expect(ci, contains('Tested the app for golden path'));
-      expect(ci, contains('SwiftLint'));
-      expect(ci, isNot(contains('record "Coding standards"')));
-      expect(ci, isNot(contains('record "Build verification')));
+      expect(ci, contains('-lt 5'));
+      expect(ci, contains('record "Coding standards"'));
+      expect(ci, contains('record "Architecture checks"'));
+      expect(ci, contains('record "Tests"'));
+      expect(ci, contains('record "Build Android"'));
+      expect(ci, contains('record "iOS checks"'));
     });
 
     test('branch protection setup script exists', () {
