@@ -109,8 +109,8 @@ async function captionToGloss(caption, signLanguage, env) {
 }
 
 function geminiModelChain(env) {
-  const primary = (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
-  const fallbacks = (env.GEMINI_FALLBACK_MODELS || "gemini-3.1-flash-lite,gemini-2.5-flash")
+  const primary = (env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
+  const fallbacks = (env.GEMINI_FALLBACK_MODELS || "gemini-2.5-flash")
     .split(",")
     .map((model) => model.trim())
     .filter(Boolean);
