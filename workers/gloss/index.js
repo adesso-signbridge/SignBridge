@@ -1,6 +1,7 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
- * Secrets: GEMINI_KEY (or GEMINI_API_KEY), ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
+ * Provider chain: Groq → Gemini 3.1 Flash-Lite → Adesso (local fallback in app).
+ * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
@@ -63,58 +64,57 @@ function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
 }
 
+function groqApiKey(env) {
+  return env.GROQ_KEY || env.GROQ_API_KEY || "";
+}
+
+function groqConfigured(env) {
+  return Boolean(groqApiKey(env));
+}
+
 function adessoConfigured(env) {
   return Boolean(env.ADESSO_KEY && env.ADESSO_API_URL);
 }
 
 async function captionToGloss(caption, signLanguage, env) {
-  const providerPref = (env.GLOSS_PROVIDER || "gemini").trim().toLowerCase();
-  const hasGemini = Boolean(geminiApiKey(env));
-  const hasAdesso = adessoConfigured(env);
+  const errors = [];
 
-  if (providerPref === "adesso" && hasAdesso && !hasGemini) {
-    const glossSequence = await captionToGlossAdesso(caption, signLanguage, env);
-    return {
-      glossSequence,
-      modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
-    };
-  }
-
-  let geminiError = null;
-  if (hasGemini) {
+  if (groqConfigured(env)) {
     try {
-      return await captionToGlossGemini(caption, signLanguage, env);
+      return await captionToGlossGroq(caption, signLanguage, env);
     } catch (err) {
-      geminiError = err;
+      errors.push(err);
     }
   }
 
-  if (hasAdesso) {
+  if (geminiApiKey(env)) {
     try {
-      const glossSequence = await captionToGlossAdesso(caption, signLanguage, env);
+      return await captionToGlossGemini(caption, signLanguage, env);
+    } catch (err) {
+      errors.push(err);
+    }
+  }
+
+  if (adessoConfigured(env)) {
+    try {
+      const glossSequence = validateGlossSequence(
+        await captionToGlossAdesso(caption, signLanguage, env),
+      );
       return {
         glossSequence,
         modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
       };
-    } catch (adessoErr) {
-      const geminiDetail = geminiError ? String(geminiError).slice(0, 120) : "skipped";
-      throw new Error(
-        `Adesso failed after Gemini: ${String(adessoErr).slice(0, 120)} ` +
-          `(Gemini: ${geminiDetail})`,
-      );
+    } catch (err) {
+      errors.push(err);
     }
   }
 
-  throw geminiError || new Error("No gloss provider configured");
+  const detail = errors.map((err) => String(err).slice(0, 80)).join(" | ");
+  throw new Error(detail || "No gloss provider configured");
 }
 
-function geminiModelChain(env) {
-  const primary = (env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
-  const fallbacks = (env.GEMINI_FALLBACK_MODELS || "gemini-2.5-flash")
-    .split(",")
-    .map((model) => model.trim())
-    .filter(Boolean);
-  return [...new Set([primary, ...fallbacks])];
+function geminiModel(env) {
+  return (env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
 }
 
 function isRetryableGeminiStatus(status) {
@@ -129,39 +129,76 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function captionToGlossGroq(caption, signLanguage, env) {
+  const apiKey = groqApiKey(env);
+  const model = (env.GROQ_MODEL || "llama-3.1-8b-instant").trim();
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      ...JSON_HEADERS,
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0,
+      max_tokens: 96,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: glossSystemInstruction(signLanguage) },
+        { role: "user", content: caption },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    const error = new Error(`Groq ${res.status}: ${detail}`);
+    error.status = res.status;
+    throw error;
+  }
+
+  const data = await res.json();
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error("Groq returned empty gloss response");
+  }
+
+  const glossSequence = validateGlossSequence(parseGloss(content));
+  return { glossSequence, modelUsed: `groq:${model}` };
+}
+
 async function captionToGlossGemini(caption, signLanguage, env) {
   const apiKey = geminiApiKey(env);
   if (!apiKey) {
     throw new Error("GEMINI_KEY not configured");
   }
 
-  const models = geminiModelChain(env);
+  const model = geminiModel(env);
   let lastError = null;
 
-  for (const model of models) {
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const glossSequence = await requestGeminiGloss(
-          model,
-          caption,
-          signLanguage,
-          apiKey,
-        );
-        if (isInvalidGlossResponse(glossSequence)) {
-          throw new Error("Gemini returned invalid gloss tokens");
-        }
-        return { glossSequence, modelUsed: model };
-      } catch (err) {
-        lastError = err;
-        const status = err.status || 0;
-        if (isModelUnavailableStatus(status)) {
-          break;
-        }
-        if (!isRetryableGeminiStatus(status) || attempt === 2) {
-          break;
-        }
-        await sleep(400 * (attempt + 1));
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const glossSequence = await requestGeminiGloss(
+        model,
+        caption,
+        signLanguage,
+        apiKey,
+      );
+      if (isInvalidGlossResponse(glossSequence)) {
+        throw new Error("Gemini returned invalid gloss tokens");
       }
+      return { glossSequence, modelUsed: model };
+    } catch (err) {
+      lastError = err;
+      const status = err.status || 0;
+      if (isModelUnavailableStatus(status)) {
+        break;
+      }
+      if (!isRetryableGeminiStatus(status) || attempt === 2) {
+        break;
+      }
+      await sleep(400 * (attempt + 1));
     }
   }
 
@@ -343,6 +380,13 @@ function normalizeGlossSequence(tokens) {
 
 function isInvalidGlossResponse(tokens) {
   return !tokens || tokens.length === 0 || tokens.every((token) => JSON_ARTIFACT_TOKENS.has(token));
+}
+
+function validateGlossSequence(tokens) {
+  if (isInvalidGlossResponse(tokens)) {
+    throw new Error("Invalid gloss tokens");
+  }
+  return tokens;
 }
 
 function json(obj, status = 200) {

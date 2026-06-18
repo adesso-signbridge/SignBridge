@@ -3,9 +3,8 @@ main = "workers/gloss/index.js"
 compatibility_date = "2026-06-16"
 
 [vars]
-GLOSS_PROVIDER = "gemini"
+GROQ_MODEL = "llama-3.1-8b-instant"
 GEMINI_MODEL = "gemini-3.1-flash-lite"
-GEMINI_FALLBACK_MODELS = "gemini-2.5-flash"
 ADESSO_MODEL = "qwen-3.6-35b-sovereign"
 FIREBASE_DB_URL = "https://signbridge-af728-default-rtdb.asia-southeast1.firebasedatabase.app"
 CAPTION_JOBS_PATH = "caption_jobs"
