@@ -39,8 +39,8 @@ dependencies:
   permission_handler: ^12.0.3
   flutter_tts: ^4.2.0
   camera: ^0.11.2
-  firebase_core: ^3.15.0
-  firebase_database: ^11.3.10
+  firebase_core: ^4.11.0
+  firebase_database: ^12.4.3
   http: ^1.4.0
   webview_flutter: ^4.14.0
   url_launcher: ^6.3.1
