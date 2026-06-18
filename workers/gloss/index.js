@@ -1,6 +1,6 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
- * Provider chain: Groq → Gemini 3.1 Flash-Lite → Adesso (local fallback in app).
+ * Provider chain: Gemini 3.5 Flash → Groq → Adesso (local fallback in app).
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
@@ -79,17 +79,17 @@ function adessoConfigured(env) {
 async function captionToGloss(caption, signLanguage, env) {
   const errors = [];
 
-  if (groqConfigured(env)) {
+  if (geminiApiKey(env)) {
     try {
-      return await captionToGlossGroq(caption, signLanguage, env);
+      return await captionToGlossGemini(caption, signLanguage, env);
     } catch (err) {
       errors.push(err);
     }
   }
 
-  if (geminiApiKey(env)) {
+  if (groqConfigured(env)) {
     try {
-      return await captionToGlossGemini(caption, signLanguage, env);
+      return await captionToGlossGroq(caption, signLanguage, env);
     } catch (err) {
       errors.push(err);
     }
@@ -114,7 +114,7 @@ async function captionToGloss(caption, signLanguage, env) {
 }
 
 function geminiModel(env) {
-  return (env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
+  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
 function isRetryableGeminiStatus(status) {
