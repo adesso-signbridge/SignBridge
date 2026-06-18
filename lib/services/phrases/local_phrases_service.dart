@@ -16,7 +16,12 @@ final class LocalPhrasesService implements PhrasesService {
   List<PhraseItem> phrases({
     String categoryId = PhraseCatalog.allCategoryId,
     String searchQuery = '',
+    String languageCode = 'ENG',
   }) {
-    return PhraseCatalog.filter(categoryId: categoryId, query: searchQuery);
+    return PhraseCatalog.filter(
+      categoryId: categoryId,
+      query: searchQuery,
+      languageCode: languageCode,
+    );
   }
 }

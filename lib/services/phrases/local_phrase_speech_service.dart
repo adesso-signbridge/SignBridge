@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import 'phrase_speech_service.dart';
+import 'tts_locale_resolver.dart';
 
 typedef AudioSessionRelease = Future<void> Function();
 
@@ -19,13 +20,6 @@ final class LocalPhraseSpeechService implements PhraseSpeechService {
   bool _iosAudioConfigured = false;
 
   FlutterTts get _engine => _tts ??= _ttsOverride ?? FlutterTts();
-
-  static const _localeByLanguage = <String, String>{
-    'ENG': 'en-US',
-    'HI': 'hi-IN',
-    'TA': 'ta-IN',
-    'ML': 'ml-IN',
-  };
 
   Future<void> _configureIosPlaybackSession() async {
     if (_iosAudioConfigured ||
@@ -56,11 +50,19 @@ final class LocalPhraseSpeechService implements PhraseSpeechService {
   }
 
   Future<void> _setLanguage(String languageCode) async {
-    final locale = _localeByLanguage[languageCode] ?? 'en-US';
+    final locale =
+        await TtsLocaleResolver.resolve(_engine, languageCode) ??
+        TtsLocaleResolver.preferredLocale(languageCode);
+    if (locale == null) {
+      return;
+    }
     try {
       await _engine.setLanguage(locale);
     } on Object {
-      await _engine.setLanguage('en-US');
+      final fallback = TtsLocaleResolver.preferredLocale('ENG');
+      if (fallback != null) {
+        await _engine.setLanguage(fallback);
+      }
     }
   }
 

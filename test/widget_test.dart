@@ -145,10 +145,44 @@ void main() {
     await tester.tap(find.text('ENG'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('മലയാളം'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('കേൾക്കാൻ ടാപ്പ് ചെയ്യുക'), findsOneWidget);
     expect(find.text('സംസാരം'), findsOneWidget);
+    expect(find.textContaining('ലേക്ക് മാറ്റി'), findsOneWidget);
+  });
+
+  testWidgets('Changing language while listening asks for confirmation', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const SignBridgeApp());
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('talk_listen_button')));
+    await tester.pump();
+    expect(find.text('Listening...'), findsOneWidget);
+
+    await tester.tap(find.text('ENG'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('മലയാളം'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Change language?'), findsOneWidget);
+    expect(
+      find.text('This will stop listening and clear the current caption.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Change'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Listening...'), findsNothing);
+    expect(find.textContaining('ലേക്ക് മാറ്റി'), findsOneWidget);
+    expect(find.text('കേൾക്കാൻ ടാപ്പ് ചെയ്യുക'), findsOneWidget);
   });
 
   testWidgets('Clear history hides during sign flow after listen stops', (

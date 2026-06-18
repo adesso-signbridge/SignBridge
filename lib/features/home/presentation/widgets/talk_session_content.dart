@@ -57,8 +57,6 @@ class TalkListeningContent extends StatelessWidget {
       ? 'assets/home/talk_flow/illu_signing.png'
       : 'assets/home/talk_flow/illu_listening.png';
 
-  int get _thinkingDotsCount => _hasCaption ? 2 : 1;
-
   @override
   Widget build(BuildContext context) {
     return _FigmaSessionColumn(
@@ -88,7 +86,6 @@ class TalkListeningContent extends StatelessWidget {
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? liveResult?.signSystem.label : null,
         ),
-        thinkingDotsCount: isRefreshingGloss ? 2 : _thinkingDotsCount,
       ),
     );
   }
@@ -122,7 +119,6 @@ class TalkHeardContent extends StatelessWidget {
           word: result.signingWord,
           systemLabel: result.signSystem.label,
         ),
-        thinkingDotsCount: 2,
       ),
     );
   }
@@ -159,7 +155,6 @@ class TalkSigningContent extends StatelessWidget {
           word: result.signingWord,
           systemLabel: result.signSystem.label,
         ),
-        thinkingDotsCount: 3,
       ),
     );
   }
@@ -231,7 +226,6 @@ class TalkStoppedContent extends StatelessWidget {
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? result.signSystem.label : null,
         ),
-        thinkingDotsCount: isRefreshingGloss ? 2 : 0,
       ),
     );
   }
@@ -426,7 +420,6 @@ class _TalkAvatarCardStage extends StatelessWidget {
     required this.signingWord,
     required this.signPulse,
     required this.signingChip,
-    required this.thinkingDotsCount,
   });
 
   final double height;
@@ -436,12 +429,6 @@ class _TalkAvatarCardStage extends StatelessWidget {
   final String signingWord;
   final int signPulse;
   final Widget signingChip;
-  final int thinkingDotsCount;
-
-  double get _illuSlotHeight {
-    final innerHeight = height - AppSpacing.talkSessionAvatarCardPaddingBottom;
-    return math.max(0, innerHeight - AppSpacing.talkSessionAvatarIlluTopInset);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -462,17 +449,20 @@ class _TalkAvatarCardStage extends StatelessWidget {
             AppSpacing.talkSessionAvatarCardRadius,
           ),
         ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          fit: StackFit.expand,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: _illuSlotHeight,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: Align(
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.topCenter,
+                child: signingChip,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.talkSessionSigningChipToAvatarGap),
+            Expanded(
+              child: Align(
+                alignment: Alignment.topCenter,
                 child: SizedBox(
                   width: AppSpacing.talkSessionAvatarIlluWidth,
                   height: AppSpacing.talkSessionAvatarIlluHeight,
@@ -486,21 +476,6 @@ class _TalkAvatarCardStage extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              top: AppSpacing.talkSessionSigningChipTopInCard,
-              left: 12,
-              right: 12,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: signingChip,
-              ),
-            ),
-            if (thinkingDotsCount > 0)
-              Positioned(
-                top: AppSpacing.talkSessionThinkingDotsTopInCard,
-                right: AppSpacing.talkSessionThinkingDotsRightInCard,
-                child: _ThinkingDots(activeCount: thinkingDotsCount),
-              ),
           ],
         ),
       ),
@@ -559,7 +534,7 @@ class _SigningTranscriptBubble extends StatelessWidget {
       borderColor: AppColors.talkHeardBubbleBorder,
       child: _CaptionBubbleBody(
         transcript: transcript,
-        maxHeight: AppSpacing.talkSessionFullTranscriptMaxHeight,
+        maxHeight: AppSpacing.talkSessionCaptionMaxHeight,
       ),
     );
   }
@@ -634,7 +609,7 @@ class _TranscriptBubble extends StatelessWidget {
       borderColor: AppColors.splashBlue,
       child: _CaptionBubbleBody(
         transcript: transcript,
-        maxHeight: AppSpacing.talkSessionLiveTranscriptMaxHeight,
+        maxHeight: AppSpacing.talkSessionCaptionMaxHeight,
         trailing: Container(
           width: AppSpacing.talkSessionCursorWidth,
           height: AppSpacing.talkSessionCursorHeight,
@@ -790,37 +765,46 @@ class _OverlaySigningChip extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(100),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$prefix ',
-                      style: const TextStyle(
-                        fontFamily: 'Klavika',
-                        fontWeight: FontWeight.w400,
-                        fontSize: AppSpacing.talkSessionSigningChipFont,
-                        height: 16 / 12,
-                        leadingDistribution: TextLeadingDistribution.even,
-                        color: AppColors.splashBlue,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '$word$systemSuffix',
-                      style: const TextStyle(
-                        fontFamily: 'Klavika',
-                        fontWeight: FontWeight.w700,
-                        fontSize: AppSpacing.talkSessionSigningChipFont,
-                        height: 16 / 12,
-                        leadingDistribution: TextLeadingDistribution.even,
-                        color: AppColors.splashBlue,
-                      ),
-                    ),
-                  ],
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: AppSpacing.talkSessionSigningChipMaxHeight,
+              ),
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-                softWrap: true,
-                textAlign: TextAlign.center,
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '$prefix ',
+                        style: const TextStyle(
+                          fontFamily: 'Klavika',
+                          fontWeight: FontWeight.w400,
+                          fontSize: AppSpacing.talkSessionSigningChipFont,
+                          height: 16 / 12,
+                          leadingDistribution: TextLeadingDistribution.even,
+                          color: AppColors.splashBlue,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '$word$systemSuffix',
+                        style: const TextStyle(
+                          fontFamily: 'Klavika',
+                          fontWeight: FontWeight.w700,
+                          fontSize: AppSpacing.talkSessionSigningChipFont,
+                          height: 16 / 12,
+                          leadingDistribution: TextLeadingDistribution.even,
+                          color: AppColors.splashBlue,
+                        ),
+                      ),
+                    ],
+                  ),
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),
@@ -854,37 +838,5 @@ class TalkFullTranscriptHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _FullTranscriptHeader(transcript: transcript, metaLabel: metaLabel);
-  }
-}
-
-class _ThinkingDots extends StatelessWidget {
-  const _ThinkingDots({required this.activeCount});
-
-  final int activeCount;
-
-  static const _opacities = [0.47, 0.82, 0.33];
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(3, (index) {
-        if (index >= activeCount) {
-          return const SizedBox.shrink();
-        }
-
-        return Container(
-          width: AppSpacing.talkSessionThinkingDotSize,
-          height: AppSpacing.talkSessionThinkingDotSize,
-          margin: EdgeInsets.only(
-            left: index == 0 ? 0 : AppSpacing.talkSessionThinkingDotGap,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.splashBlue.withValues(alpha: _opacities[index]),
-            shape: BoxShape.circle,
-          ),
-        );
-      }),
-    );
   }
 }

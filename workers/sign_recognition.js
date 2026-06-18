@@ -99,17 +99,33 @@ function geminiApiKey(env) {
 }
 
 function geminiPrimaryModel(env) {
-  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
+  return (env.SIGN_GEMINI_MODEL || env.GEMINI_MODEL || "gemini-2.5-flash").trim();
 }
 
 function geminiFallbackModel(env) {
-  return (env.GEMINI_FALLBACK_MODEL || "gemini-3.1-flash-lite").trim();
+  return (
+    env.SIGN_GEMINI_FALLBACK_MODEL ||
+    env.GEMINI_FALLBACK_MODEL ||
+    "gemini-2.0-flash"
+  ).trim();
 }
 
 function geminiModels(env) {
-  const primary = geminiPrimaryModel(env);
-  const fallback = geminiFallbackModel(env);
-  return fallback === primary ? [primary] : [primary, fallback];
+  const configured = [
+    geminiPrimaryModel(env),
+    geminiFallbackModel(env),
+    "gemini-1.5-flash",
+  ];
+  const seen = new Set();
+  const models = [];
+  for (const model of configured) {
+    if (!model || seen.has(model)) {
+      continue;
+    }
+    seen.add(model);
+    models.push(model);
+  }
+  return models;
 }
 
 function isRetryableGeminiStatus(status) {

@@ -31,10 +31,31 @@ class HomeUiCopy {
     required this.emergencySection,
     required this.callEmergency,
     required this.sos,
+    required this.callEmergencyConfirmTitle,
+    required this.callEmergencyConfirmBody,
+    required this.sosConfirmTitle,
+    required this.sosConfirmBody,
+    required this.emergencyCancelLabel,
+    required this.emergencyConfirmLabel,
+    required this.emergencyCallFailedLabel,
+    required this.sosCountdownTitle,
+    required this.sosCountdownBody,
+    required this.sosCountdownCancelLabel,
+    required this.emergencyPhonePermissionRequiredLabel,
+    required this.signRecordingTooShortLabel,
+    required this.signRecordingEmptyLabel,
+    required this.signNoSignsDetectedLabel,
     required this.aboutSection,
     required this.appLabel,
     required this.versionLabel,
     required this.footerCopyright,
+    required this.languageChangeConfirmTitle,
+    required this.languageChangeConfirmLabel,
+    required this.languageChangeConfirmListeningBody,
+    required this.languageChangeConfirmRecordingBody,
+    required this.languageChangeBlockedAnalyzingLabel,
+    required this.languageChangeBlockedEmergencyLabel,
+    required this.languageChangedSnackbar,
   });
 
   final String emptyStateMessage;
@@ -67,10 +88,37 @@ class HomeUiCopy {
   final String emergencySection;
   final String callEmergency;
   final String sos;
+  final String callEmergencyConfirmTitle;
+  final String callEmergencyConfirmBody;
+  final String sosConfirmTitle;
+  final String sosConfirmBody;
+  final String emergencyCancelLabel;
+  final String emergencyConfirmLabel;
+  final String emergencyCallFailedLabel;
+  final String sosCountdownTitle;
+  final String sosCountdownBody;
+  final String sosCountdownCancelLabel;
+  final String emergencyPhonePermissionRequiredLabel;
+  final String signRecordingTooShortLabel;
+  final String signRecordingEmptyLabel;
+  final String signNoSignsDetectedLabel;
   final String aboutSection;
   final String appLabel;
   final String versionLabel;
   final String footerCopyright;
+  final String languageChangeConfirmTitle;
+  final String languageChangeConfirmLabel;
+  final String languageChangeConfirmListeningBody;
+  final String languageChangeConfirmRecordingBody;
+  final String languageChangeBlockedAnalyzingLabel;
+  final String languageChangeBlockedEmergencyLabel;
+
+  /// Snackbar after a successful change. Use [languageChangedSnackbarFor].
+  final String languageChangedSnackbar;
+
+  String languageChangedSnackbarFor(String languageLabel) {
+    return languageChangedSnackbar.replaceAll('{language}', languageLabel);
+  }
 }
 
 const _homeUiCopyByLanguage = <String, HomeUiCopy>{
@@ -106,10 +154,42 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencySection: 'EMERGENCY',
     callEmergency: 'Call Emergency',
     sos: 'SOS',
+    callEmergencyConfirmTitle: 'Call emergency services?',
+    callEmergencyConfirmBody:
+        'SignBridge will automatically call 112. Allow phone permission if asked.',
+    sosConfirmTitle: 'Activate SOS?',
+    sosConfirmBody:
+        'SignBridge will speak an emergency message, then automatically call 112.',
+    emergencyCancelLabel: 'Cancel',
+    emergencyConfirmLabel: 'Call now',
+    emergencyCallFailedLabel: 'Could not place the emergency call.',
+    sosCountdownTitle: 'Calling emergency services',
+    sosCountdownBody:
+        'Calling 112 automatically. Tap Cancel to stop.',
+    sosCountdownCancelLabel: 'Cancel',
+    emergencyPhonePermissionRequiredLabel:
+        'Phone permission is required to auto-call emergency services.',
+    signRecordingTooShortLabel:
+        'Hold the record button for at least one second while signing.',
+    signRecordingEmptyLabel:
+        'Recording was empty. Try signing clearly for 2–3 seconds.',
+    signNoSignsDetectedLabel:
+        'No signs detected. Try signing clearly for 2–3 seconds.',
     aboutSection: 'ABOUT',
     appLabel: 'App',
     versionLabel: 'Version',
     footerCopyright: '© 2026 adesso India',
+    languageChangeConfirmTitle: 'Change language?',
+    languageChangeConfirmLabel: 'Change',
+    languageChangeConfirmListeningBody:
+        'This will stop listening and clear the current caption.',
+    languageChangeConfirmRecordingBody:
+        'This will stop recording and discard the video.',
+    languageChangeBlockedAnalyzingLabel:
+        'Sign analysis is in progress. Please wait.',
+    languageChangeBlockedEmergencyLabel:
+        'Finish the emergency action before changing language.',
+    languageChangedSnackbar: 'Language changed to {language}',
   ),
   'ML': HomeUiCopy(
     emptyStateMessage:
@@ -146,10 +226,41 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencySection: 'അടിയന്തരാവസ്ഥ',
     callEmergency: 'അടിയന്തര കോൾ',
     sos: 'SOS',
+    callEmergencyConfirmTitle: 'അടിയന്തര സേവനങ്ങളിലേക്ക് വിളിക്കണോ?',
+    callEmergencyConfirmBody:
+        'SignBridge 112-ലേക്ക് സ്വയമേവ വിളിക്കും. ചോദിച്ചാൽ ഫോൺ അനുമതി അനുവദിക്കുക.',
+    sosConfirmTitle: 'SOS സജീവമാക്കണോ?',
+    sosConfirmBody:
+        'SignBridge ഒരു അടിയന്തര സന്ദേശം പറയും, തുടർന്ന് 112-ലേക്ക് സ്വയമേവ വിളിക്കും.',
+    emergencyCancelLabel: 'റദ്ദാക്കുക',
+    emergencyConfirmLabel: 'ഇപ്പോൾ വിളിക്കുക',
+    emergencyCallFailedLabel: 'അടിയന്തര കോൾ ചെയ്യാൻ കഴിഞ്ഞില്ല.',
+    sosCountdownTitle: 'അടിയന്തര സേവനങ്ങളിലേക്ക് വിളിക്കുന്നു',
+    sosCountdownBody: '112-ലേക്ക് സ്വയമേവ വിളിക്കും. നിർത്താൻ റദ്ദാക്കുക അമർത്തുക.',
+    sosCountdownCancelLabel: 'റദ്ദാക്കുക',
+    emergencyPhonePermissionRequiredLabel:
+        'അടിയന്തര കോൾ ചെയ്യാൻ ഫോൺ അനുമതി ആവശ്യമാണ്.',
+    signRecordingTooShortLabel:
+        'സൈൻ ചെയ്യുമ്പോൾ റെക്കോർഡ് ബട്ടൺ കുറഞ്ഞത് ഒരു സെക്കന്റ് hold ചെയ്യുക.',
+    signRecordingEmptyLabel:
+        'റെക്കോർഡിംഗ് empty ആയിരുന്നു. 2–3 സെക്കന്റ് clearly സൈൻ ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.',
+    signNoSignsDetectedLabel:
+        'സൈനുകൾ കണ്ടെത്തിയില്ല. 2–3 സെക്കന്റ് clearly സൈൻ ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.',
     aboutSection: 'കുറിച്ച്',
     appLabel: 'ആപ്പ്',
     versionLabel: 'പതിപ്പ്',
     footerCopyright: '© 2026 adesso India',
+    languageChangeConfirmTitle: 'ഭാഷ മാറ്റണോ?',
+    languageChangeConfirmLabel: 'മാറ്റുക',
+    languageChangeConfirmListeningBody:
+        'ഇത് കേൾക്കൽ നിർത്തുകയും നിലവിലെ കാപ്ഷൻ മായ്ക്കുകയും ചെയ്യും.',
+    languageChangeConfirmRecordingBody:
+        'ഇത് റെക്കോർഡിംഗ് നിർത്തുകയും വീഡിയോ നിരസിക്കുകയും ചെയ്യും.',
+    languageChangeBlockedAnalyzingLabel:
+        'സൈൻ വിശകലനം നടക്കുന്നു. ദയവായി കാത്തിരിക്കുക.',
+    languageChangeBlockedEmergencyLabel:
+        'ഭാഷ മാറ്റുന്നതിന് മുമ്പ് അടിയന്തര പ്രവർത്തനം പൂർത്തിയാക്കുക.',
+    languageChangedSnackbar: 'ഭാഷ {language}-ലേക്ക് മാറ്റി',
   ),
   'HI': HomeUiCopy(
     emptyStateMessage:
@@ -185,10 +296,41 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencySection: 'आपातकाल',
     callEmergency: 'आपातकालीन कॉल',
     sos: 'SOS',
+    callEmergencyConfirmTitle: 'आपातकालीन सेवाओं को कॉल करें?',
+    callEmergencyConfirmBody:
+        'SignBridge स्वचालित रूप से 112 पर कॉल करेगा। पूछे जाने पर फ़ोन अनुमति दें।',
+    sosConfirmTitle: 'SOS सक्रिय करें?',
+    sosConfirmBody:
+        'SignBridge एक आपातकालीन संदेश बोलेगा, फिर स्वचालित रूप से 112 पर कॉल करेगा।',
+    emergencyCancelLabel: 'रद्द करें',
+    emergencyConfirmLabel: 'अभी कॉल करें',
+    emergencyCallFailedLabel: 'आपातकालीन कॉल नहीं हो सकी।',
+    sosCountdownTitle: 'आपातकालीन सेवाओं को कॉल किया जा रहा है',
+    sosCountdownBody: '112 पर स्वचालित कॉल। रोकने के लिए रद्द करें दबाएँ।',
+    sosCountdownCancelLabel: 'रद्द करें',
+    emergencyPhonePermissionRequiredLabel:
+        'स्वचालित आपातकालीन कॉल के लिए फ़ोन अनुमति आवश्यक है।',
+    signRecordingTooShortLabel:
+        'साइन करते समय रिकॉर्ड बटन कम से कम एक सेकंड दबाए रखें।',
+    signRecordingEmptyLabel:
+        'रिकॉर्डिंग खाली थी। 2–3 सेकंड स्पष्ट साइन करके फिर कोशिश करें।',
+    signNoSignsDetectedLabel:
+        'कोई साइन नहीं मिला। 2–3 सेकंड स्पष्ट साइन करके फिर कोशिश करें।',
     aboutSection: 'के बारे में',
     appLabel: 'ऐप',
     versionLabel: 'संस्करण',
     footerCopyright: '© 2026 adesso India',
+    languageChangeConfirmTitle: 'भाषा बदलें?',
+    languageChangeConfirmLabel: 'बदलें',
+    languageChangeConfirmListeningBody:
+        'इससे सुनना बंद हो जाएगा और वर्तमान कैप्शन साफ़ हो जाएगा।',
+    languageChangeConfirmRecordingBody:
+        'इससे रिकॉर्डिंग बंद हो जाएगी और वीडियो हट जाएगा।',
+    languageChangeBlockedAnalyzingLabel:
+        'साइन विश्लेषण चल रहा है। कृपया प्रतीक्षा करें।',
+    languageChangeBlockedEmergencyLabel:
+        'भाषा बदलने से पहले आपातकालीन कार्रवाई पूरी करें।',
+    languageChangedSnackbar: 'भाषा {language} में बदली',
   ),
   'TA': HomeUiCopy(
     emptyStateMessage:
@@ -224,10 +366,42 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencySection: 'அவசரம்',
     callEmergency: 'அவசர அழைப்பு',
     sos: 'SOS',
+    callEmergencyConfirmTitle: 'அவசர சேவைகளை அழைக்கவா?',
+    callEmergencyConfirmBody:
+        'SignBridge தானாக 112-க்கு அழைக்கும். கேட்கப்பட்டால் தொலைபேசி அனுமதியை வழங்கவும்.',
+    sosConfirmTitle: 'SOS ஐ செயல்படுத்தவா?',
+    sosConfirmBody:
+        'SignBridge ஒரு அவசர செய்தியை பேசும், பின்னர் தானாக 112-க்கு அழைக்கும்.',
+    emergencyCancelLabel: 'ரத்து செய்',
+    emergencyConfirmLabel: 'இப்போது அழை',
+    emergencyCallFailedLabel: 'அவசர அழைப்பை இணைக்க முடியவில்லை.',
+    sosCountdownTitle: 'அவசர சேவைகளை அழைக்கிறது',
+    sosCountdownBody:
+        '112-க்கு தானாக அழைக்கப்படும். நிறுத்த ரத்து செய் அழுத்தவும்.',
+    sosCountdownCancelLabel: 'ரத்து செய்',
+    emergencyPhonePermissionRequiredLabel:
+        'தானியங்கி அவசர அழைப்புக்கு தொலைபேசி அனுமதி தேவை.',
+    signRecordingTooShortLabel:
+        'சைகை செய்யும்போது ரெக்கார்ட் பொத்தானை குறைந்தது ஒரு வினாடி அழுத்தி வைத்திருங்கள்.',
+    signRecordingEmptyLabel:
+        'பதிவு காலியாக இருந்தது. 2–3 வினாடிகள் தெளிவாக சைகை செய்து மீண்டும் முயற்சிக்கவும்.',
+    signNoSignsDetectedLabel:
+        'சைகைகள் கண்டறியப்படவில்லை. 2–3 வினாடிகள் தெளிவாக சைகை செய்து மீண்டும் முயற்சிக்கவும்.',
     aboutSection: 'பற்றி',
     appLabel: 'பயன்பாடு',
     versionLabel: 'பதிப்பு',
     footerCopyright: '© 2026 adesso India',
+    languageChangeConfirmTitle: 'மொழியை மாற்றவா?',
+    languageChangeConfirmLabel: 'மாற்று',
+    languageChangeConfirmListeningBody:
+        'இது கேட்பதை நிறுத்தி தற்போதைய தலைப்பை அழிக்கும்.',
+    languageChangeConfirmRecordingBody:
+        'இது பதிவை நிறுத்தி வீடியோவை நிராகரிக்கும்.',
+    languageChangeBlockedAnalyzingLabel:
+        'சைகை பகுப்பாய்வு நடந்து கொண்டிருக்கிறது. காத்திருக்கவும்.',
+    languageChangeBlockedEmergencyLabel:
+        'மொழியை மாற்றுவதற்கு முன் அவசர செயலை முடிக்கவும்.',
+    languageChangedSnackbar: 'மொழி {language}-க்கு மாற்றப்பட்டது',
   ),
 };
 

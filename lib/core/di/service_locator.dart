@@ -8,6 +8,7 @@ import '../../services/gloss/gloss_service.dart';
 import '../../services/gloss/local_gloss_service.dart';
 import '../../services/phrases/local_phrase_speech_service.dart';
 import '../../services/phrases/local_phrases_service.dart';
+import '../../services/phrases/phrase_speech_service.dart';
 import '../../services/phrases/phrases_service.dart';
 import '../../services/settings/settings_service.dart';
 import '../../services/settings/local_settings_service.dart';
@@ -57,8 +58,14 @@ final class ServiceLocator {
     CaptionService? caption,
     GlossService? gloss,
     PhraseSpeechService? phraseSpeech,
+    SosService? sos,
   }) {
     final translateService = translate ?? LocalTranslateService();
+    final speechService =
+        phraseSpeech ??
+        LocalPhraseSpeechService(
+          releaseAudioSession: translateService.cancelListening,
+        );
     _instance = ServiceLocator._(
       splash: LocalSplashService(),
       home: LocalHomeService(),
@@ -67,12 +74,8 @@ final class ServiceLocator {
       caption: caption ?? LocalCaptionService(),
       gloss: gloss ?? _defaultGlossService(),
       phrases: LocalPhrasesService(),
-      phraseSpeech:
-          phraseSpeech ??
-          LocalPhraseSpeechService(
-            releaseAudioSession: translateService.cancelListening,
-          ),
-      sos: LocalSosService(),
+      phraseSpeech: speechService,
+      sos: sos ?? LocalSosService(phraseSpeech: speechService),
       settings: LocalSettingsService(),
     );
   }
