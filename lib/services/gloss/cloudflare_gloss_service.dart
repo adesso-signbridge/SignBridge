@@ -83,7 +83,10 @@ final class CloudflareGlossService implements GlossService {
 
     return glossRaw
         .map((value) => '$value'.trim().toUpperCase())
-        .where((token) => token.isNotEmpty)
+        .where((token) =>
+            token.isNotEmpty &&
+            token != 'GLOSSSEQUENCE' &&
+            token != 'GLOSSEQUENCE')
         .toList();
   }
 

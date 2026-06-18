@@ -147,6 +147,9 @@ async function captionToGlossGemini(caption, signLanguage, env) {
           signLanguage,
           apiKey,
         );
+        if (isInvalidGlossResponse(glossSequence)) {
+          throw new Error("Gemini returned invalid gloss tokens");
+        }
         return { glossSequence, modelUsed: model };
       } catch (err) {
         lastError = err;
@@ -167,8 +170,10 @@ async function captionToGlossGemini(caption, signLanguage, env) {
 
 function glossSystemInstruction(signLanguage) {
   return (
-    `Convert caption fragments to ${signLanguage} gloss. JSON only. ` +
-    `UPPERCASE tokens, no punctuation. Gloss only the fragment.`
+    `Convert the spoken caption into ${signLanguage} sign gloss tokens. ` +
+    `Return JSON with glossSequence as an array of UPPERCASE words only ` +
+    `(example: {"glossSequence":["HOW","CAN","HELP","YOU"]}). ` +
+    `Do not return the key name as a token. Gloss only the caption fragment.`
   );
 }
 
@@ -209,7 +214,7 @@ async function requestGeminiGloss(model, caption, signLanguage, apiKey) {
         temperature: 0.0,
         topP: 0.1,
         topK: 1,
-        maxOutputTokens: 48,
+        maxOutputTokens: 96,
         responseMimeType: "application/json",
         responseSchema: GLOSS_RESPONSE_SCHEMA,
       },
@@ -263,16 +268,11 @@ async function captionToGlossAdesso(caption, signLanguage, env) {
 function parseGloss(content) {
   const text = String(content).trim();
   const extracted = extractGlossTokens(text);
-  if (extracted) {
+  if (extracted && extracted.length > 0) {
     return normalizeGlossSequence(extracted);
   }
 
-  return normalizeGlossSequence(
-    text
-      .replace(/[\[\]"]/g, "")
-      .split(/[\s,]+/)
-      .filter(Boolean),
-  );
+  throw new Error(`Unable to parse gloss response: ${text.slice(0, 120)}`);
 }
 
 function extractGlossTokens(text) {
@@ -307,11 +307,22 @@ function glossTokensFromParsed(parsed) {
   if (Array.isArray(parsed)) {
     return parsed;
   }
-  if (parsed && Array.isArray(parsed.glossSequence)) {
-    return parsed.glossSequence;
+  if (!parsed || typeof parsed !== "object") {
+    return null;
   }
+
+  const sequence = parsed.glossSequence;
+  if (Array.isArray(sequence)) {
+    return sequence;
+  }
+  if (typeof sequence === "string" && sequence.trim()) {
+    return sequence.trim().split(/\s+/);
+  }
+
   return null;
 }
+
+const JSON_ARTIFACT_TOKENS = new Set(["GLOSSSEQUENCE", "GLOSSEQUENCE"]);
 
 function normalizeGlossSequence(tokens) {
   const normalized = tokens
@@ -319,15 +330,19 @@ function normalizeGlossSequence(tokens) {
       String(token)
         .trim()
         .toUpperCase()
-        .replace(/[^\w-]/g, ""),
+        .replace(/[^\w-?]/g, ""),
     )
-    .filter(Boolean);
+    .filter((token) => token && !JSON_ARTIFACT_TOKENS.has(token));
 
   if (normalized.length === 0) {
     throw new Error("Gloss sequence empty after normalization");
   }
 
   return normalized;
+}
+
+function isInvalidGlossResponse(tokens) {
+  return !tokens || tokens.length === 0 || tokens.every((token) => JSON_ARTIFACT_TOKENS.has(token));
 }
 
 function json(obj, status = 200) {
