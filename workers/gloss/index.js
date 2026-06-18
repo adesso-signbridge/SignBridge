@@ -1,6 +1,6 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
- * Provider chain: Gemini 3.5 Flash → Groq → Adesso (local fallback in app).
+ * Provider chain: Gemini 3.5 Flash → Gemini 3.1 Flash-Lite → Groq → Adesso (local fallback in app).
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
@@ -80,10 +80,12 @@ async function captionToGloss(caption, signLanguage, env) {
   const errors = [];
 
   if (geminiApiKey(env)) {
-    try {
-      return await captionToGlossGemini(caption, signLanguage, env);
-    } catch (err) {
-      errors.push(err);
+    for (const model of geminiModels(env)) {
+      try {
+        return await captionToGlossGemini(caption, signLanguage, env, model);
+      } catch (err) {
+        errors.push(err);
+      }
     }
   }
 
@@ -113,8 +115,18 @@ async function captionToGloss(caption, signLanguage, env) {
   throw new Error(detail || "No gloss provider configured");
 }
 
-function geminiModel(env) {
+function geminiPrimaryModel(env) {
   return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
+}
+
+function geminiFallbackModel(env) {
+  return (env.GEMINI_FALLBACK_MODEL || "gemini-3.1-flash-lite").trim();
+}
+
+function geminiModels(env) {
+  const primary = geminiPrimaryModel(env);
+  const fallback = geminiFallbackModel(env);
+  return fallback === primary ? [primary] : [primary, fallback];
 }
 
 function isRetryableGeminiStatus(status) {
@@ -168,19 +180,19 @@ async function captionToGlossGroq(caption, signLanguage, env) {
   return { glossSequence, modelUsed: `groq:${model}` };
 }
 
-async function captionToGlossGemini(caption, signLanguage, env) {
+async function captionToGlossGemini(caption, signLanguage, env, model) {
   const apiKey = geminiApiKey(env);
   if (!apiKey) {
     throw new Error("GEMINI_KEY not configured");
   }
 
-  const model = geminiModel(env);
+  const resolvedModel = (model || geminiPrimaryModel(env)).trim();
   let lastError = null;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const glossSequence = await requestGeminiGloss(
-        model,
+        resolvedModel,
         caption,
         signLanguage,
         apiKey,
@@ -188,7 +200,7 @@ async function captionToGlossGemini(caption, signLanguage, env) {
       if (isInvalidGlossResponse(glossSequence)) {
         throw new Error("Gemini returned invalid gloss tokens");
       }
-      return { glossSequence, modelUsed: model };
+      return { glossSequence, modelUsed: resolvedModel };
     } catch (err) {
       lastError = err;
       const status = err.status || 0;
