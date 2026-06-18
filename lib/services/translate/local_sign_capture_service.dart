@@ -23,6 +23,7 @@ final class LocalSignCaptureService implements SignCaptureService {
   Future<SignCaptureResult> analyzeRecording({
     required String videoPath,
     required String languageCode,
+    Duration recordingDuration = Duration.zero,
   }) async {
     // Placeholder for on-device / backend sign recognition from [videoPath].
     await Future<void>.delayed(const Duration(milliseconds: 1800));

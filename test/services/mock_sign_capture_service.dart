@@ -19,6 +19,7 @@ final class MockSignCaptureService implements SignCaptureService {
   Future<SignCaptureResult> analyzeRecording({
     required String videoPath,
     required String languageCode,
+    Duration recordingDuration = Duration.zero,
   }) async {
     lastVideoPath = videoPath;
     lastLanguageCode = languageCode;
