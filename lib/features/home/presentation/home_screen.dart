@@ -13,6 +13,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/caption/gloss_sequence_mapper.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
+import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
 import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
@@ -73,10 +74,16 @@ class _HomeScreenState extends State<HomeScreen> {
   CameraController? _signCameraController;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
+  final List<String> _accumulatedGlossTokens = [];
   final LocalGlossService _localGlossService = LocalGlossService();
+  Timer? _liveGlossDebounceTimer;
+  int _glossRequestGeneration = 0;
+  String? _lastFetchedGlossCaption;
+  String? _glossInFlightEndCaption;
 
   @override
   void dispose() {
+    _cancelLiveGlossDebounce();
     _cancelSessionTimers();
     _listenSubscription?.cancel();
     _listenErrorSubscription?.cancel();
@@ -104,7 +111,46 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-  void _cancelSessionTimers() {}
+  void _cancelSessionTimers() {
+    _cancelLiveGlossDebounce();
+  }
+
+  void _cancelLiveGlossDebounce() {
+    _liveGlossDebounceTimer?.cancel();
+    _liveGlossDebounceTimer = null;
+  }
+
+  void _resetLiveGlossState() {
+    _cancelLiveGlossDebounce();
+    _glossRequestGeneration++;
+    _cloudGlossWord = null;
+    _accumulatedGlossTokens.clear();
+    _lastFetchedGlossCaption = null;
+    _glossInFlightEndCaption = null;
+  }
+
+  String _normalizeGlossCaption(String caption) => caption.trim();
+
+  String? _glossCaptionDelta(String caption) {
+    return GlossCaptionDelta.compute(
+      fullCaption: _normalizeGlossCaption(caption),
+      glossedPrefix: _lastFetchedGlossCaption ?? '',
+    );
+  }
+
+  bool _needsGlossRefresh(String caption) {
+    final normalized = _normalizeGlossCaption(caption);
+    if (normalized.isEmpty) {
+      return false;
+    }
+    if (_glossCaptionDelta(normalized) == null) {
+      return false;
+    }
+    if (_cloudGlossInFlight && normalized == _glossInFlightEndCaption) {
+      return false;
+    }
+    return true;
+  }
 
   void _stopAudioLevelSubscription() {
     _audioLevelSubscription?.cancel();
@@ -291,8 +337,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = null;
       _audioLevel = 0;
       _signPulse = 0;
-      _cloudGlossWord = null;
     });
+    _resetLiveGlossState();
 
     await _listenSubscription?.cancel();
     _listenSubscription = null;
@@ -393,7 +439,12 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    if (update.isFinal && update.fullTranscript.trim().isEmpty) {
+    final caption = _normalizeGlossCaption(update.fullTranscript);
+    if (caption.isNotEmpty && _needsGlossRefresh(caption)) {
+      _scheduleLiveGlossUpdate();
+    }
+
+    if (update.isFinal && caption.isEmpty) {
       unawaited(_handleNoSpeechDetected(generation));
     }
   }
@@ -451,6 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) {
       return;
     }
+    _resetLiveGlossState();
     setState(() {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
@@ -502,16 +554,51 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = _listenResultForAvatar(result);
       _sessionPhase = TalkSessionPhase.stopped;
     });
+    if (result.hasTranscript) {
+      _cancelLiveGlossDebounce();
+      final caption = _normalizeGlossCaption(result.fullTranscript);
+      if (_needsGlossRefresh(caption)) {
+        unawaited(_refreshLiveGloss());
+      }
+    }
   }
 
-  Future<void> _sendCaptionToCloud() async {
+  void _scheduleLiveGlossUpdate({
+    Duration delay = const Duration(milliseconds: 1200),
+  }) {
     final result = _listenResult;
     if (result == null || !result.hasTranscript) {
       return;
     }
-    if (_cloudGlossInFlight) {
+    final caption = _normalizeGlossCaption(result.fullTranscript);
+    if (!_needsGlossRefresh(caption)) {
       return;
     }
+
+    _cancelLiveGlossDebounce();
+    _liveGlossDebounceTimer = Timer(delay, () {
+      _liveGlossDebounceTimer = null;
+      unawaited(_refreshLiveGloss());
+    });
+  }
+
+  Future<void> _refreshLiveGloss() async {
+    final result = _listenResult;
+    if (result == null || !result.hasTranscript) {
+      return;
+    }
+
+    final targetCaption = _normalizeGlossCaption(result.fullTranscript);
+    final delta = _glossCaptionDelta(targetCaption);
+    if (delta == null) {
+      return;
+    }
+    if (_cloudGlossInFlight && targetCaption == _glossInFlightEndCaption) {
+      return;
+    }
+
+    final generation = ++_glossRequestGeneration;
+    _glossInFlightEndCaption = targetCaption;
 
     setState(() => _cloudGlossInFlight = true);
     try {
@@ -519,33 +606,27 @@ class _HomeScreenState extends State<HomeScreen> {
         widget.selectedLanguageCode,
       );
       final jobId = DateTime.now().millisecondsSinceEpoch.toString();
-      final caption = result.fullTranscript;
       final signLanguage = system.label;
 
       final glossResult = await _requestGlossWithFallback(
         jobId: jobId,
-        caption: caption,
+        caption: delta,
         signLanguage: signLanguage,
       );
-      if (!mounted) {
+      if (!mounted || generation != _glossRequestGeneration) {
         return;
       }
-      if (glossResult.tokens.isEmpty) {
-        _showListenError(widget.uiCopy.cloudGlossFailedLabel);
-        return;
+      if (glossResult.tokens.isNotEmpty) {
+        _applyGlossResult(
+          glossTokens: glossResult.tokens,
+          system: system,
+          result: result,
+        );
       }
-
-      if (glossResult.usedLocalFallback) {
-        _showListenError(widget.uiCopy.localGlossFallbackLabel);
-      }
-
-      _applyGlossResult(
-        glossTokens: glossResult.tokens,
-        system: system,
-        result: result,
-      );
     } finally {
-      if (mounted) {
+      if (mounted && generation == _glossRequestGeneration) {
+        _lastFetchedGlossCaption = targetCaption;
+        _glossInFlightEndCaption = null;
         setState(() => _cloudGlossInFlight = false);
       }
     }
@@ -587,12 +668,23 @@ class _HomeScreenState extends State<HomeScreen> {
     required SignLanguageSystem system,
     required TalkListenResult result,
   }) {
+    for (final gloss in glossTokens) {
+      final token = gloss.trim();
+      if (token.isEmpty) {
+        continue;
+      }
+      if (_accumulatedGlossTokens.isEmpty ||
+          _accumulatedGlossTokens.last != token) {
+        _accumulatedGlossTokens.add(token);
+      }
+    }
+
     final sequence = GlossSequenceMapper.tokensFor(
-      glossSequence: glossTokens,
+      glossSequence: _accumulatedGlossTokens,
       system: system,
     );
     setState(() {
-      _cloudGlossWord = glossTokens.join(' ');
+      _cloudGlossWord = _accumulatedGlossTokens.join(' ');
       _listenResult = _listenResultForAvatar(result).copyWith(
         signingWord: _cloudGlossWord,
         signSequence: sequence,
@@ -622,7 +714,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
-      _cloudGlossWord = null;
+      _resetLiveGlossState();
       _signGeneration++;
       _signPhase = SignFlowPhase.idle;
       _signResult = null;
@@ -708,8 +800,7 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         liveResult: _listenResult,
         signPulse: _signPulse,
-        onSendCaption: _sendCaptionToCloud,
-        isSendingCaption: _cloudGlossInFlight,
+        isRefreshingGloss: _cloudGlossInFlight,
         cloudGlossWord: _cloudGlossWord,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
@@ -729,8 +820,7 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         result: _listenResult!,
         signPulse: _signPulse,
-        onSendCaption: _sendCaptionToCloud,
-        isSendingCaption: _cloudGlossInFlight,
+        isRefreshingGloss: _cloudGlossInFlight,
         cloudGlossWord: _cloudGlossWord,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),

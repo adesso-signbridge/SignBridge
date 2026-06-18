@@ -171,7 +171,9 @@ function glossSystemInstruction(signLanguage) {
     `captions into ${signLanguage} sign language gloss tokens. Reply only with ` +
     `JSON matching the provided schema. Each gloss token must be a single ` +
     `UPPERCASE word with no punctuation. Preserve semantic order appropriate ` +
-    `for ${signLanguage}. Do not include explanations, markdown, or prose.`
+    `for ${signLanguage}. When the caption is a short fragment continuing an ` +
+    `utterance, return gloss tokens only for that fragment — do not repeat ` +
+    `prior context. Do not include explanations, markdown, or prose.`
   );
 }
 
