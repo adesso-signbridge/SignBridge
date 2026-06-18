@@ -14,16 +14,14 @@ class TalkListeningContent extends StatelessWidget {
     required this.uiCopy,
     this.liveResult,
     this.signPulse = 0,
-    required this.onSendCaption,
-    this.isSendingCaption = false,
+    this.isRefreshingGloss = false,
     this.cloudGlossWord,
   });
 
   final HomeUiCopy uiCopy;
   final TalkListenResult? liveResult;
   final int signPulse;
-  final VoidCallback onSendCaption;
-  final bool isSendingCaption;
+  final bool isRefreshingGloss;
   final String? cloudGlossWord;
 
   bool get _hasCaption => liveResult?.fullTranscript.isNotEmpty ?? false;
@@ -32,7 +30,7 @@ class TalkListeningContent extends StatelessWidget {
     if (cloudGlossWord != null && cloudGlossWord!.trim().isNotEmpty) {
       return cloudGlossWord;
     }
-    if (_hasCaption) {
+    if (isRefreshingGloss || _hasCaption) {
       return uiCopy.signingListeningWord;
     }
     return null;
@@ -73,22 +71,8 @@ class TalkListeningContent extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: _hasCaption
-                ? _TranscriptBubble(
-                    transcript: liveResult!.fullTranscript,
-                    onSendCaption: onSendCaption,
-                    canSendCaption: !isSendingCaption,
-                    isSendingCaption: isSendingCaption,
-                    sendTooltip: uiCopy.sendCaptionLabel,
-                    showSendButton: true,
-                  )
-                : _SessionStatusBubble(
-                    label: uiCopy.listeningLabel,
-                    onSendCaption: onSendCaption,
-                    canSendCaption: false,
-                    isSendingCaption: isSendingCaption,
-                    sendTooltip: uiCopy.sendCaptionLabel,
-                    showSendButton: true,
-                  ),
+                ? _TranscriptBubble(transcript: liveResult!.fullTranscript)
+                : _SessionStatusBubble(label: uiCopy.listeningLabel),
           ),
         ),
       ),
@@ -104,7 +88,7 @@ class TalkListeningContent extends StatelessWidget {
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? liveResult?.signSystem.label : null,
         ),
-        thinkingDotsCount: isSendingCaption ? 2 : _thinkingDotsCount,
+        thinkingDotsCount: isRefreshingGloss ? 2 : _thinkingDotsCount,
       ),
     );
   }
@@ -187,23 +171,21 @@ class TalkStoppedContent extends StatelessWidget {
     required this.uiCopy,
     required this.result,
     this.signPulse = 0,
-    required this.onSendCaption,
-    this.isSendingCaption = false,
+    this.isRefreshingGloss = false,
     this.cloudGlossWord,
   });
 
   final HomeUiCopy uiCopy;
   final TalkListenResult result;
   final int signPulse;
-  final VoidCallback onSendCaption;
-  final bool isSendingCaption;
+  final bool isRefreshingGloss;
   final String? cloudGlossWord;
 
   String? get _chipWord {
     if (cloudGlossWord != null && cloudGlossWord!.trim().isNotEmpty) {
       return cloudGlossWord;
     }
-    if (result.hasTranscript) {
+    if (isRefreshingGloss || result.hasTranscript) {
       return uiCopy.signingListeningWord;
     }
     return null;
@@ -236,11 +218,6 @@ class TalkStoppedContent extends StatelessWidget {
         metaLabel: result.hasTranscript
             ? '${uiCopy.heardLabel} · ${result.heardDuration}'
             : result.heardDuration,
-        onSendCaption: onSendCaption,
-        canSendCaption: result.hasTranscript && !isSendingCaption,
-        isSendingCaption: isSendingCaption,
-        sendTooltip: uiCopy.sendCaptionLabel,
-        showSendButton: true,
       ),
       stage: (height) => _TalkAvatarCardStage(
         height: height,
@@ -254,7 +231,7 @@ class TalkStoppedContent extends StatelessWidget {
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? result.signSystem.label : null,
         ),
-        thinkingDotsCount: isSendingCaption ? 2 : 0,
+        thinkingDotsCount: isRefreshingGloss ? 2 : 0,
       ),
     );
   }
@@ -409,20 +386,10 @@ class _FullTranscriptHeader extends StatelessWidget {
   const _FullTranscriptHeader({
     required this.transcript,
     required this.metaLabel,
-    this.onSendCaption,
-    this.canSendCaption = false,
-    this.isSendingCaption = false,
-    this.sendTooltip,
-    this.showSendButton = false,
   });
 
   final String transcript;
   final String metaLabel;
-  final VoidCallback? onSendCaption;
-  final bool canSendCaption;
-  final bool isSendingCaption;
-  final String? sendTooltip;
-  final bool showSendButton;
 
   @override
   Widget build(BuildContext context) {
@@ -438,14 +405,7 @@ class _FullTranscriptHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _SigningTranscriptBubble(
-                transcript: transcript,
-                onSendCaption: onSendCaption,
-                canSendCaption: canSendCaption,
-                isSendingCaption: isSendingCaption,
-                sendTooltip: sendTooltip,
-                showSendButton: showSendButton,
-              ),
+              _SigningTranscriptBubble(transcript: transcript),
               const SizedBox(height: AppSpacing.talkSessionMetaTop),
               _HeardMetaRow(label: metaLabel),
             ],
@@ -589,21 +549,9 @@ TextStyle get _transcriptTextStyle => const TextStyle(
 );
 
 class _SigningTranscriptBubble extends StatelessWidget {
-  const _SigningTranscriptBubble({
-    required this.transcript,
-    this.onSendCaption,
-    this.canSendCaption = false,
-    this.isSendingCaption = false,
-    this.sendTooltip,
-    this.showSendButton = false,
-  });
+  const _SigningTranscriptBubble({required this.transcript});
 
   final String transcript;
-  final VoidCallback? onSendCaption;
-  final bool canSendCaption;
-  final bool isSendingCaption;
-  final String? sendTooltip;
-  final bool showSendButton;
 
   @override
   Widget build(BuildContext context) {
@@ -612,11 +560,6 @@ class _SigningTranscriptBubble extends StatelessWidget {
       child: _CaptionBubbleBody(
         transcript: transcript,
         maxHeight: AppSpacing.talkSessionFullTranscriptMaxHeight,
-        onSendCaption: onSendCaption,
-        canSendCaption: canSendCaption,
-        isSendingCaption: isSendingCaption,
-        sendTooltip: sendTooltip,
-        showSendButton: showSendButton,
       ),
     );
   }
@@ -664,65 +607,26 @@ class _HeardMetaRow extends StatelessWidget {
 }
 
 class _SessionStatusBubble extends StatelessWidget {
-  const _SessionStatusBubble({
-    required this.label,
-    this.onSendCaption,
-    this.canSendCaption = false,
-    this.isSendingCaption = false,
-    this.sendTooltip,
-    this.showSendButton = false,
-  });
+  const _SessionStatusBubble({required this.label});
 
   final String label;
-  final VoidCallback? onSendCaption;
-  final bool canSendCaption;
-  final bool isSendingCaption;
-  final String? sendTooltip;
-  final bool showSendButton;
 
   @override
   Widget build(BuildContext context) {
     return _TalkBubbleContainer(
       borderColor: AppColors.splashBlue,
-      child: showSendButton
-          ? _CaptionBubbleBody(
-              transcript: label,
-              maxHeight: AppSpacing.talkSessionLiveTranscriptMaxHeight,
-              onSendCaption: onSendCaption,
-              canSendCaption: canSendCaption,
-              isSendingCaption: isSendingCaption,
-              sendTooltip: sendTooltip,
-              showSendButton: true,
-              transcriptStyle: _transcriptTextStyle.copyWith(
-                color: AppColors.talkMutedText,
-              ),
-            )
-          : Text(
-              label,
-              style: _transcriptTextStyle.copyWith(
-                color: AppColors.talkMutedText,
-              ),
-            ),
+      child: Text(
+        label,
+        style: _transcriptTextStyle.copyWith(color: AppColors.talkMutedText),
+      ),
     );
   }
 }
 
 class _TranscriptBubble extends StatelessWidget {
-  const _TranscriptBubble({
-    required this.transcript,
-    this.onSendCaption,
-    this.canSendCaption = false,
-    this.isSendingCaption = false,
-    this.sendTooltip,
-    this.showSendButton = false,
-  });
+  const _TranscriptBubble({required this.transcript});
 
   final String transcript;
-  final VoidCallback? onSendCaption;
-  final bool canSendCaption;
-  final bool isSendingCaption;
-  final String? sendTooltip;
-  final bool showSendButton;
 
   @override
   Widget build(BuildContext context) {
@@ -731,11 +635,6 @@ class _TranscriptBubble extends StatelessWidget {
       child: _CaptionBubbleBody(
         transcript: transcript,
         maxHeight: AppSpacing.talkSessionLiveTranscriptMaxHeight,
-        onSendCaption: onSendCaption,
-        canSendCaption: canSendCaption,
-        isSendingCaption: isSendingCaption,
-        sendTooltip: sendTooltip,
-        showSendButton: showSendButton,
         trailing: Container(
           width: AppSpacing.talkSessionCursorWidth,
           height: AppSpacing.talkSessionCursorHeight,
@@ -750,107 +649,19 @@ class _CaptionBubbleBody extends StatelessWidget {
   const _CaptionBubbleBody({
     required this.transcript,
     required this.maxHeight,
-    this.onSendCaption,
-    this.canSendCaption = false,
-    this.isSendingCaption = false,
-    this.sendTooltip,
     this.trailing,
-    this.transcriptStyle,
-    this.showSendButton = false,
   });
 
   final String transcript;
   final double maxHeight;
-  final VoidCallback? onSendCaption;
-  final bool canSendCaption;
-  final bool isSendingCaption;
-  final String? sendTooltip;
   final Widget? trailing;
-  final TextStyle? transcriptStyle;
-  final bool showSendButton;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            right: showSendButton ? 28 : 0,
-            bottom: showSendButton ? 2 : 0,
-          ),
-          child: _ScrollableTranscriptText(
-            transcript: transcript,
-            maxHeight: maxHeight,
-            trailing: trailing,
-            style: transcriptStyle,
-          ),
-        ),
-        if (showSendButton)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: _CaptionSendButton(
-              onPressed: canSendCaption ? onSendCaption : null,
-              isLoading: isSendingCaption,
-              tooltip: sendTooltip ?? 'Send',
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _CaptionSendButton extends StatelessWidget {
-  const _CaptionSendButton({
-    required this.onPressed,
-    required this.isLoading,
-    required this.tooltip,
-  });
-
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final String tooltip;
-
-  Color get _iconColor {
-    if (isLoading) {
-      return AppColors.talkMutedText;
-    }
-    return onPressed != null
-        ? AppColors.talkMutedText
-        : AppColors.talkMutedText.withValues(alpha: 0.35);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: SizedBox(
-        width: 24,
-        height: 24,
-        child: isLoading
-            ? Padding(
-                padding: const EdgeInsets.all(4),
-                child: CircularProgressIndicator(
-                  strokeWidth: 1.5,
-                  color: _iconColor,
-                ),
-              )
-            : IconButton(
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints(
-                  minWidth: 24,
-                  minHeight: 24,
-                ),
-                onPressed: onPressed,
-                icon: Icon(
-                  Icons.send_rounded,
-                  size: 16,
-                  color: _iconColor,
-                ),
-              ),
-      ),
+    return _ScrollableTranscriptText(
+      transcript: transcript,
+      maxHeight: maxHeight,
+      trailing: trailing,
     );
   }
 }
@@ -860,13 +671,11 @@ class _ScrollableTranscriptText extends StatefulWidget {
     required this.transcript,
     required this.maxHeight,
     this.trailing,
-    this.style,
   });
 
   final String transcript;
   final double maxHeight;
   final Widget? trailing;
-  final TextStyle? style;
 
   @override
   State<_ScrollableTranscriptText> createState() =>
@@ -919,7 +728,7 @@ class _ScrollableTranscriptTextState extends State<_ScrollableTranscriptText> {
   Widget build(BuildContext context) {
     final text = Text(
       widget.transcript,
-      style: widget.style ?? _transcriptTextStyle,
+      style: _transcriptTextStyle,
       softWrap: true,
     );
 
