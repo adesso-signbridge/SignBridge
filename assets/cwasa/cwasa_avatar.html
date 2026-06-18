@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SignBridge CWASA Avatar</title>
+  <link rel="stylesheet"
+    href="https://vhg.cmp.uea.ac.uk/tech/jas/vhg2021/cwa/cwasa.css" />
+  <script type="text/javascript"
+    src="https://vhg.cmp.uea.ac.uk/tech/jas/vhg2021/cwa/allcsa.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #F4F7FB;
+    }
+
+    .CWASAAvatar.av0 {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #A3B8D2;
+    }
+
+    .CWASAProgress.av0,
+    .CWASAGUI,
+    .divCtrlPanel,
+    .txtaSiGMLText,
+    .txtSiGMLURL,
+    .statusLog,
+    .menuAv {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="CWASAAvatar av0"></div>
+  <span class="CWASAProgress av0"></span>
+  <script>
+    window.SignBridge = {
+      ready: false,
+      queue: [],
+      playing: false,
+      timer: null,
+      msPerSign: 2800,
+      activeSignCount: 0,
+      activeSignIndex: -1,
+
+      clearTimer: function () {
+        if (this.timer) {
+          clearTimeout(this.timer);
+          this.timer = null;
+        }
+      },
+
+      countSigns: function (doc) {
+        if (!doc) {
+          return 0;
+        }
+        var matches = doc.match(/<hamgestural_sign\b/g);
+        return matches ? matches.length : 0;
+      },
+
+      scheduleNextBatch: function () {
+        var self = this;
+        self.clearTimer();
+        var duration = Math.max(self.msPerSign, self.activeSignCount * self.msPerSign);
+        self.timer = setTimeout(function () {
+          self.playing = false;
+          self.activeSignIndex = -1;
+          self.drainQueue();
+        }, duration);
+      },
+
+      enqueueBatch: function (doc) {
+        if (!this.ready || !doc) {
+          return;
+        }
+        this.queue.push(doc);
+        this.drainQueue();
+      },
+
+      resetAndPlayBatch: function (doc) {
+        if (!this.ready || !doc) {
+          return;
+        }
+        this.clearTimer();
+        this.queue = [doc];
+        this.playing = false;
+        this.activeSignIndex = -1;
+        try {
+          CWASA.stopSiGML(0);
+        } catch (err) {
+          console.error('CWASA stop failed', err);
+        }
+        this.drainQueue();
+      },
+
+      playSiGMLUrl: function (url) {
+        if (!this.ready || !url) {
+          return;
+        }
+        this.clearTimer();
+        this.queue = [];
+        this.playing = false;
+        this.activeSignIndex = -1;
+        try {
+          CWASA.stopSiGML(0);
+          CWASA.playSiGMLURL(url, 0);
+        } catch (err) {
+          console.error('CWASA URL play failed', err);
+        }
+      },
+
+      drainQueue: function () {
+        if (this.playing || !this.queue.length) {
+          return;
+        }
+
+        var doc = this.queue.shift();
+        this.playing = true;
+        this.activeSignCount = this.countSigns(doc);
+        this.activeSignIndex = -1;
+
+        var self = this;
+        try {
+          CWASA.stopSiGML(0);
+        } catch (err) {
+          console.error('CWASA stop failed', err);
+        }
+
+        window.setTimeout(function () {
+          try {
+            CWASA.playSiGMLText(doc, 0);
+            self.scheduleNextBatch();
+          } catch (err) {
+            console.error('CWASA play failed', err);
+            self.playing = false;
+            self.drainQueue();
+          }
+        }, 120);
+      },
+
+      notifyReady: function () {
+        if (window.SignBridge.ready) {
+          return;
+        }
+        window.SignBridge.ready = true;
+        if (window.SignBridgeFlutter) {
+          SignBridgeFlutter.postMessage('ready');
+        }
+      }
+    };
+
+    window.addEventListener('load', function () {
+      CWASA.init({
+        avSettings: {
+          initCamera: [0.00, 0.53, 2.06, -12.50, 18.00, 30.00, -1.00, -1.00],
+          initSpeed: -1
+        },
+        useClientConfig: false
+      });
+
+      CWASA.addHook('avatarloaded', function () {
+        window.SignBridge.notifyReady();
+      }, 0);
+
+      CWASA.addHook('avatarsign', function (evt) {
+        var sb = window.SignBridge;
+        if (!sb.playing || !evt || !evt.msg) {
+          return;
+        }
+        sb.activeSignIndex = evt.msg.s;
+        if (sb.activeSignCount > 0 &&
+            sb.activeSignIndex >= sb.activeSignCount - 1) {
+          sb.clearTimer();
+          sb.timer = setTimeout(function () {
+            sb.playing = false;
+            sb.activeSignIndex = -1;
+            sb.drainQueue();
+          }, sb.msPerSign);
+        }
+      }, 0);
+
+      setTimeout(function () {
+        window.SignBridge.notifyReady();
+      }, 4000);
+    });
+  </script>
+</body>
+</html>

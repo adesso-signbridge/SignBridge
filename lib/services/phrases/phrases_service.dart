@@ -1,5 +1,6 @@
 import '../../core/services/microservice.dart';
 
+import 'phrase_catalog.dart';
 import 'phrase_category.dart';
 import 'phrase_item.dart';
 import 'phrases_ui_copy.dart';
@@ -14,5 +15,9 @@ abstract class PhrasesService implements Microservice {
 
   List<PhraseCategory> categories();
 
-  List<PhraseItem> phrases({String categoryId, String searchQuery});
+  List<PhraseItem> phrases({
+    String categoryId = PhraseCatalog.allCategoryId,
+    String searchQuery = '',
+    String languageCode = 'ENG',
+  });
 }

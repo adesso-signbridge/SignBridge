@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +12,11 @@ class SignCameraRecorder extends StatefulWidget {
   const SignCameraRecorder({
     super.key,
     required this.isRecording,
-    required this.onRecordingReady,
     required this.onRecordingStopped,
     required this.onError,
   });
 
   final bool isRecording;
-  final ValueChanged<CameraController> onRecordingReady;
   final ValueChanged<String> onRecordingStopped;
   final ValueChanged<String> onError;
 
@@ -27,6 +27,8 @@ class SignCameraRecorder extends StatefulWidget {
 class _SignCameraRecorderState extends State<SignCameraRecorder> {
   CameraController? _controller;
   bool _isRecordingVideo = false;
+  bool _stopPending = false;
+  bool _startInFlight = false;
 
   @override
   void initState() {
@@ -40,10 +42,10 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
   @override
   void didUpdateWidget(covariant SignCameraRecorder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isRecording && !_isRecordingVideo) {
-      _startRecording();
-    } else if (!widget.isRecording && _isRecordingVideo) {
-      _stopRecording();
+    if (widget.isRecording && !_isRecordingVideo && !_stopPending) {
+      unawaited(_startRecording());
+    } else if (!widget.isRecording) {
+      unawaited(_handleStopRequest());
     }
   }
 
@@ -66,12 +68,40 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
         return;
       }
       setState(() => _controller = controller);
-      widget.onRecordingReady(controller);
       if (widget.isRecording) {
         await _startRecording();
+      } else if (_stopPending) {
+        await _handleStopRequest();
       }
     } on Object catch (error) {
+      _stopPending = false;
       widget.onError(error.toString());
+    }
+  }
+
+  Future<void> _handleStopRequest() async {
+    if (_isRecordingVideo) {
+      await _stopRecording();
+      return;
+    }
+
+    if (_startInFlight) {
+      _stopPending = true;
+      return;
+    }
+
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) {
+      _stopPending = true;
+      return;
+    }
+
+    _stopPending = false;
+    await _startRecording();
+    if (_isRecordingVideo) {
+      await _stopRecording();
+    } else {
+      widget.onError('Recording did not start');
     }
   }
 
@@ -79,14 +109,23 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     final controller = _controller;
     if (controller == null ||
         !controller.value.isInitialized ||
-        _isRecordingVideo) {
+        _isRecordingVideo ||
+        _startInFlight) {
       return;
     }
+    _startInFlight = true;
     try {
       await controller.startVideoRecording();
       _isRecordingVideo = true;
+      if (_stopPending || !widget.isRecording) {
+        _stopPending = false;
+        await _stopRecording();
+      }
     } on Object catch (error) {
+      _stopPending = false;
       widget.onError(error.toString());
+    } finally {
+      _startInFlight = false;
     }
   }
 
@@ -98,15 +137,19 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     try {
       final file = await controller.stopVideoRecording();
       _isRecordingVideo = false;
+      _stopPending = false;
       widget.onRecordingStopped(file.path);
     } on Object catch (error) {
+      _stopPending = false;
       widget.onError(error.toString());
     }
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    final controller = _controller;
+    _controller = null;
+    controller?.dispose();
     super.dispose();
   }
 

@@ -60,6 +60,8 @@ abstract final class AppSpacing {
   // Figma overlay clearance inside the avatar card (Heard: dots top ~46px).
   static const double talkSessionAvatarIlluTopInset = 48;
   static const double talkSessionSigningChipTopInCard = -8;
+  /// Vertical gap between the blue signing chip and the avatar illustration.
+  static const double talkSessionSigningChipToAvatarGap = 33;
   static const double talkSessionThinkingDotsTopInCard = 14;
   static const double talkSessionThinkingDotsRightInCard = 42;
 
@@ -121,8 +123,14 @@ abstract final class AppSpacing {
   static const double talkSessionSigningChipFont = 12;
   static const double talkSessionTranscriptFont = 14;
   static const double talkSessionTranscriptLineHeight = 21 / 14;
-  static const double talkSessionLiveTranscriptMaxHeight = 105;
-  static const double talkSessionFullTranscriptMaxHeight = 168;
+  /// Shared max scroll height for live caption, heard caption, and signing chip.
+  static const double talkSessionCaptionMaxHeight = 105;
+  static const double talkSessionLiveTranscriptMaxHeight =
+      talkSessionCaptionMaxHeight;
+  static const double talkSessionFullTranscriptMaxHeight =
+      talkSessionCaptionMaxHeight;
+  static const double talkSessionSigningChipMaxHeight =
+      talkSessionCaptionMaxHeight;
   static const double talkSessionCursorWidth = 2;
   static const double talkSessionCursorGap = 4;
   static const double talkSessionCursorHeight = 16;

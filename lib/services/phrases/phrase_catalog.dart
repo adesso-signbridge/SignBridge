@@ -512,6 +512,7 @@ abstract final class PhraseCatalog {
   static List<PhraseItem> filter({
     String categoryId = allCategoryId,
     String query = '',
+    String languageCode = 'ENG',
   }) {
     final normalizedQuery = query.trim().toLowerCase();
     return phrases.where((phrase) {
@@ -523,7 +524,9 @@ abstract final class PhraseCatalog {
       if (normalizedQuery.isEmpty) {
         return true;
       }
-      return phrase.text.toLowerCase().contains(normalizedQuery) ||
+      final localized = phrase.textFor(languageCode).toLowerCase();
+      return localized.contains(normalizedQuery) ||
+          phrase.text.toLowerCase().contains(normalizedQuery) ||
           phrase.category.defaultLabel.toLowerCase().contains(normalizedQuery);
     }).toList();
   }

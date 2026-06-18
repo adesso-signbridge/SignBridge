@@ -108,7 +108,13 @@ final class CloudflareSignCaptureService implements SignCaptureService {
       ..fields['languageCode'] = languageCode
       ..fields['signLanguage'] = signLanguage
       ..fields['durationMs'] = '${recordingDuration.inMilliseconds}'
-      ..files.add(await http.MultipartFile.fromPath('video', videoPath));
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          'video',
+          videoPath,
+          filename: _videoUploadFilename(videoPath),
+        ),
+      );
 
     if (_sharedKey.isNotEmpty) {
       request.headers['X-SignBridge-Key'] = _sharedKey;
@@ -163,5 +169,17 @@ final class CloudflareSignCaptureService implements SignCaptureService {
 
   void dispose() {
     _client.close();
+  }
+
+  static String _videoUploadFilename(String videoPath) {
+    final name = videoPath.split('/').last;
+    if (name.contains('.')) {
+      return name;
+    }
+    final lower = videoPath.toLowerCase();
+    if (lower.contains('.mov')) {
+      return '$name.mov';
+    }
+    return '$name.mp4';
   }
 }

@@ -74,6 +74,7 @@ class _PhrasesScreenState extends State<PhrasesScreen> {
     return widget.phrasesService.phrases(
       categoryId: _selectedCategoryId,
       searchQuery: _searchQuery,
+      languageCode: widget.languageCode,
     );
   }
 
@@ -81,8 +82,9 @@ class _PhrasesScreenState extends State<PhrasesScreen> {
     await widget.speechService.stop();
     setState(() => _speakingPhraseId = phrase.id);
     await WidgetsBinding.instance.endOfFrame;
+    final spokenText = phrase.textFor(widget.languageCode);
     try {
-      await widget.speechService.speak(phrase.text, widget.languageCode);
+      await widget.speechService.speak(spokenText, widget.languageCode);
     } finally {
       if (mounted) {
         setState(() => _speakingPhraseId = null);
@@ -188,6 +190,7 @@ class _PhrasesScreenState extends State<PhrasesScreen> {
                             final isSpeaking = _speakingPhraseId == phrase.id;
                             return _PhraseTile(
                               phrase: phrase,
+                              languageCode: widget.languageCode,
                               categoryLabel: _uiCopy.categoryLabel(
                                 phrase.category.id,
                               ),
@@ -331,12 +334,14 @@ class _CategoryChip extends StatelessWidget {
 class _PhraseTile extends StatelessWidget {
   const _PhraseTile({
     required this.phrase,
+    required this.languageCode,
     required this.categoryLabel,
     required this.selected,
     required this.onTap,
   });
 
   final PhraseItem phrase;
+  final String languageCode;
   final String categoryLabel;
   final bool selected;
   final VoidCallback onTap;
@@ -366,7 +371,7 @@ class _PhraseTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      phrase.text,
+                      phrase.textFor(languageCode),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

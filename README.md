@@ -157,7 +157,7 @@ dart format --output=none --set-exit-if-changed .
 flutter analyze --fatal-infos --fatal-warnings
 flutter test test/architecture/
 flutter test test/validation/
-flutter test --exclude-tags store-blocker
+flutter test --exclude-tags  store-blocker
 ```
 
 ### Merge protection (3 CI checks)

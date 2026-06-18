@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -15,7 +14,6 @@ class TalkSignRecordingContent extends StatelessWidget {
     required this.uiCopy,
     this.heardResult,
     required this.isRecording,
-    required this.onRecordingReady,
     required this.onRecordingStopped,
     required this.onCameraError,
   });
@@ -23,7 +21,6 @@ class TalkSignRecordingContent extends StatelessWidget {
   final HomeUiCopy uiCopy;
   final TalkListenResult? heardResult;
   final bool isRecording;
-  final ValueChanged<CameraController> onRecordingReady;
   final ValueChanged<String> onRecordingStopped;
   final ValueChanged<String> onCameraError;
 
@@ -62,7 +59,6 @@ class TalkSignRecordingContent extends StatelessWidget {
                       children: [
                         SignCameraRecorder(
                           isRecording: isRecording,
-                          onRecordingReady: onRecordingReady,
                           onRecordingStopped: onRecordingStopped,
                           onError: onCameraError,
                         ),
@@ -185,6 +181,47 @@ class TalkSignHeardSection extends StatelessWidget {
   }
 }
 
+/// Shared row for sign-flow status bubbles so long labels wrap instead of overflowing.
+class TalkSignStatusLabelRow extends StatelessWidget {
+  const TalkSignStatusLabelRow({
+    super.key,
+    required this.leading,
+    required this.label,
+    required this.textStyle,
+  });
+
+  final Widget leading;
+  final String label;
+  final TextStyle textStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final maxWidth = screenWidth -
+        (AppSpacing.talkContentPaddingH * 2) -
+        (AppSpacing.talkSessionBubblePaddingH * 2);
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          leading,
+          const SizedBox(width: AppSpacing.talkSignStatusBubbleGap),
+          Flexible(
+            child: Text(
+              label,
+              softWrap: true,
+              style: textStyle,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Blue right-aligned bubble shown while recording signs.
 class TalkSignRecordingStatusBubble extends StatelessWidget {
   const TalkSignRecordingStatusBubble({super.key, required this.label});
@@ -196,29 +233,23 @@ class TalkSignRecordingStatusBubble extends StatelessWidget {
     return TalkSignRightStatusBubble(
       backgroundColor: AppColors.splashBlue,
       borderColor: Colors.transparent,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: AppSpacing.talkSignRecordingDotSize,
-            height: AppSpacing.talkSignRecordingDotSize,
-            decoration: const BoxDecoration(
-              color: AppColors.talkSignRecordingDot,
-              shape: BoxShape.circle,
-            ),
+      child: TalkSignStatusLabelRow(
+        leading: Container(
+          width: AppSpacing.talkSignRecordingDotSize,
+          height: AppSpacing.talkSignRecordingDotSize,
+          decoration: const BoxDecoration(
+            color: AppColors.talkSignRecordingDot,
+            shape: BoxShape.circle,
           ),
-          const SizedBox(width: AppSpacing.talkSignStatusBubbleGap),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Klavika',
-              fontWeight: FontWeight.w400,
-              fontSize: 13,
-              height: 20 / 13,
-              color: AppColors.white,
-            ),
-          ),
-        ],
+        ),
+        label: label,
+        textStyle: const TextStyle(
+          fontFamily: 'Klavika',
+          fontWeight: FontWeight.w400,
+          fontSize: 13,
+          height: 20 / 13,
+          color: AppColors.white,
+        ),
       ),
     );
   }
@@ -235,29 +266,23 @@ class TalkSignAnalyzingStatusBubble extends StatelessWidget {
     return TalkSignRightStatusBubble(
       backgroundColor: AppColors.talkSignAnalyzingBubbleBg,
       borderColor: AppColors.talkSignAnalyzingBubbleBorder,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 1.57,
-              color: AppColors.splashBlue.withValues(alpha: 0.55),
-            ),
+      child: TalkSignStatusLabelRow(
+        leading: SizedBox(
+          width: 16,
+          height: 16,
+          child: CircularProgressIndicator(
+            strokeWidth: 1.57,
+            color: AppColors.splashBlue.withValues(alpha: 0.55),
           ),
-          const SizedBox(width: AppSpacing.talkSignStatusBubbleGap),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Klavika',
-              fontWeight: FontWeight.w400,
-              fontSize: 13,
-              height: 20 / 13,
-              color: AppColors.phraseCategoryText,
-            ),
-          ),
-        ],
+        ),
+        label: label,
+        textStyle: const TextStyle(
+          fontFamily: 'Klavika',
+          fontWeight: FontWeight.w400,
+          fontSize: 13,
+          height: 20 / 13,
+          color: AppColors.phraseCategoryText,
+        ),
       ),
     );
   }

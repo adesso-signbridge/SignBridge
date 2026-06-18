@@ -3,6 +3,7 @@ import 'package:sign_bridge/services/translate/sign_capture_service.dart';
 final class MockSignCaptureService implements SignCaptureService {
   String? lastVideoPath;
   String? lastLanguageCode;
+  Duration analyzeDelay = Duration.zero;
 
   @override
   String get serviceName => 'mock-sign-capture';
@@ -23,7 +24,11 @@ final class MockSignCaptureService implements SignCaptureService {
   }) async {
     lastVideoPath = videoPath;
     lastLanguageCode = languageCode;
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+    if (analyzeDelay > Duration.zero) {
+      await Future<void>.delayed(analyzeDelay);
+    } else {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
     return peekResult(languageCode).copyWith(videoPath: videoPath);
   }
 }

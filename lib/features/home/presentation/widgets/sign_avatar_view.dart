@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sign_bridge/services/translate/sign_language_system.dart';
 
 import 'asl_sign_overlay.dart';
+import 'cwasa_avatar_view.dart';
 
 /// Renders the signing avatar with illustration + animated sign overlay.
 class SignAvatarView extends StatelessWidget {
@@ -28,8 +29,18 @@ class SignAvatarView extends StatelessWidget {
   static bool get _isFlutterTest =>
       Platform.environment.containsKey('FLUTTER_TEST');
 
-  bool get _showOverlay {
+  bool get _useCwasa {
     if (!showNative || kIsWeb || _isFlutterTest) {
+      return false;
+    }
+    if (!(Platform.isAndroid || Platform.isIOS)) {
+      return false;
+    }
+    return signTokenId != SignTokenIds.thinking;
+  }
+
+  bool get _showOverlay {
+    if (_useCwasa || !showNative || kIsWeb || _isFlutterTest) {
       return false;
     }
     return signTokenId != SignTokenIds.thinking;
@@ -37,6 +48,13 @@ class SignAvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_useCwasa) {
+      return CwasaAvatarView(
+        glossPhrase: signingWord,
+        pulse: signPulse,
+      );
+    }
+
     return Stack(
       fit: StackFit.expand,
       alignment: Alignment.bottomCenter,

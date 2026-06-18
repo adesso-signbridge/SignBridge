@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/platform/camera_permission.dart';
@@ -18,7 +18,9 @@ import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_service.dart';
+import '../../../services/translate/sign_language_system.dart';
 import '../../../services/translate/translate_service.dart';
+import 'language_change_coordinator.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
 import 'widgets/talk_sign_session_content.dart';
@@ -35,8 +37,12 @@ class HomeScreen extends StatefulWidget {
     required this.glossService,
     required this.selectedLanguageCode,
     required this.uiCopy,
+    required this.emergencyActive,
     required this.onMenuTap,
     required this.onLanguageChanged,
+    required this.onRegisterSession,
+    required this.onUnregisterSession,
+    required this.onSessionModeChanged,
   });
 
   final HomeService homeService;
@@ -46,8 +52,12 @@ class HomeScreen extends StatefulWidget {
   final GlossService glossService;
   final String selectedLanguageCode;
   final HomeUiCopy uiCopy;
+  final bool emergencyActive;
   final VoidCallback onMenuTap;
   final ValueChanged<String> onLanguageChanged;
+  final ValueChanged<HomeSessionRegistration> onRegisterSession;
+  final VoidCallback onUnregisterSession;
+  final ValueChanged<AppSessionMode> onSessionModeChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -71,7 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _signRecordingActive = false;
   DateTime? _signRecordingStartedAt;
   int _signGeneration = 0;
-  CameraController? _signCameraController;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
   final List<String> _accumulatedGlossTokens = [];
@@ -83,22 +92,95 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    widget.onUnregisterSession();
     _cancelLiveGlossDebounce();
     _cancelSessionTimers();
     _listenSubscription?.cancel();
     _listenErrorSubscription?.cancel();
     _stopAudioLevelSubscription();
-    _disposeSignCamera();
     unawaited(widget.translateService.cancelListening());
     super.dispose();
   }
 
   @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    widget.onSessionModeChanged(_appSessionMode);
+  }
+
+  @override
   void didUpdateWidget(covariant HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedLanguageCode != widget.selectedLanguageCode &&
-        _isActiveListenPhase) {
-      unawaited(_abortSessionForLanguageChange());
+    if (oldWidget.emergencyActive != widget.emergencyActive) {
+      widget.onSessionModeChanged(_appSessionMode);
+    }
+    if (oldWidget.selectedLanguageCode != widget.selectedLanguageCode) {
+      _handleLanguageApplied(
+        oldCode: oldWidget.selectedLanguageCode,
+        newCode: widget.selectedLanguageCode,
+      );
+    }
+  }
+
+  AppSessionMode get _appSessionMode {
+    if (widget.emergencyActive) {
+      return AppSessionMode.emergencyActive;
+    }
+    return switch (_signPhase) {
+      SignFlowPhase.recording => AppSessionMode.signRecording,
+      SignFlowPhase.analyzing => AppSessionMode.signAnalyzing,
+      SignFlowPhase.spoken => AppSessionMode.signSpoken,
+      SignFlowPhase.idle => switch (_sessionPhase) {
+        TalkSessionPhase.listening ||
+        TalkSessionPhase.heard ||
+        TalkSessionPhase.signing => AppSessionMode.listenActive,
+        TalkSessionPhase.stopped => AppSessionMode.listenStopped,
+        TalkSessionPhase.idle => AppSessionMode.idle,
+      },
+    };
+  }
+
+  Future<void> _teardownActiveSessions() async {
+    if (_isActiveListenPhase) {
+      await _abortListenSessionForLanguageChange();
+    }
+    if (_signPhase == SignFlowPhase.recording) {
+      ++_signGeneration;
+      await widget.phraseSpeechService.stop();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _signPhase = SignFlowPhase.idle;
+        _signRecordingActive = false;
+        _signRecordingStartedAt = null;
+      });
+    }
+  }
+
+  void _handleLanguageApplied({
+    required String oldCode,
+    required String newCode,
+  }) {
+    if (_signPhase == SignFlowPhase.spoken) {
+      return;
+    }
+    if (_sessionPhase != TalkSessionPhase.stopped || _listenResult == null) {
+      return;
+    }
+    final oldSystem = SignLanguageSystem.forSpokenLanguage(oldCode);
+    final newSystem = SignLanguageSystem.forSpokenLanguage(newCode);
+    if (oldSystem == newSystem) {
+      return;
+    }
+
+    final result = _listenResult!;
+    _resetLiveGlossState();
+    setState(() {
+      _listenResult = _listenResultForAvatar(result);
+    });
+    if (result.hasTranscript) {
+      unawaited(_refreshLiveGloss());
     }
   }
 
@@ -161,6 +243,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    widget.onRegisterSession(
+      HomeSessionRegistration(
+        teardownActiveSessions: _teardownActiveSessions,
+      ),
+    );
+    widget.onSessionModeChanged(_appSessionMode);
     widget.homeService.fetchHomeContent().then((content) {
       if (mounted) {
         setState(() => _content = content);
@@ -254,7 +342,38 @@ class _HomeScreenState extends State<HomeScreen> {
         ? Duration.zero
         : DateTime.now().difference(_signRecordingStartedAt!);
     _signRecordingStartedAt = null;
-    _disposeSignCamera();
+
+    if (!signCameraTestModeEnabled &&
+        recordingDuration < const Duration(milliseconds: 800)) {
+      if (!mounted || generation != _signGeneration) {
+        return;
+      }
+      setState(() => _signPhase = SignFlowPhase.idle);
+      _showListenError(widget.uiCopy.signRecordingTooShortLabel);
+      return;
+    }
+
+    if (!signCameraTestModeEnabled) {
+      final videoFile = File(videoPath);
+      if (!await videoFile.exists()) {
+        if (!mounted || generation != _signGeneration) {
+          return;
+        }
+        setState(() => _signPhase = SignFlowPhase.idle);
+        _showListenError(widget.uiCopy.signCaptureFailedLabel);
+        return;
+      }
+      final videoBytes = await videoFile.length();
+      if (videoBytes < 1024) {
+        if (!mounted || generation != _signGeneration) {
+          return;
+        }
+        setState(() => _signPhase = SignFlowPhase.idle);
+        _showListenError(widget.uiCopy.signRecordingEmptyLabel);
+        return;
+      }
+    }
+
     setState(() => _signPhase = SignFlowPhase.analyzing);
     try {
       final result = await widget.signCaptureService.analyzeRecording(
@@ -277,15 +396,40 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       debugPrint('Sign analysis failed: $error');
       setState(() => _signPhase = SignFlowPhase.idle);
-      _showListenError(widget.uiCopy.signCaptureFailedLabel);
+      _showListenError(_signCaptureErrorMessage(error));
     }
+  }
+
+  String _signCaptureErrorMessage(Object error) {
+    if (error is HttpException) {
+      final message = error.message;
+      final detailMatch = RegExp(
+        r'"detail"\s*:\s*"([^"]+)"',
+      ).firstMatch(message);
+      if (detailMatch != null) {
+        final detail = detailMatch.group(1)!;
+        if (detail.contains('GEMINI_KEY not configured')) {
+          return 'Sign analysis is not configured on the server.';
+        }
+        if (detail.length <= 120) {
+          return detail;
+        }
+      }
+      if (message.contains('empty text') ||
+          message.contains('empty sign text')) {
+        return widget.uiCopy.signNoSignsDetectedLabel;
+      }
+      if (message.contains('401')) {
+        return 'Sign analysis unauthorized. Check app configuration.';
+      }
+    }
+    return widget.uiCopy.signCaptureFailedLabel;
   }
 
   Future<void> _speakSignResult(SignCaptureResult result) async {
     if (!result.hasText) {
       return;
     }
-    _disposeSignCamera();
     await widget.translateService.cancelListening();
     await widget.phraseSpeechService.speak(
       result.text,
@@ -299,14 +443,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     await _speakSignResult(result);
-  }
-
-  void _disposeSignCamera() {
-    final controller = _signCameraController;
-    _signCameraController = null;
-    if (controller != null && controller.value.isInitialized) {
-      unawaited(controller.dispose());
-    }
   }
 
   Future<void> _startListening() async {
@@ -498,7 +634,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _showListenError(widget.uiCopy.noSpeechDetectedLabel);
   }
 
-  Future<void> _abortSessionForLanguageChange() async {
+  Future<void> _abortListenSessionForLanguageChange() async {
     _cancelSessionTimers();
     ++_listenGeneration;
     _listenSubscription?.cancel();
@@ -507,6 +643,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _listenErrorSubscription = null;
     _stopAudioLevelSubscription();
     await widget.translateService.cancelListening();
+    await widget.phraseSpeechService.stop();
     if (!mounted) {
       return;
     }
@@ -720,10 +857,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) {
       return;
     }
-    _disposeSignCamera();
-    if (!mounted) {
-      return;
-    }
     setState(() {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
@@ -768,9 +901,9 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         heardResult: _heardForSignFlow,
         isRecording: _signRecordingActive,
-        onRecordingReady: (controller) => _signCameraController = controller,
         onRecordingStopped: _analyzeSignVideo,
         onCameraError: (message) {
+          debugPrint('Sign camera error: $message');
           _showListenError(widget.uiCopy.signCaptureFailedLabel);
           setState(() => _signPhase = SignFlowPhase.idle);
         },

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -5,6 +7,7 @@ import '../core/di/service_locator.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/home/presentation/language_change_coordinator.dart';
 import '../features/home/presentation/settings_drawer.dart';
 import '../features/phrases/presentation/phrases_screen.dart';
 import '../services/home/home_service.dart';
@@ -22,6 +25,10 @@ class _MainShellState extends State<MainShell> {
   bool _phrasesTabMounted = false;
   String _appVersion = '1.0.0';
   String _languageCode = 'ENG';
+  HomeContent? _homeContent;
+  bool _emergencyActive = false;
+  AppSessionMode _homeSessionMode = AppSessionMode.idle;
+  HomeSessionRegistration? _homeSession;
   late final HomeService _homeService = ServiceLocator.instance.home;
 
   HomeUiCopy get _uiCopy => _homeService.uiCopyFor(_languageCode);
@@ -34,9 +41,116 @@ class _MainShellState extends State<MainShell> {
         setState(() {
           _appVersion = content.appVersion;
           _languageCode = content.selectedLanguageCode;
+          _homeContent = content;
         });
       }
     });
+  }
+
+  void _registerHomeSession(HomeSessionRegistration registration) {
+    _homeSession = registration;
+  }
+
+  void _unregisterHomeSession() {
+    _homeSession = null;
+    _homeSessionMode = AppSessionMode.idle;
+  }
+
+  void _onHomeSessionModeChanged(AppSessionMode mode) {
+    _homeSessionMode = mode;
+  }
+
+  Future<void> _requestLanguageChange(String newCode) async {
+    if (newCode == _languageCode) {
+      return;
+    }
+
+    final uiCopy = _uiCopy;
+    final mode = _emergencyActive
+        ? AppSessionMode.emergencyActive
+        : _homeSessionMode;
+    final action = LanguageChangeCoordinator.actionFor(mode);
+
+    switch (action) {
+      case LanguageChangeAction.block:
+        _showSnackBar(LanguageChangeCoordinator.blockMessageFor(mode, uiCopy));
+        return;
+      case LanguageChangeAction.confirmThenTeardown:
+        final confirmed = await _showLanguageChangeConfirmDialog(
+          title: uiCopy.languageChangeConfirmTitle,
+          body: LanguageChangeCoordinator.confirmBodyFor(mode, uiCopy),
+          cancelLabel: uiCopy.emergencyCancelLabel,
+          confirmLabel: uiCopy.languageChangeConfirmLabel,
+        );
+        if (!confirmed || !mounted) {
+          return;
+        }
+        await _homeSession?.teardownActiveSessions();
+        break;
+      case LanguageChangeAction.applyImmediate:
+        break;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    await ServiceLocator.instance.phraseSpeech.stop();
+    setState(() => _languageCode = newCode);
+
+    final languageLabel = _languageLabelFor(newCode);
+    final snackCopy = _homeService.uiCopyFor(newCode);
+    _showSnackBar(snackCopy.languageChangedSnackbarFor(languageLabel));
+  }
+
+  String _languageLabelFor(String code) {
+    final languages = _homeContent?.languages;
+    if (languages == null) {
+      return code;
+    }
+    return languages
+        .firstWhere(
+          (language) => language.code == code,
+          orElse: () => languages.first,
+        )
+        .label;
+  }
+
+  Future<bool> _showLanguageChangeConfirmDialog({
+    required String title,
+    required String body,
+    required String cancelLabel,
+    required String confirmLabel,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(cancelLabel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(confirmLabel),
+            ),
+          ],
+        );
+      },
+    );
+    return result ?? false;
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -59,7 +173,17 @@ class _MainShellState extends State<MainShell> {
         key: _scaffoldKey,
         backgroundColor: AppColors.white,
         endDrawerEnableOpenDragGesture: true,
-        endDrawer: SettingsDrawer(appVersion: _appVersion, uiCopy: uiCopy),
+        endDrawer: SettingsDrawer(
+          appVersion: _appVersion,
+          uiCopy: uiCopy,
+          languageCode: _languageCode,
+          sosService: services.sos,
+          onEmergencyActiveChanged: (active) {
+            if (_emergencyActive != active) {
+              setState(() => _emergencyActive = active);
+            }
+          },
+        ),
         body: IndexedStack(
           index: _selectedIndex,
           children: [
@@ -71,8 +195,12 @@ class _MainShellState extends State<MainShell> {
               glossService: services.gloss,
               selectedLanguageCode: _languageCode,
               uiCopy: uiCopy,
+              emergencyActive: _emergencyActive,
               onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
-              onLanguageChanged: (code) => setState(() => _languageCode = code),
+              onLanguageChanged: (code) => unawaited(_requestLanguageChange(code)),
+              onRegisterSession: _registerHomeSession,
+              onUnregisterSession: _unregisterHomeSession,
+              onSessionModeChanged: _onHomeSessionModeChanged,
             ),
             if (_phrasesTabMounted)
               PhrasesScreen(
@@ -81,8 +209,7 @@ class _MainShellState extends State<MainShell> {
                 speechService: services.phraseSpeech,
                 languageCode: _languageCode,
                 onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
-                onLanguageChanged: (code) =>
-                    setState(() => _languageCode = code),
+                onLanguageChanged: (code) => unawaited(_requestLanguageChange(code)),
               )
             else
               const SizedBox.shrink(),

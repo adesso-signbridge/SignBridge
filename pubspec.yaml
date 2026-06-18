@@ -42,6 +42,8 @@ dependencies:
   firebase_core: ^3.15.0
   firebase_database: ^11.3.10
   http: ^1.4.0
+  webview_flutter: ^4.14.0
+  url_launcher: ^6.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,6 +83,7 @@ flutter:
     - assets/home/talk_flow/illu_listening.png
     - assets/home/talk_flow/illu_heard.png
     - assets/home/talk_flow/illu_signing.png
+    - assets/cwasa/cwasa_avatar.html
     - assets/home/tabs/tab_convert.png
     - assets/home/tabs/tab_book.png
     - assets/home/tabs/tab_alert.png
