@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sign_bridge/services/gloss/cloudflare_gloss_service.dart';
+import 'package:sign_bridge/services/gloss/gloss_tier.dart';
 
 void main() {
   test('requestGloss parses worker glossSequence', () async {
@@ -13,6 +14,7 @@ void main() {
       final body = jsonDecode(request.body) as Map<String, dynamic>;
       expect(body['caption'], 'Hello there');
       expect(body['signLanguage'], 'ASL');
+      expect(body['glossTier'], 'live');
       return http.Response(
         jsonEncode({
           'ok': true,
@@ -60,6 +62,32 @@ void main() {
     );
 
     expect(gloss, ['ME', 'HELLO']);
+    service.dispose();
+  });
+
+  test('requestGloss sends glossTier for hybrid live/final routing', () async {
+    final client = MockClient((request) async {
+      final body = jsonDecode(request.body) as Map<String, dynamic>;
+      expect(body['glossTier'], 'final');
+      return http.Response(
+        jsonEncode({'ok': true, 'glossSequence': ['ME', 'WANT', 'WATER']}),
+        200,
+      );
+    });
+
+    final service = CloudflareGlossService(
+      workerUrl: 'https://gloss.example.com/',
+      client: client,
+    );
+
+    final gloss = await service.requestGloss(
+      jobId: 'job-3',
+      caption: 'I want water',
+      signLanguage: 'ASL',
+      tier: GlossTier.finalPass,
+    );
+
+    expect(gloss, ['ME', 'WANT', 'WATER']);
     service.dispose();
   });
 }

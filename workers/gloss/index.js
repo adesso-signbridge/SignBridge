@@ -1,6 +1,8 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
- * Provider chain: Gemini 3.5 Flash → Gemini 3.1 Flash-Lite → Groq → Adesso (local fallback in app).
+ * Provider chain (hybrid):
+ *   live  → Gemini 3.1 Flash-Lite → Groq → Adesso
+ *   final → Gemini 3.5 Flash → Gemini 3.1 Flash-Lite → Groq → Adesso
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
@@ -39,6 +41,7 @@ export default {
 
     const caption = (body.caption || "").trim();
     const signLanguage = (body.signLanguage || "ASL").trim();
+    const glossTier = parseGlossTier(body.glossTier);
     const jobId = (body.jobId || crypto.randomUUID()).trim();
 
     if (!caption) {
@@ -48,7 +51,12 @@ export default {
     let glossSequence;
     let modelUsed;
     try {
-      ({ glossSequence, modelUsed } = await captionToGloss(caption, signLanguage, env));
+      ({ glossSequence, modelUsed } = await captionToGloss(
+        caption,
+        signLanguage,
+        env,
+        glossTier,
+      ));
     } catch (err) {
       return json(
         { error: "Gloss request failed", detail: String(err).slice(0, 300), jobId },
@@ -76,11 +84,11 @@ function adessoConfigured(env) {
   return Boolean(env.ADESSO_KEY && env.ADESSO_API_URL);
 }
 
-async function captionToGloss(caption, signLanguage, env) {
+async function captionToGloss(caption, signLanguage, env, glossTier = "live") {
   const errors = [];
 
   if (geminiApiKey(env)) {
-    for (const model of geminiModels(env)) {
+    for (const model of geminiModelsForTier(env, glossTier)) {
       try {
         return await captionToGlossGemini(caption, signLanguage, env, model);
       } catch (err) {
@@ -115,6 +123,11 @@ async function captionToGloss(caption, signLanguage, env) {
   throw new Error(detail || "No gloss provider configured");
 }
 
+function parseGlossTier(value) {
+  const tier = String(value || "live").trim().toLowerCase();
+  return tier === "final" || tier === "quality" ? "final" : "live";
+}
+
 function geminiPrimaryModel(env) {
   return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
@@ -123,10 +136,13 @@ function geminiFallbackModel(env) {
   return (env.GEMINI_FALLBACK_MODEL || "gemini-3.1-flash-lite").trim();
 }
 
-function geminiModels(env) {
+function geminiModelsForTier(env, glossTier) {
   const primary = geminiPrimaryModel(env);
   const fallback = geminiFallbackModel(env);
-  return fallback === primary ? [primary] : [primary, fallback];
+  if (glossTier === "final") {
+    return fallback === primary ? [primary] : [primary, fallback];
+  }
+  return [fallback];
 }
 
 function isRetryableGeminiStatus(status) {

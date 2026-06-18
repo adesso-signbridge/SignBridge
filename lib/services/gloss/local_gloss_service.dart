@@ -1,6 +1,7 @@
 import '../translate/sign_language_catalog.dart';
 import '../translate/sign_language_system.dart';
 import 'gloss_service.dart';
+import 'gloss_tier.dart';
 
 /// Offline gloss generation using the on-device lexicon.
 final class LocalGlossService implements GlossService {
@@ -12,6 +13,7 @@ final class LocalGlossService implements GlossService {
     required String jobId,
     required String caption,
     required String signLanguage,
+    GlossTier tier = GlossTier.live,
   }) async {
     final system = signLanguage.toUpperCase().contains('ISL')
         ? SignLanguageSystem.isl
