@@ -1,13 +1,21 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
+ * POST /sign (multipart video) → spoken text via Gemini.
  * Provider chain: Gemini 3.5 Flash → Gemini 3.1 Flash-Lite → Groq → Adesso (local fallback in app).
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
+
+import { handleSignRecognitionRequest } from "../sign_recognition.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
 export default {
   async fetch(request, env) {
+    const pathname = new URL(request.url).pathname;
+    if (pathname.endsWith("/sign")) {
+      return handleSignRecognitionRequest(request, env);
+    }
+
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,

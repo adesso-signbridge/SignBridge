@@ -10,6 +10,7 @@ abstract class SignCaptureService implements Microservice {
   Future<SignCaptureResult> analyzeRecording({
     required String videoPath,
     required String languageCode,
+    Duration recordingDuration = Duration.zero,
   });
 
   /// Sample payload for simulators and tests.

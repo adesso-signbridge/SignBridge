@@ -15,6 +15,8 @@ import '../../services/sos/sos_service.dart';
 import '../../services/sos/local_sos_service.dart';
 import '../../services/splash/splash_service.dart';
 import '../../services/splash/local_splash_service.dart';
+import '../../services/translate/cloudflare_sign_config.dart';
+import '../../services/translate/cloudflare_sign_capture_service.dart';
 import '../../services/translate/local_sign_capture_service.dart';
 import '../../services/translate/local_translate_service.dart';
 import '../../services/translate/sign_capture_service.dart';
@@ -61,7 +63,7 @@ final class ServiceLocator {
       splash: LocalSplashService(),
       home: LocalHomeService(),
       translate: translateService,
-      signCapture: signCapture ?? LocalSignCaptureService(),
+      signCapture: signCapture ?? _defaultSignCaptureService(),
       caption: caption ?? LocalCaptionService(),
       gloss: gloss ?? _defaultGlossService(),
       phrases: LocalPhrasesService(),
@@ -80,5 +82,12 @@ final class ServiceLocator {
       return CloudflareGlossService();
     }
     return LocalGlossService();
+  }
+
+  static SignCaptureService _defaultSignCaptureService() {
+    if (CloudflareSignConfig.isConfigured) {
+      return CloudflareSignCaptureService();
+    }
+    return LocalSignCaptureService();
   }
 }

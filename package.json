@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "dev:sign": "wrangler dev -c wrangler.sign.toml",
+    "deploy:sign": "wrangler deploy -c wrangler.sign.toml"
   },
   "devDependencies": {
     "wrangler": "^4.24.0"

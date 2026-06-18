@@ -69,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   SignFlowPhase _signPhase = SignFlowPhase.idle;
   SignCaptureResult? _signResult;
   bool _signRecordingActive = false;
+  DateTime? _signRecordingStartedAt;
   int _signGeneration = 0;
   CameraController? _signCameraController;
   bool _cloudGlossInFlight = false;
@@ -212,6 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _signPhase = SignFlowPhase.recording;
         _signRecordingActive = true;
+        _signRecordingStartedAt = DateTime.now();
       });
       return;
     }
@@ -229,6 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _signPhase = SignFlowPhase.recording;
       _signRecordingActive = true;
+      _signRecordingStartedAt = DateTime.now();
     });
   }
 
@@ -247,12 +250,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _analyzeSignVideo(String videoPath) async {
     final generation = _signGeneration;
+    final recordingDuration = _signRecordingStartedAt == null
+        ? Duration.zero
+        : DateTime.now().difference(_signRecordingStartedAt!);
+    _signRecordingStartedAt = null;
     _disposeSignCamera();
     setState(() => _signPhase = SignFlowPhase.analyzing);
     try {
       final result = await widget.signCaptureService.analyzeRecording(
         videoPath: videoPath,
         languageCode: widget.selectedLanguageCode,
+        recordingDuration: recordingDuration,
       );
       if (!mounted || generation != _signGeneration) {
         return;
@@ -263,12 +271,13 @@ class _HomeScreenState extends State<HomeScreen> {
         _sessionPhase = TalkSessionPhase.stopped;
       });
       await _speakSignResult(result);
-    } on Object {
+    } on Object catch (error) {
       if (!mounted || generation != _signGeneration) {
         return;
       }
-      _showListenError(widget.uiCopy.signCaptureFailedLabel);
+      debugPrint('Sign analysis failed: $error');
       setState(() => _signPhase = SignFlowPhase.idle);
+      _showListenError(widget.uiCopy.signCaptureFailedLabel);
     }
   }
 

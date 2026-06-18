@@ -1,1 +1,3 @@
 GEMINI_KEY=your-gemini-api-key-here
+# Optional shared key for gloss + sign workers (Cloudflare secret: WORKER_SHARED_KEY)
+WORKER_SHARED_KEY=
