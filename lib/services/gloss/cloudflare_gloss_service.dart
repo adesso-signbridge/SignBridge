@@ -57,7 +57,7 @@ final class CloudflareGlossService implements GlossService {
             'signLanguage': signLanguage,
           }),
         )
-        .timeout(const Duration(seconds: 90));
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw HttpException(

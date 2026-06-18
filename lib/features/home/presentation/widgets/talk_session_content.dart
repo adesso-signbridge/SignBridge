@@ -39,18 +39,18 @@ class TalkListeningContent extends StatelessWidget {
   bool get _hasCloudGloss =>
       cloudGlossWord != null && cloudGlossWord!.trim().isNotEmpty;
 
-  String get _avatarSigningWord {
-    if (_hasCloudGloss) {
-      return cloudGlossWord!;
+  String get _avatarSignTokenId {
+    if (!_hasCloudGloss) {
+      return SignTokenIds.thinking;
     }
-    return _hasCaption ? uiCopy.signingListeningWord : '';
+    return liveResult?.signTokenId ?? SignTokenIds.thinking;
   }
 
-  String get _avatarSignTokenId {
-    if (_hasCloudGloss) {
-      return liveResult?.signTokenId ?? SignTokenIds.thinking;
+  String get _avatarSigningWord {
+    if (!_hasCloudGloss) {
+      return _hasCaption ? uiCopy.signingListeningWord : '';
     }
-    return SignTokenIds.thinking;
+    return cloudGlossWord!;
   }
 
   String get _avatarAsset => _hasCaption

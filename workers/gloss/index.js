@@ -167,13 +167,8 @@ async function captionToGlossGemini(caption, signLanguage, env) {
 
 function glossSystemInstruction(signLanguage) {
   return (
-    `You are a professional translation engine that converts spoken-language ` +
-    `captions into ${signLanguage} sign language gloss tokens. Reply only with ` +
-    `JSON matching the provided schema. Each gloss token must be a single ` +
-    `UPPERCASE word with no punctuation. Preserve semantic order appropriate ` +
-    `for ${signLanguage}. When the caption is a short fragment continuing an ` +
-    `utterance, return gloss tokens only for that fragment — do not repeat ` +
-    `prior context. Do not include explanations, markdown, or prose.`
+    `Convert caption fragments to ${signLanguage} gloss. JSON only. ` +
+    `UPPERCASE tokens, no punctuation. Gloss only the fragment.`
   );
 }
 
@@ -213,7 +208,8 @@ async function requestGeminiGloss(model, caption, signLanguage, apiKey) {
       generationConfig: {
         temperature: 0.0,
         topP: 0.1,
-        maxOutputTokens: 256,
+        topK: 1,
+        maxOutputTokens: 48,
         responseMimeType: "application/json",
         responseSchema: GLOSS_RESPONSE_SCHEMA,
       },
