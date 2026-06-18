@@ -14,6 +14,7 @@ import '../../../services/caption/gloss_sequence_mapper.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
+import '../../../services/gloss/gloss_tier.dart';
 import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
@@ -555,10 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     if (result.hasTranscript) {
       _cancelLiveGlossDebounce();
-      final caption = _normalizeGlossCaption(result.fullTranscript);
-      if (_needsGlossRefresh(caption)) {
-        unawaited(_refreshLiveGloss());
-      }
+      unawaited(_refreshFinalGloss());
     }
   }
 
@@ -618,6 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
         jobId: jobId,
         caption: delta,
         signLanguage: signLanguage,
+        tier: GlossTier.live,
       );
       if (!mounted || generation != _glossRequestGeneration) {
         return;
@@ -635,10 +634,60 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _refreshFinalGloss() async {
+    final result = _listenResult;
+    if (result == null || !result.hasTranscript) {
+      return;
+    }
+
+    final targetCaption = _normalizeGlossCaption(result.fullTranscript);
+    if (targetCaption.isEmpty) {
+      return;
+    }
+    if (_cloudGlossInFlight && targetCaption == _glossInFlightEndCaption) {
+      return;
+    }
+
+    final generation = ++_glossRequestGeneration;
+    _glossInFlightEndCaption = targetCaption;
+
+    setState(() => _cloudGlossInFlight = true);
+    try {
+      final system = SignLanguageSystem.forSpokenLanguage(
+        widget.selectedLanguageCode,
+      );
+      final jobId = '${DateTime.now().millisecondsSinceEpoch}-final';
+      final signLanguage = system.label;
+
+      final glossTokens = await _requestGlossWithFallback(
+        jobId: jobId,
+        caption: targetCaption,
+        signLanguage: signLanguage,
+        tier: GlossTier.finalPass,
+      );
+      if (!mounted || generation != _glossRequestGeneration) {
+        return;
+      }
+      if (glossTokens.isNotEmpty) {
+        _accumulatedGlossTokens
+          ..clear()
+          ..addAll(glossTokens);
+        _publishGlossState(system: system, result: result);
+      }
+    } finally {
+      if (mounted && generation == _glossRequestGeneration) {
+        _lastFetchedGlossCaption = targetCaption;
+        _glossInFlightEndCaption = null;
+        setState(() => _cloudGlossInFlight = false);
+      }
+    }
+  }
+
   Future<List<String>> _requestGlossWithFallback({
     required String jobId,
     required String caption,
     required String signLanguage,
+    GlossTier tier = GlossTier.live,
   }) async {
     if (CloudflareGlossConfig.isConfigured) {
       try {
@@ -646,6 +695,7 @@ class _HomeScreenState extends State<HomeScreen> {
           jobId: jobId,
           caption: caption,
           signLanguage: signLanguage,
+          tier: tier,
         );
         if (tokens.isNotEmpty) {
           return tokens;
@@ -659,6 +709,7 @@ class _HomeScreenState extends State<HomeScreen> {
       jobId: jobId,
       caption: caption,
       signLanguage: signLanguage,
+      tier: tier,
     );
   }
 

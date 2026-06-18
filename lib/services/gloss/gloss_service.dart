@@ -1,4 +1,5 @@
 import '../../core/services/microservice.dart';
+import 'gloss_tier.dart';
 
 /// Converts a spoken caption into sign-language gloss tokens.
 abstract class GlossService implements Microservice {
@@ -9,5 +10,6 @@ abstract class GlossService implements Microservice {
     required String jobId,
     required String caption,
     required String signLanguage,
+    GlossTier tier = GlossTier.live,
   });
 }
