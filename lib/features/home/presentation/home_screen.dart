@@ -572,23 +572,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final delay = _glossScheduleDelay(caption);
     _cancelLiveGlossDebounce();
-    if (delay == Duration.zero) {
-      unawaited(_refreshLiveGloss());
-      return;
-    }
     _liveGlossDebounceTimer = Timer(delay, () {
       _liveGlossDebounceTimer = null;
       unawaited(_refreshLiveGloss());
     });
   }
 
-  /// First fragment fires immediately; later fragments wait briefly for STT
-  /// to settle. Keeps first gloss under ~1s when the worker responds quickly.
+  /// Wait briefly for STT to settle before glossing.
   Duration _glossScheduleDelay(String caption) {
     if (_accumulatedGlossTokens.isEmpty && !_cloudGlossInFlight) {
-      return Duration.zero;
+      return const Duration(milliseconds: 300);
     }
-    return const Duration(milliseconds: 300);
+    return const Duration(milliseconds: 500);
   }
 
   Future<void> _refreshLiveGloss() async {
