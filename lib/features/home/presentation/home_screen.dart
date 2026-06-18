@@ -14,6 +14,7 @@ import '../../../services/caption/gloss_sequence_mapper.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
+import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_service.dart';
@@ -73,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
   final List<String> _accumulatedGlossTokens = [];
+  final LocalGlossService _localGlossService = LocalGlossService();
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
@@ -612,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final jobId = DateTime.now().millisecondsSinceEpoch.toString();
       final signLanguage = system.label;
 
-      final cloudTokens = await _requestCloudGloss(
+      final glossTokens = await _requestGlossWithFallback(
         jobId: jobId,
         caption: delta,
         signLanguage: signLanguage,
@@ -620,8 +622,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted || generation != _glossRequestGeneration) {
         return;
       }
-      if (cloudTokens.isNotEmpty) {
-        _insertGlossTokens(_accumulatedGlossTokens.length, cloudTokens);
+      if (glossTokens.isNotEmpty) {
+        _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
       }
     } finally {
@@ -633,23 +635,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<List<String>> _requestCloudGloss({
+  Future<List<String>> _requestGlossWithFallback({
     required String jobId,
     required String caption,
     required String signLanguage,
   }) async {
-    if (!CloudflareGlossConfig.isConfigured) {
-      return const [];
+    if (CloudflareGlossConfig.isConfigured) {
+      try {
+        final tokens = await widget.glossService.requestGloss(
+          jobId: jobId,
+          caption: caption,
+          signLanguage: signLanguage,
+        );
+        if (tokens.isNotEmpty) {
+          return tokens;
+        }
+      } on Object {
+        // Fall through to on-device gloss.
+      }
     }
-    try {
-      return await widget.glossService.requestGloss(
-        jobId: jobId,
-        caption: caption,
-        signLanguage: signLanguage,
-      );
-    } on Object {
-      return const [];
-    }
+
+    return _localGlossService.requestGloss(
+      jobId: jobId,
+      caption: caption,
+      signLanguage: signLanguage,
+    );
   }
 
   void _insertGlossTokens(int index, List<String> glossTokens) {
