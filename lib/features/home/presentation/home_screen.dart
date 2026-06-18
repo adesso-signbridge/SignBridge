@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import '../../../core/platform/camera_permission.dart';
 import '../../../core/platform/sign_camera_test_mode.dart';
 import '../../../core/platform/microphone_permission.dart';
-import '../../../core/platform/network_connectivity.dart';
 import '../../../core/platform/speech_permission.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -15,7 +14,6 @@ import '../../../services/caption/gloss_sequence_mapper.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
-import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_service.dart';
@@ -75,7 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
   final List<String> _accumulatedGlossTokens = [];
-  final LocalGlossService _localGlossService = LocalGlossService();
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
@@ -563,9 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _scheduleLiveGlossUpdate({
-    Duration delay = const Duration(milliseconds: 1200),
-  }) {
+  void _scheduleLiveGlossUpdate() {
     final result = _listenResult;
     if (result == null || !result.hasTranscript) {
       return;
@@ -575,11 +570,25 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    final delay = _glossScheduleDelay(caption);
     _cancelLiveGlossDebounce();
+    if (delay == Duration.zero) {
+      unawaited(_refreshLiveGloss());
+      return;
+    }
     _liveGlossDebounceTimer = Timer(delay, () {
       _liveGlossDebounceTimer = null;
       unawaited(_refreshLiveGloss());
     });
+  }
+
+  /// First fragment fires immediately; later fragments wait briefly for STT
+  /// to settle. Keeps first gloss under ~1s when the worker responds quickly.
+  Duration _glossScheduleDelay(String caption) {
+    if (_accumulatedGlossTokens.isEmpty && !_cloudGlossInFlight) {
+      return Duration.zero;
+    }
+    return const Duration(milliseconds: 300);
   }
 
   Future<void> _refreshLiveGloss() async {
@@ -608,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final jobId = DateTime.now().millisecondsSinceEpoch.toString();
       final signLanguage = system.label;
 
-      final glossResult = await _requestGlossWithFallback(
+      final cloudTokens = await _requestCloudGloss(
         jobId: jobId,
         caption: delta,
         signLanguage: signLanguage,
@@ -616,12 +625,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted || generation != _glossRequestGeneration) {
         return;
       }
-      if (glossResult.tokens.isNotEmpty) {
-        _applyGlossResult(
-          glossTokens: glossResult.tokens,
-          system: system,
-          result: result,
-        );
+      if (cloudTokens.isNotEmpty) {
+        _insertGlossTokens(_accumulatedGlossTokens.length, cloudTokens);
+        _publishGlossState(system: system, result: result);
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
@@ -632,53 +638,47 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<({List<String> tokens, bool usedLocalFallback})> _requestGlossWithFallback({
+  Future<List<String>> _requestCloudGloss({
     required String jobId,
     required String caption,
     required String signLanguage,
   }) async {
-    if (CloudflareGlossConfig.isConfigured) {
-      final online = await NetworkConnectivity.hasInternetConnection();
-      if (online) {
-        try {
-          final tokens = await widget.glossService.requestGloss(
-            jobId: jobId,
-            caption: caption,
-            signLanguage: signLanguage,
-          );
-          if (tokens.isNotEmpty) {
-            return (tokens: tokens, usedLocalFallback: false);
-          }
-        } on Object {
-          // Fall through to on-device gloss.
-        }
-      }
+    if (!CloudflareGlossConfig.isConfigured) {
+      return const [];
     }
-
-    final localTokens = await _localGlossService.requestGloss(
-      jobId: jobId,
-      caption: caption,
-      signLanguage: signLanguage,
-    );
-    return (tokens: localTokens, usedLocalFallback: true);
+    try {
+      return await widget.glossService.requestGloss(
+        jobId: jobId,
+        caption: caption,
+        signLanguage: signLanguage,
+      );
+    } on Object {
+      return const [];
+    }
   }
 
-  void _applyGlossResult({
-    required List<String> glossTokens,
-    required SignLanguageSystem system,
-    required TalkListenResult result,
-  }) {
+  void _insertGlossTokens(int index, List<String> glossTokens) {
+    var insertAt = index.clamp(0, _accumulatedGlossTokens.length);
     for (final gloss in glossTokens) {
       final token = gloss.trim();
       if (token.isEmpty) {
         continue;
       }
-      if (_accumulatedGlossTokens.isEmpty ||
-          _accumulatedGlossTokens.last != token) {
-        _accumulatedGlossTokens.add(token);
+      final previous = insertAt == 0
+          ? null
+          : _accumulatedGlossTokens[insertAt - 1];
+      if (previous == token) {
+        continue;
       }
+      _accumulatedGlossTokens.insert(insertAt, token);
+      insertAt++;
     }
+  }
 
+  void _publishGlossState({
+    required SignLanguageSystem system,
+    required TalkListenResult result,
+  }) {
     final sequence = GlossSequenceMapper.tokensFor(
       glossSequence: _accumulatedGlossTokens,
       system: system,
