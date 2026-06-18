@@ -142,11 +142,11 @@ async function captionToGlossGroq(caption, signLanguage, env) {
     body: JSON.stringify({
       model,
       temperature: 0,
-      max_tokens: 96,
+      max_tokens: 128,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: glossSystemInstruction(signLanguage) },
-        { role: "user", content: caption },
+        { role: "user", content: glossUserMessage(caption, signLanguage) },
       ],
     }),
   });
@@ -206,11 +206,42 @@ async function captionToGlossGemini(caption, signLanguage, env) {
 }
 
 function glossSystemInstruction(signLanguage) {
+  const lang = signLanguage.trim().toUpperCase();
+  if (lang.includes("ISL")) {
+    return (
+      `You convert spoken captions into Indian Sign Language (ISL) gloss. ` +
+      `Return JSON only: {"glossSequence":["TOKEN","..."]}. ` +
+      `Use UPPERCASE gloss tokens separated in an array. ` +
+      `Apply ISL grammar, not literal English word order. ` +
+      `Use ME for first person. Drop filler words: a, an, the, is, am, are, of, with. ` +
+      `Keep numbers, food names, and key nouns. Gloss only the caption fragment. ` +
+      `Never return "glossSequence" as a token. ` +
+      `Example: "I want water" → {"glossSequence":["ME","WANT","WATER"]}`
+    );
+  }
+
   return (
-    `Convert the spoken caption into ${signLanguage} sign gloss tokens. ` +
-    `Return JSON with glossSequence as an array of UPPERCASE words only ` +
-    `(example: {"glossSequence":["HOW","CAN","HELP","YOU"]}). ` +
-    `Do not return the key name as a token. Gloss only the caption fragment.`
+    `You convert spoken English into American Sign Language (ASL) gloss. ` +
+    `Return JSON only: {"glossSequence":["TOKEN","..."]}. ` +
+    `Use UPPERCASE gloss tokens in an array. ` +
+    `Apply ASL grammar (topic-comment), NOT word-for-word English. ` +
+    `Use ME instead of I. Drop articles (a, an, the) and filler prepositions (of, with) when possible. ` +
+    `Keep numbers and important nouns. WH-questions put the WH word last. ` +
+    `Gloss only the caption fragment. Never return "glossSequence" as a token. ` +
+    `Examples: ` +
+    `"how can I help you" → {"glossSequence":["HELP","YOU","HOW"]} ` +
+    `"I like dogs" → {"glossSequence":["DOG","ME","LIKE"]} ` +
+    `"I want one plate masala dosa with a cup of coffee" → ` +
+    `{"glossSequence":["ME","WANT","ONE","MASALA","DOSA","PLATE","COFFEE","CUP"]}`
+  );
+}
+
+function glossUserMessage(caption, signLanguage) {
+  return (
+    `Sign language: ${signLanguage.trim()}\n` +
+    `Convert this spoken caption into sign gloss using ${signLanguage.trim()} grammar ` +
+    `(not literal English word order):\n` +
+    `${caption}`
   );
 }
 
@@ -221,7 +252,7 @@ const GLOSS_RESPONSE_SCHEMA = {
       type: "ARRAY",
       items: { type: "STRING" },
       description:
-        "Sign language gloss tokens in strict sequential order. All strings must be UPPERCASE.",
+        "ASL/ISL gloss tokens in sign-language word order. All strings UPPERCASE. No articles or filler.",
       minItems: 1,
     },
   },
@@ -244,7 +275,7 @@ async function requestGeminiGloss(model, caption, signLanguage, apiKey) {
       contents: [
         {
           role: "user",
-          parts: [{ text: caption }],
+          parts: [{ text: glossUserMessage(caption, signLanguage) }],
         },
       ],
       generationConfig: {
@@ -288,7 +319,7 @@ async function captionToGlossAdesso(caption, signLanguage, env) {
           role: "system",
           content: glossSystemInstruction(signLanguage),
         },
-        { role: "user", content: caption },
+        { role: "user", content: glossUserMessage(caption, signLanguage) },
       ],
     }),
   });
