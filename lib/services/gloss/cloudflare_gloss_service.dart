@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 
 import 'cloudflare_gloss_config.dart';
 import 'gloss_service.dart';
-import 'gloss_tier.dart';
 
 /// Remote gloss generation via the Cloudflare Worker.
 final class CloudflareGlossService implements GlossService {
@@ -32,7 +31,6 @@ final class CloudflareGlossService implements GlossService {
     required String jobId,
     required String caption,
     required String signLanguage,
-    GlossTier tier = GlossTier.live,
   }) async {
     final trimmed = caption.trim();
     if (trimmed.isEmpty) {
@@ -57,7 +55,6 @@ final class CloudflareGlossService implements GlossService {
             'jobId': jobId,
             'caption': trimmed,
             'signLanguage': signLanguage,
-            'glossTier': tier.wireValue,
           }),
         )
         .timeout(const Duration(seconds: 15));
