@@ -99,22 +99,19 @@ function geminiApiKey(env) {
 }
 
 function geminiPrimaryModel(env) {
-  return (env.SIGN_GEMINI_MODEL || env.GEMINI_MODEL || "gemini-3.5-flash").trim();
+  // Video-only: do not fall back to GEMINI_MODEL (text gloss uses that separately).
+  return (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
 function geminiFallbackModel(env) {
-  return (
-    env.SIGN_GEMINI_FALLBACK_MODEL ||
-    env.GEMINI_FALLBACK_MODEL ||
-    "gemini-2.0-flash"
-  ).trim();
+  return (env.SIGN_GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
 }
 
 function geminiModels(env) {
   const configured = [
     geminiPrimaryModel(env),
     geminiFallbackModel(env),
-    "gemini-1.5-flash",
+    "gemini-3-flash",
   ];
   const seen = new Set();
   const models = [];
@@ -134,6 +131,11 @@ function isRetryableGeminiStatus(status) {
 
 function isModelUnavailableStatus(status) {
   return status === 404 || status === 400;
+}
+
+function shouldFailOverSignModel(err) {
+  const status = err.status || 0;
+  return isModelUnavailableStatus(status) || status === 429;
 }
 
 function sleep(ms) {
@@ -211,7 +213,7 @@ async function videoToSpokenText(
       );
     } catch (err) {
       errors.push(err);
-      if (isModelUnavailableStatus(err.status || 0)) {
+      if (shouldFailOverSignModel(err)) {
         continue;
       }
     }
@@ -248,7 +250,7 @@ async function requestGeminiSignText(
     } catch (err) {
       lastError = err;
       const status = err.status || 0;
-      if (isModelUnavailableStatus(status)) {
+      if (isModelUnavailableStatus(status) || status === 429) {
         break;
       }
       if (!isRetryableGeminiStatus(status) || attempt === 2) {

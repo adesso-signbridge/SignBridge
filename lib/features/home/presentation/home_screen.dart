@@ -422,6 +422,12 @@ class _HomeScreenState extends State<HomeScreen> {
       if (message.contains('401')) {
         return 'Sign analysis unauthorized. Check app configuration.';
       }
+      if (message.contains('429') || message.contains('You exceeded')) {
+        return 'Sign video analysis is rate-limited. Wait a minute and try again.';
+      }
+      if (message.contains('404') && message.contains('models/gemini')) {
+        return 'Sign video model is not available on the server. Check SIGN_GEMINI_MODEL.';
+      }
     }
     return widget.uiCopy.signCaptureFailedLabel;
   }
