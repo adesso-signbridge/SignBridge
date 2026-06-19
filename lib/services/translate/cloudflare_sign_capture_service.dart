@@ -52,7 +52,8 @@ final class CloudflareSignCaptureService implements SignCaptureService {
 
     final urls = _workerUrls();
     Object? lastError;
-    for (final url in urls) {
+    for (var index = 0; index < urls.length; index++) {
+      final url = urls[index];
       try {
         return await _analyzeAtWorker(
           workerUrl: url,
@@ -62,7 +63,8 @@ final class CloudflareSignCaptureService implements SignCaptureService {
         );
       } on Object catch (error) {
         lastError = error;
-        if (_shouldTryNextWorker(error)) {
+        final hasAlternate = index < urls.length - 1;
+        if (hasAlternate && _shouldTryNextWorker(error)) {
           continue;
         }
         rethrow;
@@ -73,24 +75,32 @@ final class CloudflareSignCaptureService implements SignCaptureService {
   }
 
   List<String> _workerUrls() {
-    final urls = <String>{_workerUrl};
-    if (_workerUrl != CloudflareSignConfig.legacyWorkerUrl) {
-      urls.add(CloudflareSignConfig.legacyWorkerUrl);
+    final primary = _workerUrl.trim();
+    if (primary.isEmpty) {
+      return const [];
     }
-    return urls.where((url) => url.trim().isNotEmpty).toList();
+    return [primary];
   }
 
   bool _shouldTryNextWorker(Object error) {
     if (error is HttpException) {
-      final message = error.message;
-      return message.contains('404') ||
-          message.contains('1042') ||
-          message.contains('Sign worker unavailable');
+      final status = _httpStatusFromException(error);
+      // Only fail over when the worker endpoint itself is missing — not when
+      // Gemini returns 404 inside a 502 response body.
+      return status == 404 || status == 1042;
     }
     if (error is SocketException || error is TimeoutException) {
       return true;
     }
     return false;
+  }
+
+  static int? _httpStatusFromException(HttpException error) {
+    final match = RegExp(r'Sign worker (\d+):').firstMatch(error.message);
+    if (match == null) {
+      return null;
+    }
+    return int.tryParse(match.group(1)!);
   }
 
   Future<SignCaptureResult> _analyzeAtWorker({

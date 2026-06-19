@@ -74,4 +74,45 @@ void main() {
     service.dispose();
     await tempDir.delete(recursive: true);
   });
+
+  test('does not treat Gemini 404 inside 502 as missing worker', () async {
+    var requestCount = 0;
+    final client = MockClient((request) async {
+      requestCount++;
+      return http.Response(
+        jsonEncode({
+          'error': 'Sign recognition failed',
+          'detail':
+              'Error: Gemini 404: {"error":{"code":404,"message":"models/gemini-3.5-flash not found"}}',
+        }),
+        502,
+      );
+    });
+
+    final tempDir = await Directory.systemTemp.createTemp('sign_capture_test');
+    final videoFile = File('${tempDir.path}/sample.mp4');
+    await videoFile.writeAsBytes(const [0, 1, 2]);
+
+    final service = CloudflareSignCaptureService(
+      workerUrl: 'https://sign.example.com/sign',
+      client: client,
+    );
+
+    await expectLater(
+      service.analyzeRecording(
+        videoPath: videoFile.path,
+        languageCode: 'ENG',
+      ),
+      throwsA(
+        isA<HttpException>().having(
+          (error) => error.message,
+          'message',
+          contains('Sign worker 502'),
+        ),
+      ),
+    );
+    expect(requestCount, 1);
+    service.dispose();
+    await tempDir.delete(recursive: true);
+  });
 }

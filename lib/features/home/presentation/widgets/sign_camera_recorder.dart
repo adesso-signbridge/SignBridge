@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +61,9 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
         camera,
         ResolutionPreset.medium,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
+        // JPEG stream format breaks video reconfigure on some Samsung devices.
+        imageFormatGroup:
+            Platform.isAndroid ? null : ImageFormatGroup.bgra8888,
       );
       await controller.initialize();
       if (!mounted) {
@@ -138,6 +141,11 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       final file = await controller.stopVideoRecording();
       _isRecordingVideo = false;
       _stopPending = false;
+      // Let the encoder/camera HAL release before the widget is disposed for
+      // the analyzing phase (avoids stream reconfigure errors on Samsung).
+      if (Platform.isAndroid) {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
       widget.onRecordingStopped(file.path);
     } on Object catch (error) {
       _stopPending = false;
