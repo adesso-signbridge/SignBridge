@@ -1,7 +1,8 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Provider chain: Gemini 3.5 Flash → Gemini 3.1 Flash-Lite → Groq → Adesso (local fallback in app).
+ * Gloss (POST /): Gemini 3.1 Flash-Lite → Gemini 3.5 Flash → Groq → Adesso (local fallback in app).
+ * Sign video (POST /sign): Gemini 3.5 Flash → fallbacks via sign_recognition.js.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
@@ -124,11 +125,11 @@ async function captionToGloss(caption, signLanguage, env) {
 }
 
 function geminiPrimaryModel(env) {
-  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
+  return (env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
 }
 
 function geminiFallbackModel(env) {
-  return (env.GEMINI_FALLBACK_MODEL || "gemini-3.1-flash-lite").trim();
+  return (env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash").trim();
 }
 
 function geminiModels(env) {

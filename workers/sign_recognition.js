@@ -99,7 +99,7 @@ function geminiApiKey(env) {
 }
 
 function geminiPrimaryModel(env) {
-  return (env.SIGN_GEMINI_MODEL || env.GEMINI_MODEL || "gemini-2.5-flash").trim();
+  return (env.SIGN_GEMINI_MODEL || env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
 function geminiFallbackModel(env) {
