@@ -48,6 +48,9 @@ export async function handleSignRecognitionRequest(request, env) {
 
   const mimeType = resolveVideoMimeType(video);
 
+  const safeDurationMs =
+    Number.isFinite(durationMs) && durationMs > 0 ? durationMs : 0;
+
   let text;
   let modelUsed;
   try {
@@ -56,6 +59,7 @@ export async function handleSignRecognitionRequest(request, env) {
       mimeType,
       languageCode,
       signLanguage,
+      safeDurationMs,
       env,
     ));
   } catch (err) {
@@ -155,24 +159,48 @@ function spokenLanguageName(languageCode) {
   }
 }
 
-function signSystemInstruction(signLanguage, languageCode) {
+function signDurationSeconds(durationMs) {
+  if (!durationMs || durationMs <= 0) {
+    return 0;
+  }
+  return Math.max(1, Math.round(durationMs / 1000));
+}
+
+function signSystemInstruction(signLanguage, languageCode, durationMs) {
   const sign = signLanguage.trim().toUpperCase();
   const spoken = spokenLanguageName(languageCode);
+  const seconds = signDurationSeconds(durationMs);
+  const durationHint =
+    seconds > 0
+      ? `The clip is about ${seconds} second(s) long. `
+      : "";
   return (
     `You translate sign-language video into natural ${spoken} speech text. ` +
     `The person is signing in ${sign}. ` +
+    durationHint +
     `Return JSON only: {"text":"..."}. ` +
+    `Transcribe the COMPLETE signed message in chronological order. ` +
+    `Include every sign you can identify—do not stop after the first sign. ` +
+    `Write the full ${spoken} sentence or sentences the signer intended, ` +
+    `not a one-word summary unless only one sign was clearly performed. ` +
     `Write what they meant to say in ${spoken}, not a scene description. ` +
     `Do not mention hands, camera, or video. ` +
     `If nothing clear was signed, return {"text":""}.`
   );
 }
 
-function signUserPrompt(signLanguage, languageCode) {
+function signUserPrompt(signLanguage, languageCode, durationMs) {
   const spoken = spokenLanguageName(languageCode);
+  const seconds = signDurationSeconds(durationMs);
+  const durationHint =
+    seconds >= 3
+      ? ` The clip is about ${seconds} seconds, so expect multiple signs in sequence.`
+      : seconds > 0
+        ? ` The clip is about ${seconds} second(s).`
+        : "";
   return (
-    `Watch this ${signLanguage.trim()} signing video and write the ${spoken} ` +
-    `sentence the signer intended to communicate.`
+    `Watch this ${signLanguage.trim()} signing video and write the complete ${spoken} ` +
+    `sentence(s) the signer intended to communicate, preserving all signs in order.${durationHint}`
   );
 }
 
@@ -181,7 +209,8 @@ const SIGN_RESPONSE_SCHEMA = {
   properties: {
     text: {
       type: "STRING",
-      description: "Natural spoken-language translation of the signed message.",
+      description:
+        "Complete spoken-language translation of the full signed message, in order.",
     },
   },
   required: ["text"],
@@ -193,6 +222,7 @@ async function videoToSpokenText(
   mimeType,
   languageCode,
   signLanguage,
+  durationMs,
   env,
 ) {
   const apiKey = geminiApiKey(env);
@@ -209,6 +239,7 @@ async function videoToSpokenText(
         mimeType,
         languageCode,
         signLanguage,
+        durationMs,
         apiKey,
       );
     } catch (err) {
@@ -229,6 +260,7 @@ async function requestGeminiSignText(
   mimeType,
   languageCode,
   signLanguage,
+  durationMs,
   apiKey,
 ) {
   let lastError = null;
@@ -241,6 +273,7 @@ async function requestGeminiSignText(
         mimeType,
         languageCode,
         signLanguage,
+        durationMs,
         apiKey,
       );
       if (!text.trim()) {
@@ -269,6 +302,7 @@ async function callGeminiSignText(
   mimeType,
   languageCode,
   signLanguage,
+  durationMs,
   apiKey,
 ) {
   const url =
@@ -280,7 +314,15 @@ async function callGeminiSignText(
     headers: JSON_HEADERS,
     body: JSON.stringify({
       systemInstruction: {
-        parts: [{ text: signSystemInstruction(signLanguage, languageCode) }],
+        parts: [
+          {
+            text: signSystemInstruction(
+              signLanguage,
+              languageCode,
+              durationMs,
+            ),
+          },
+        ],
       },
       contents: [
         {
@@ -292,7 +334,7 @@ async function callGeminiSignText(
                 data: bytesToBase64(bytes),
               },
             },
-            { text: signUserPrompt(signLanguage, languageCode) },
+            { text: signUserPrompt(signLanguage, languageCode, durationMs) },
           ],
         },
       ],

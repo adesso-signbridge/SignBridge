@@ -128,7 +128,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToSign: 'Tap to sign',
     tapToTranslate: 'Tap to translate',
     tapToStop: 'Tap to stop',
-    recordingSignsLabel: 'Recording signs…',
+    recordingSignsLabel: 'Recording signs… sign your full phrase (2–3 sec)',
     analyzingSignsLabel: 'Analyzing your signs…',
     spokenLabel: 'Spoken',
     replayLabel: 'Replay',
@@ -170,7 +170,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencyPhonePermissionRequiredLabel:
         'Phone permission is required to auto-call emergency services.',
     signRecordingTooShortLabel:
-        'Hold the record button for at least one second while signing.',
+        'Hold record for at least 2 seconds while signing your full phrase.',
     signRecordingEmptyLabel:
         'Recording was empty. Try signing clearly for 2–3 seconds.',
     signNoSignsDetectedLabel:
@@ -198,7 +198,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToSign: 'സൈൻ ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
     tapToTranslate: 'വിവർത്തനം ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
     tapToStop: 'നിർത്താൻ ടാപ്പ് ചെയ്യുക',
-    recordingSignsLabel: 'സൈനുകൾ റെക്കോർഡ് ചെയ്യുന്നു…',
+    recordingSignsLabel:
+        'സൈനുകൾ റെക്കോർഡ് ചെയ്യുന്നു… മുഴുവൻ വാചകം സൈൻ ചെയ്യുക (2–3 സെക്ക)',
     analyzingSignsLabel: 'നിങ്ങളുടെ സൈനുകൾ വിശകലനം ചെയ്യുന്നു…',
     spokenLabel: 'സംസാരിച്ചു',
     replayLabel: 'വീണ്ടും കേൾക്കുക',
@@ -241,7 +242,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencyPhonePermissionRequiredLabel:
         'അടിയന്തര കോൾ ചെയ്യാൻ ഫോൺ അനുമതി ആവശ്യമാണ്.',
     signRecordingTooShortLabel:
-        'സൈൻ ചെയ്യുമ്പോൾ റെക്കോർഡ് ബട്ടൺ കുറഞ്ഞത് ഒരു സെക്കന്റ് hold ചെയ്യുക.',
+        'സൈൻ ചെയ്യുമ്പോൾ റെക്കോർഡ് ബട്ടൺ കുറഞ്ഞത് 2 സെക്കന്റ് hold ചെയ്യുക.',
     signRecordingEmptyLabel:
         'റെക്കോർഡിംഗ് empty ആയിരുന്നു. 2–3 സെക്കന്റ് clearly സൈൻ ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.',
     signNoSignsDetectedLabel:
@@ -269,7 +270,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToSign: 'साइन करने के लिए टैप करें',
     tapToTranslate: 'अनुवाद के लिए टैप करें',
     tapToStop: 'रोकने के लिए टैप करें',
-    recordingSignsLabel: 'साइन रिकॉर्ड हो रहे हैं…',
+    recordingSignsLabel:
+        'साइन रिकॉर्ड हो रहे हैं… पूरा वाक्य साइन करें (2–3 सेक)',
     analyzingSignsLabel: 'आपके साइन का विश्लेषण हो रहा है…',
     spokenLabel: 'बोला गया',
     replayLabel: 'फिर से सुनें',
@@ -311,7 +313,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencyPhonePermissionRequiredLabel:
         'स्वचालित आपातकालीन कॉल के लिए फ़ोन अनुमति आवश्यक है।',
     signRecordingTooShortLabel:
-        'साइन करते समय रिकॉर्ड बटन कम से कम एक सेकंड दबाए रखें।',
+        'पूरा वाक्य साइन करते हुए रिकॉर्ड कम से कम 2 सेकंड दबाए रखें।',
     signRecordingEmptyLabel:
         'रिकॉर्डिंग खाली थी। 2–3 सेकंड स्पष्ट साइन करके फिर कोशिश करें।',
     signNoSignsDetectedLabel:
@@ -339,7 +341,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToSign: 'சைகை செய்ய தட்டவும்',
     tapToTranslate: 'மொழிபெயர்க்க தட்டவும்',
     tapToStop: 'நிறுத்த தட்டவும்',
-    recordingSignsLabel: 'சைகைகள் பதிவு செய்யப்படுகின்றன…',
+    recordingSignsLabel:
+        'சைகைகள் பதிவு செய்யப்படுகின்றன… முழு வாக்கியம் சைகை செய்யுங்கள் (2–3 வி)',
     analyzingSignsLabel: 'உங்கள் சைகைகள் பகுப்பாய்வு செய்யப்படுகின்றன…',
     spokenLabel: 'பேசப்பட்டது',
     replayLabel: 'மீண்டும் கேளுங்கள்',
@@ -382,7 +385,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencyPhonePermissionRequiredLabel:
         'தானியங்கி அவசர அழைப்புக்கு தொலைபேசி அனுமதி தேவை.',
     signRecordingTooShortLabel:
-        'சைகை செய்யும்போது ரெக்கார்ட் பொத்தானை குறைந்தது ஒரு வினாடி அழுத்தி வைத்திருங்கள்.',
+        'முழு வாக்கியம் சைகை செய்து கொண்டே ரெக்கார்டை குறைந்தது 2 வினாடிகள் அழுத்தி வைத்திருங்கள்.',
     signRecordingEmptyLabel:
         'பதிவு காலியாக இருந்தது. 2–3 வினாடிகள் தெளிவாக சைகை செய்து மீண்டும் முயற்சிக்கவும்.',
     signNoSignsDetectedLabel:

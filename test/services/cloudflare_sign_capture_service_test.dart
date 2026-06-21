@@ -42,6 +42,7 @@ void main() {
 
     expect(result.text, 'My name is Alex. I am deaf.');
     expect(result.duration, const Duration(milliseconds: 4500));
+    expect(result.modelUsed, 'gemini-3.5-flash');
     expect(result.videoPath, videoFile.path);
     service.dispose();
     await tempDir.delete(recursive: true);

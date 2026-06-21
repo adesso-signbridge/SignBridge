@@ -4,11 +4,13 @@ class SignCaptureResult {
     required this.text,
     required this.duration,
     this.videoPath,
+    this.modelUsed,
   });
 
   final String text;
   final Duration duration;
   final String? videoPath;
+  final String? modelUsed;
 
   String formattedDuration() {
     final totalSeconds = duration.inSeconds;
@@ -19,11 +21,12 @@ class SignCaptureResult {
 
   bool get hasText => text.trim().isNotEmpty;
 
-  SignCaptureResult copyWith({String? videoPath}) {
+  SignCaptureResult copyWith({String? videoPath, String? modelUsed}) {
     return SignCaptureResult(
       text: text,
       duration: duration,
       videoPath: videoPath ?? this.videoPath,
+      modelUsed: modelUsed ?? this.modelUsed,
     );
   }
 }

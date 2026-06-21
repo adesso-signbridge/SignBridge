@@ -17,6 +17,7 @@ import '../../../services/gloss/gloss_service.dart';
 import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
+import '../../../services/translate/sign_capture_config.dart';
 import '../../../services/translate/sign_capture_service.dart';
 import '../../../services/translate/sign_language_system.dart';
 import '../../../services/translate/translate_service.dart';
@@ -344,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _signRecordingStartedAt = null;
 
     if (!signCameraTestModeEnabled &&
-        recordingDuration < const Duration(milliseconds: 800)) {
+        recordingDuration < SignCaptureConfig.minRecordingDuration) {
       if (!mounted || generation != _signGeneration) {
         return;
       }
@@ -389,6 +390,11 @@ class _HomeScreenState extends State<HomeScreen> {
         _signPhase = SignFlowPhase.spoken;
         _sessionPhase = TalkSessionPhase.stopped;
       });
+      debugPrint(
+        'Sign recognition ok '
+        '(${result.modelUsed ?? 'unknown model'}, '
+        '${recordingDuration.inMilliseconds}ms clip): ${result.text}',
+      );
       await _speakSignResult(result);
     } on Object catch (error) {
       if (!mounted || generation != _signGeneration) {

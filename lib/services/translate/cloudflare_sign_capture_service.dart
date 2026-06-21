@@ -170,10 +170,16 @@ final class CloudflareSignCaptureService implements SignCaptureService {
         ? Duration(milliseconds: durationMs.round())
         : recordingDuration;
 
+    final modelUsed = decoded['modelUsed'];
+    final modelLabel = modelUsed is String && modelUsed.trim().isNotEmpty
+        ? modelUsed.trim()
+        : null;
+
     return SignCaptureResult(
       text: text,
       duration: duration,
       videoPath: videoPath,
+      modelUsed: modelLabel,
     );
   }
 

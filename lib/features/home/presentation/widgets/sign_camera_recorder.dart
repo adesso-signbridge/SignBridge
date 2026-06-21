@@ -59,7 +59,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       );
       final controller = CameraController(
         camera,
-        ResolutionPreset.medium,
+        ResolutionPreset.high,
         enableAudio: false,
         // JPEG stream format breaks video reconfigure on some Samsung devices.
         imageFormatGroup:
