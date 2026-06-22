@@ -9,6 +9,7 @@ class HomeUiCopy {
     required this.recordingSignsLabel,
     required this.analyzingSignsLabel,
     required this.spokenLabel,
+    required this.signsCapturedLabel,
     required this.replayLabel,
     required this.cameraPermissionRequiredLabel,
     required this.signCaptureFailedLabel,
@@ -20,11 +21,6 @@ class HomeUiCopy {
     required this.noSpeechDetectedLabel,
     required this.micPermissionRequiredLabel,
     required this.listenStartFailedLabel,
-    required this.sendCaptionLabel,
-    required this.noInternetLabel,
-    required this.cloudGlossFailedLabel,
-    required this.cloudGlossLoadingLabel,
-    required this.localGlossFallbackLabel,
     required this.talkTabLabel,
     required this.phrasesTabLabel,
     required this.settingsTitle,
@@ -66,6 +62,7 @@ class HomeUiCopy {
   final String recordingSignsLabel;
   final String analyzingSignsLabel;
   final String spokenLabel;
+  final String signsCapturedLabel;
   final String replayLabel;
   final String cameraPermissionRequiredLabel;
   final String signCaptureFailedLabel;
@@ -77,11 +74,6 @@ class HomeUiCopy {
   final String noSpeechDetectedLabel;
   final String micPermissionRequiredLabel;
   final String listenStartFailedLabel;
-  final String sendCaptionLabel;
-  final String noInternetLabel;
-  final String cloudGlossFailedLabel;
-  final String cloudGlossLoadingLabel;
-  final String localGlossFallbackLabel;
   final String talkTabLabel;
   final String phrasesTabLabel;
   final String settingsTitle;
@@ -128,9 +120,11 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToSign: 'Tap to sign',
     tapToTranslate: 'Tap to translate',
     tapToStop: 'Tap to stop',
-    recordingSignsLabel: 'Recording signs… sign your full phrase (2–3 sec)',
+    recordingSignsLabel:
+        'Recording signs… sign each word clearly, one after another',
     analyzingSignsLabel: 'Analyzing your signs…',
     spokenLabel: 'Spoken',
+    signsCapturedLabel: 'Signs captured',
     replayLabel: 'Replay',
     cameraPermissionRequiredLabel:
         'Camera permission is required to record signs.',
@@ -143,11 +137,6 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noSpeechDetectedLabel: 'No speech detected.',
     micPermissionRequiredLabel: 'Microphone permission is required to listen.',
     listenStartFailedLabel: 'Could not start listening. Please try again.',
-    sendCaptionLabel: 'Send caption for AI gloss',
-    noInternetLabel: 'Internet connection required to send caption.',
-    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
-    cloudGlossLoadingLabel: 'Getting AI gloss…',
-    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'Talk',
     phrasesTabLabel: 'Phrases',
     settingsTitle: 'Settings',
@@ -202,6 +191,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'സൈനുകൾ റെക്കോർഡ് ചെയ്യുന്നു… മുഴുവൻ വാചകം സൈൻ ചെയ്യുക (2–3 സെക്ക)',
     analyzingSignsLabel: 'നിങ്ങളുടെ സൈനുകൾ വിശകലനം ചെയ്യുന്നു…',
     spokenLabel: 'സംസാരിച്ചു',
+    signsCapturedLabel: 'കൈപ്പിടിച്ച സൈനുകൾ',
     replayLabel: 'വീണ്ടും കേൾക്കുക',
     cameraPermissionRequiredLabel:
         'സൈനുകൾ റെക്കോർഡ് ചെയ്യാൻ ക്യാമറ അനുമതി ആവശ്യമാണ്.',
@@ -216,11 +206,6 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     micPermissionRequiredLabel: 'കേൾക്കാൻ മൈക്രോഫോൺ അനുമതി ആവശ്യമാണ്.',
     listenStartFailedLabel:
         'കേൾക്കൽ ആരംഭിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
-    sendCaptionLabel: 'Send caption for AI gloss',
-    noInternetLabel: 'Internet connection required to send caption.',
-    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
-    cloudGlossLoadingLabel: 'Getting AI gloss…',
-    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'സംസാരം',
     phrasesTabLabel: 'വാചകങ്ങൾ',
     settingsTitle: 'ക്രമീകരണങ്ങൾ',
@@ -274,6 +259,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'साइन रिकॉर्ड हो रहे हैं… पूरा वाक्य साइन करें (2–3 सेक)',
     analyzingSignsLabel: 'आपके साइन का विश्लेषण हो रहा है…',
     spokenLabel: 'बोला गया',
+    signsCapturedLabel: 'पहचाने गए साइन',
     replayLabel: 'फिर से सुनें',
     cameraPermissionRequiredLabel:
         'साइन रिकॉर्ड करने के लिए कैमरा अनुमति आवश्यक है।',
@@ -287,11 +273,6 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     noSpeechDetectedLabel: 'कोई भाषण नहीं मिला।',
     micPermissionRequiredLabel: 'सुनने के लिए माइक्रोफ़ोन अनुमति आवश्यक है।',
     listenStartFailedLabel: 'सुनना शुरू नहीं हो सका। कृपया पुनः प्रयास करें।',
-    sendCaptionLabel: 'Send caption for AI gloss',
-    noInternetLabel: 'Internet connection required to send caption.',
-    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
-    cloudGlossLoadingLabel: 'Getting AI gloss…',
-    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'बातचीत',
     phrasesTabLabel: 'वाक्यांश',
     settingsTitle: 'सेटिंग्स',
@@ -345,6 +326,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'சைகைகள் பதிவு செய்யப்படுகின்றன… முழு வாக்கியம் சைகை செய்யுங்கள் (2–3 வி)',
     analyzingSignsLabel: 'உங்கள் சைகைகள் பகுப்பாய்வு செய்யப்படுகின்றன…',
     spokenLabel: 'பேசப்பட்டது',
+    signsCapturedLabel: 'பிடிப்பட்ட சைகைகள்',
     replayLabel: 'மீண்டும் கேளுங்கள்',
     cameraPermissionRequiredLabel: 'சைகைகளை பதிவு செய்ய கேமரா அனுமதி தேவை.',
     signCaptureFailedLabel:
@@ -358,11 +340,6 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     micPermissionRequiredLabel: 'கேட்க மைக்ரோஃபோன் அனுமதி தேவை.',
     listenStartFailedLabel:
         'கேட்பதைத் தொடங்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
-    sendCaptionLabel: 'Send caption for AI gloss',
-    noInternetLabel: 'Internet connection required to send caption.',
-    cloudGlossFailedLabel: 'Could not fetch gloss from cloud. Please try again.',
-    cloudGlossLoadingLabel: 'Getting AI gloss…',
-    localGlossFallbackLabel: 'Cloud gloss unavailable. Showing on-device gloss.',
     talkTabLabel: 'பேச்சு',
     phrasesTabLabel: 'சொற்றொடர்கள்',
     settingsTitle: 'அமைப்புகள்',

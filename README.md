@@ -101,8 +101,7 @@ lib/
 ├── app/                              # Root MaterialApp
 ├── core/
 │   ├── di/service_locator.dart       # Dependency injection registry
-│   ├── platform/                     # Mic permission, sign avatar channel
-│   ├── network/microservice_client.dart
+│   ├── platform/                     # Mic permission, avatar widgets
 │   ├── services/microservice.dart
 │   └── theme/
 ├── features/
@@ -124,7 +123,7 @@ lib/
 
 3. **Transcript accumulator** — `SpeechTranscriptAccumulator` keeps committed phrase lines separate from the live STT hypothesis, matching how continuous dictation apps handle pause/resume on Android and iOS.
 
-4. **Native avatar bridge** — `SignAvatarChannel` + platform views keep 3D rendering on the platform thread; Flutter falls back to Figma illustrations in tests and on desktop.
+4. **CWASA avatar** — `CwasaAvatarView` renders SiGML signing on device; Flutter falls back to Figma illustrations in tests and on desktop.
 
 5. **Empty-stop semantics** — Stopping before speech returns `TalkListenResult.empty`, not demo sample text.
 

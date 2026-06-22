@@ -1,14 +1,11 @@
 import '../../services/home/home_service.dart';
 import '../../services/home/local_home_service.dart';
-import '../../services/caption/caption_service.dart';
-import '../../services/caption/local_caption_service.dart';
 import '../../services/gloss/cloudflare_gloss_config.dart';
 import '../../services/gloss/cloudflare_gloss_service.dart';
 import '../../services/gloss/gloss_service.dart';
 import '../../services/gloss/local_gloss_service.dart';
 import '../../services/phrases/local_phrase_speech_service.dart';
 import '../../services/phrases/local_phrases_service.dart';
-import '../../services/phrases/phrase_speech_service.dart';
 import '../../services/phrases/phrases_service.dart';
 import '../../services/settings/settings_service.dart';
 import '../../services/settings/local_settings_service.dart';
@@ -30,8 +27,8 @@ final class ServiceLocator {
     required this.home,
     required this.translate,
     required this.signCapture,
-    required this.caption,
     required this.gloss,
+    required this.localGloss,
     required this.phrases,
     required this.phraseSpeech,
     required this.sos,
@@ -45,8 +42,8 @@ final class ServiceLocator {
   final HomeService home;
   final TranslateService translate;
   final SignCaptureService signCapture;
-  final CaptionService caption;
   final GlossService gloss;
+  final GlossService localGloss;
   final PhrasesService phrases;
   final PhraseSpeechService phraseSpeech;
   final SosService sos;
@@ -55,8 +52,8 @@ final class ServiceLocator {
   static void bootstrap({
     TranslateService? translate,
     SignCaptureService? signCapture,
-    CaptionService? caption,
     GlossService? gloss,
+    GlossService? localGloss,
     PhraseSpeechService? phraseSpeech,
     SosService? sos,
   }) {
@@ -71,8 +68,8 @@ final class ServiceLocator {
       home: LocalHomeService(),
       translate: translateService,
       signCapture: signCapture ?? _defaultSignCaptureService(),
-      caption: caption ?? LocalCaptionService(),
       gloss: gloss ?? _defaultGlossService(),
+      localGloss: localGloss ?? LocalGlossService(),
       phrases: LocalPhrasesService(),
       phraseSpeech: speechService,
       sos: sos ?? LocalSosService(phraseSpeech: speechService),

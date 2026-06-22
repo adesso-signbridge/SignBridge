@@ -1,7 +1,7 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini 3.1 Flash-Lite → Gemini 3.5 Flash → Groq → Adesso (local fallback in app).
+ * Gloss (POST /): Gemini 3.5 Flash → Gemini 2.5 Flash → Groq → Adesso (local fallback in app).
  * Sign video (POST /sign): Gemini 3.5 Flash → fallbacks via sign_recognition.js.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
@@ -89,9 +89,18 @@ async function captionToGloss(caption, signLanguage, env) {
   const errors = [];
 
   if (geminiApiKey(env)) {
-    for (const model of geminiModels(env)) {
+    const models = geminiModels(env);
+    for (let index = 0; index < models.length; index++) {
+      const model = models[index];
+      const timeoutMs = index === 0 ? geminiPrimaryTimeoutMs(env) : 0;
       try {
-        return await captionToGlossGemini(caption, signLanguage, env, model);
+        return await captionToGlossGemini(
+          caption,
+          signLanguage,
+          env,
+          model,
+          timeoutMs,
+        );
       } catch (err) {
         errors.push(err);
       }
@@ -125,11 +134,16 @@ async function captionToGloss(caption, signLanguage, env) {
 }
 
 function geminiPrimaryModel(env) {
-  return (env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
+  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
 function geminiFallbackModel(env) {
-  return (env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash").trim();
+  return (env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
+}
+
+function geminiPrimaryTimeoutMs(env) {
+  const parsed = Number(env.GEMINI_PRIMARY_TIMEOUT_MS);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 6000;
 }
 
 function geminiModels(env) {
@@ -189,7 +203,13 @@ async function captionToGlossGroq(caption, signLanguage, env) {
   return { glossSequence, modelUsed: `groq:${model}` };
 }
 
-async function captionToGlossGemini(caption, signLanguage, env, model) {
+async function captionToGlossGemini(
+  caption,
+  signLanguage,
+  env,
+  model,
+  timeoutMs = 0,
+) {
   const apiKey = geminiApiKey(env);
   if (!apiKey) {
     throw new Error("GEMINI_KEY not configured");
@@ -205,6 +225,7 @@ async function captionToGlossGemini(caption, signLanguage, env, model) {
         caption,
         signLanguage,
         apiKey,
+        timeoutMs,
       );
       if (isInvalidGlossResponse(glossSequence)) {
         throw new Error("Gemini returned invalid gloss tokens");
@@ -212,6 +233,9 @@ async function captionToGlossGemini(caption, signLanguage, env, model) {
       return { glossSequence, modelUsed: resolvedModel };
     } catch (err) {
       lastError = err;
+      if (isTimeoutError(err)) {
+        break;
+      }
       const status = err.status || 0;
       if (isModelUnavailableStatus(status)) {
         break;
@@ -281,34 +305,63 @@ const GLOSS_RESPONSE_SCHEMA = {
   propertyOrdering: ["glossSequence"],
 };
 
-async function requestGeminiGloss(model, caption, signLanguage, apiKey) {
+function isTimeoutError(err) {
+  if (!err) {
+    return false;
+  }
+  if (err.name === "AbortError" || err.name === "TimeoutError") {
+    return true;
+  }
+  return String(err).toLowerCase().includes("timeout");
+}
+
+async function requestGeminiGloss(
+  model,
+  caption,
+  signLanguage,
+  apiKey,
+  timeoutMs = 0,
+) {
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${model}` +
     `:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: glossSystemInstruction(signLanguage) }],
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: glossUserMessage(caption, signLanguage) }],
+  const controller = timeoutMs > 0 ? new AbortController() : null;
+  const timer =
+    controller &&
+    setTimeout(() => controller.abort(new Error(`Gemini timeout after ${timeoutMs}ms`)), timeoutMs);
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: JSON_HEADERS,
+      signal: controller?.signal,
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{ text: glossSystemInstruction(signLanguage) }],
         },
-      ],
-      generationConfig: {
-        temperature: 0.0,
-        topP: 0.1,
-        topK: 1,
-        maxOutputTokens: 96,
-        responseMimeType: "application/json",
-        responseSchema: GLOSS_RESPONSE_SCHEMA,
-      },
-    }),
-  });
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: glossUserMessage(caption, signLanguage) }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.0,
+          topP: 0.1,
+          topK: 1,
+          maxOutputTokens: 96,
+          responseMimeType: "application/json",
+          responseSchema: GLOSS_RESPONSE_SCHEMA,
+        },
+      }),
+    });
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
 
   if (!res.ok) {
     const detail = await res.text();

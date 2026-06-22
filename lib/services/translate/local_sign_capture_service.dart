@@ -11,11 +11,14 @@ final class LocalSignCaptureService implements SignCaptureService {
     'TA': 'என் பெயர் அலெக்ஸ். நான் செவிடர்.',
   };
 
+  static const _mockGloss = ['MY', 'NAME', 'ALEX', 'ME', 'DEAF'];
+
   @override
   SignCaptureResult peekResult(String languageCode) {
     return SignCaptureResult(
       text: _mockByLanguage[languageCode] ?? _mockByLanguage['ENG']!,
       duration: const Duration(seconds: 60),
+      glossSequence: _mockGloss,
     );
   }
 

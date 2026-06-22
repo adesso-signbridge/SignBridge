@@ -193,6 +193,7 @@ class _MainShellState extends State<MainShell> {
               signCaptureService: services.signCapture,
               phraseSpeechService: services.phraseSpeech,
               glossService: services.gloss,
+              localGlossService: services.localGloss,
               selectedLanguageCode: _languageCode,
               uiCopy: uiCopy,
               emergencyActive: _emergencyActive,

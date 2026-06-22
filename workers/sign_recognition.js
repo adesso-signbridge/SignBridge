@@ -1,9 +1,14 @@
 /**
- * Shared sign video → spoken text handler for Cloudflare Workers.
+ * Shared sign video → gloss → spoken text handler for Cloudflare Workers.
+ *
+ * Stage 1: video → glossSequence[] (one token per sign, in order)
+ * Stage 2: glossSequence → natural spoken text
  */
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
+
+const JSON_ARTIFACT_TOKENS = new Set(["GLOSSSEQUENCE", "GLOSSEQUENCE"]);
 
 export async function handleSignRecognitionRequest(request, env) {
   if (request.method === "OPTIONS") {
@@ -52,9 +57,10 @@ export async function handleSignRecognitionRequest(request, env) {
     Number.isFinite(durationMs) && durationMs > 0 ? durationMs : 0;
 
   let text;
+  let glossSequence;
   let modelUsed;
   try {
-    ({ text, modelUsed } = await videoToSpokenText(
+    ({ text, glossSequence, modelUsed } = await videoToSpokenText(
       bytes,
       mimeType,
       languageCode,
@@ -77,6 +83,7 @@ export async function handleSignRecognitionRequest(request, env) {
     ok: true,
     jobId,
     text,
+    glossSequence,
     modelUsed,
     durationMs: Number.isFinite(durationMs) ? durationMs : 0,
   });
@@ -103,12 +110,15 @@ function geminiApiKey(env) {
 }
 
 function geminiPrimaryModel(env) {
-  // Video-only: do not fall back to GEMINI_MODEL (text gloss uses that separately).
   return (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
 function geminiFallbackModel(env) {
   return (env.SIGN_GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
+}
+
+function geminiTextModel(env) {
+  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
 function geminiModels(env) {
@@ -166,51 +176,91 @@ function signDurationSeconds(durationMs) {
   return Math.max(1, Math.round(durationMs / 1000));
 }
 
-function signSystemInstruction(signLanguage, languageCode, durationMs) {
+function expectedSignCount(durationMs) {
+  const seconds = signDurationSeconds(durationMs);
+  if (seconds <= 0) {
+    return null;
+  }
+  return Math.max(1, Math.min(12, Math.round(seconds / 1.5)));
+}
+
+function signGlossSystemInstruction(signLanguage, durationMs) {
   const sign = signLanguage.trim().toUpperCase();
-  const spoken = spokenLanguageName(languageCode);
+  const expected = expectedSignCount(durationMs);
   const seconds = signDurationSeconds(durationMs);
   const durationHint =
     seconds > 0
-      ? `The clip is about ${seconds} second(s) long. `
+      ? `The clip is about ${seconds} second(s). Expect roughly ${expected ?? "several"} distinct signs. `
       : "";
   return (
-    `You translate sign-language video into natural ${spoken} speech text. ` +
-    `The person is signing in ${sign}. ` +
+    `You identify individual signs in ${sign} sign-language video. ` +
     durationHint +
-    `Return JSON only: {"text":"..."}. ` +
-    `Transcribe the COMPLETE signed message in chronological order. ` +
-    `Include every sign you can identify—do not stop after the first sign. ` +
-    `Write the full ${spoken} sentence or sentences the signer intended, ` +
-    `not a one-word summary unless only one sign was clearly performed. ` +
-    `Write what they meant to say in ${spoken}, not a scene description. ` +
-    `Do not mention hands, camera, or video. ` +
-    `If nothing clear was signed, return {"text":""}.`
+    `Return JSON only: {"glossSequence":["TOKEN","..."]}. ` +
+    `Rules: ` +
+    `• ONE array entry per distinct sign, in chronological order. ` +
+    `• UPPERCASE gloss tokens (e.g. ME, WANT, WATER, NAME, HELLO). ` +
+    `• Include EVERY sign you can identify—do not stop after the first sign. ` +
+    `• Do not merge multiple signs into one token unless they are fingerspelled as one word. ` +
+    `• Do not return English sentences—gloss tokens only. ` +
+    `• Do not describe hands, camera, or scene. ` +
+    `• If nothing clear was signed, return {"glossSequence":[]}.`
   );
 }
 
-function signUserPrompt(signLanguage, languageCode, durationMs) {
-  const spoken = spokenLanguageName(languageCode);
+function signGlossUserPrompt(signLanguage, durationMs) {
   const seconds = signDurationSeconds(durationMs);
+  const expected = expectedSignCount(durationMs);
   const durationHint =
-    seconds >= 3
-      ? ` The clip is about ${seconds} seconds, so expect multiple signs in sequence.`
-      : seconds > 0
-        ? ` The clip is about ${seconds} second(s).`
-        : "";
+    expected != null && seconds >= 2
+      ? ` List each of the ~${expected} signs separately in order.`
+      : "";
   return (
-    `Watch this ${signLanguage.trim()} signing video and write the complete ${spoken} ` +
-    `sentence(s) the signer intended to communicate, preserving all signs in order.${durationHint}`
+    `Watch this ${signLanguage.trim()} signing video. ` +
+    `Output one gloss token per sign in the order performed.${durationHint}`
   );
 }
 
-const SIGN_RESPONSE_SCHEMA = {
+function glossToTextSystemInstruction(signLanguage, languageCode) {
+  const sign = signLanguage.trim().toUpperCase();
+  const spoken = spokenLanguageName(languageCode);
+  return (
+    `You convert ${sign} sign gloss tokens into natural ${spoken} speech. ` +
+    `Return JSON only: {"text":"..."}. ` +
+    `Use ALL gloss tokens in order to build the full meaning. ` +
+    `Write what the signer meant to say in ${spoken}, not a scene description. ` +
+    `Use correct ${spoken} grammar. One or more complete sentences.`
+  );
+}
+
+function glossToTextUserPrompt(glossSequence, signLanguage, languageCode) {
+  const spoken = spokenLanguageName(languageCode);
+  return (
+    `Sign language: ${signLanguage.trim()}\n` +
+    `Gloss sequence (one sign each, in order): ${glossSequence.join(" ")}\n` +
+    `Write the full ${spoken} sentence(s) the signer intended.`
+  );
+}
+
+const SIGN_GLOSS_RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    glossSequence: {
+      type: "ARRAY",
+      items: { type: "STRING" },
+      description:
+        "One UPPERCASE gloss token per distinct sign, chronological order.",
+    },
+  },
+  required: ["glossSequence"],
+  propertyOrdering: ["glossSequence"],
+};
+
+const SIGN_TEXT_RESPONSE_SCHEMA = {
   type: "OBJECT",
   properties: {
     text: {
       type: "STRING",
-      description:
-        "Complete spoken-language translation of the full signed message, in order.",
+      description: "Natural spoken-language translation of the gloss sequence.",
     },
   },
   required: ["text"],
@@ -230,18 +280,61 @@ async function videoToSpokenText(
     throw new Error("GEMINI_KEY not configured");
   }
 
+  const { glossSequence, glossModel } = await videoToGlossSequence(
+    bytes,
+    mimeType,
+    signLanguage,
+    durationMs,
+    apiKey,
+    env,
+  );
+
+  if (!glossSequence.length) {
+    throw new Error("No signs detected in video");
+  }
+
+  const { text, textModel } = await glossSequenceToSpokenText(
+    glossSequence,
+    languageCode,
+    signLanguage,
+    apiKey,
+    env,
+  );
+
+  if (!text.trim()) {
+    throw new Error("Gemini returned empty sign text");
+  }
+
+  return {
+    text: text.trim(),
+    glossSequence,
+    modelUsed: `${glossModel}+${textModel}`,
+  };
+}
+
+async function videoToGlossSequence(
+  bytes,
+  mimeType,
+  signLanguage,
+  durationMs,
+  apiKey,
+  env,
+) {
   const errors = [];
   for (const model of geminiModels(env)) {
     try {
-      return await requestGeminiSignText(
+      const glossSequence = await requestGeminiSignGloss(
         model,
         bytes,
         mimeType,
-        languageCode,
         signLanguage,
         durationMs,
         apiKey,
       );
+      if (!glossSequence.length) {
+        throw new Error("No signs detected in video");
+      }
+      return { glossSequence, glossModel: model };
     } catch (err) {
       errors.push(err);
       if (shouldFailOverSignModel(err)) {
@@ -251,14 +344,13 @@ async function videoToSpokenText(
   }
 
   const detail = errors.map((err) => String(err).slice(0, 80)).join(" | ");
-  throw new Error(detail || "Gemini sign recognition failed");
+  throw new Error(detail || "Gemini sign gloss failed");
 }
 
-async function requestGeminiSignText(
+async function requestGeminiSignGloss(
   model,
   bytes,
   mimeType,
-  languageCode,
   signLanguage,
   durationMs,
   apiKey,
@@ -267,19 +359,18 @@ async function requestGeminiSignText(
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const text = await callGeminiSignText(
+      const glossSequence = await callGeminiSignGloss(
         model,
         bytes,
         mimeType,
-        languageCode,
         signLanguage,
         durationMs,
         apiKey,
       );
-      if (!text.trim()) {
-        throw new Error("Gemini returned empty sign text");
+      if (!glossSequence.length) {
+        throw new Error("No signs detected in video");
       }
-      return { text: text.trim(), modelUsed: model };
+      return glossSequence;
     } catch (err) {
       lastError = err;
       const status = err.status || 0;
@@ -293,14 +384,13 @@ async function requestGeminiSignText(
     }
   }
 
-  throw lastError || new Error("Gemini sign request failed");
+  throw lastError || new Error("Gemini sign gloss request failed");
 }
 
-async function callGeminiSignText(
+async function callGeminiSignGloss(
   model,
   bytes,
   mimeType,
-  languageCode,
   signLanguage,
   durationMs,
   apiKey,
@@ -314,15 +404,7 @@ async function callGeminiSignText(
     headers: JSON_HEADERS,
     body: JSON.stringify({
       systemInstruction: {
-        parts: [
-          {
-            text: signSystemInstruction(
-              signLanguage,
-              languageCode,
-              durationMs,
-            ),
-          },
-        ],
+        parts: [{ text: signGlossSystemInstruction(signLanguage, durationMs) }],
       },
       contents: [
         {
@@ -334,7 +416,7 @@ async function callGeminiSignText(
                 data: bytesToBase64(bytes),
               },
             },
-            { text: signUserPrompt(signLanguage, languageCode, durationMs) },
+            { text: signGlossUserPrompt(signLanguage, durationMs) },
           ],
         },
       ],
@@ -342,9 +424,9 @@ async function callGeminiSignText(
         temperature: 0.0,
         topP: 0.1,
         topK: 1,
-        maxOutputTokens: 512,
+        maxOutputTokens: 256,
         responseMimeType: "application/json",
-        responseSchema: SIGN_RESPONSE_SCHEMA,
+        responseSchema: SIGN_GLOSS_RESPONSE_SCHEMA,
       },
     }),
   });
@@ -359,10 +441,170 @@ async function callGeminiSignText(
   const data = await res.json();
   const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) {
-    throw new Error("Gemini returned empty sign response");
+    throw new Error("Gemini returned empty sign gloss response");
+  }
+
+  return parseGlossSequence(content);
+}
+
+async function glossSequenceToSpokenText(
+  glossSequence,
+  languageCode,
+  signLanguage,
+  apiKey,
+  env,
+) {
+  const model = geminiTextModel(env);
+  let lastError = null;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const text = await callGeminiGlossToText(
+        model,
+        glossSequence,
+        languageCode,
+        signLanguage,
+        apiKey,
+      );
+      if (!text.trim()) {
+        throw new Error("Gemini returned empty sign text");
+      }
+      return { text: text.trim(), textModel: model };
+    } catch (err) {
+      lastError = err;
+      const status = err.status || 0;
+      if (isModelUnavailableStatus(status) || status === 429) {
+        break;
+      }
+      if (!isRetryableGeminiStatus(status) || attempt === 2) {
+        break;
+      }
+      await sleep(400 * (attempt + 1));
+    }
+  }
+
+  throw lastError || new Error("Gloss to text failed");
+}
+
+async function callGeminiGlossToText(
+  model,
+  glossSequence,
+  languageCode,
+  signLanguage,
+  apiKey,
+) {
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}` +
+    `:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text: glossToTextSystemInstruction(signLanguage, languageCode),
+          },
+        ],
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: glossToTextUserPrompt(
+                glossSequence,
+                signLanguage,
+                languageCode,
+              ),
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.0,
+        topP: 0.1,
+        topK: 1,
+        maxOutputTokens: 512,
+        responseMimeType: "application/json",
+        responseSchema: SIGN_TEXT_RESPONSE_SCHEMA,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    const error = new Error(`Gemini ${res.status}: ${detail}`);
+    error.status = res.status;
+    throw error;
+  }
+
+  const data = await res.json();
+  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!content) {
+    throw new Error("Gemini returned empty gloss-to-text response");
   }
 
   return parseSignText(content);
+}
+
+function parseGlossSequence(content) {
+  const text = String(content).trim();
+  let tokens = null;
+
+  try {
+    tokens = glossTokensFromParsed(JSON.parse(text));
+  } catch (_) {
+    // fall through
+  }
+
+  if (!tokens) {
+    const objectMatch = text.match(/\{[\s\S]*"glossSequence"[\s\S]*\}/);
+    if (objectMatch) {
+      try {
+        tokens = glossTokensFromParsed(JSON.parse(objectMatch[0]));
+      } catch (_) {
+        // fall through
+      }
+    }
+  }
+
+  if (!tokens) {
+    throw new Error(`Unable to parse gloss response: ${text.slice(0, 120)}`);
+  }
+
+  return normalizeGlossSequence(tokens);
+}
+
+function glossTokensFromParsed(parsed) {
+  if (Array.isArray(parsed)) {
+    return parsed;
+  }
+  if (!parsed || typeof parsed !== "object") {
+    return null;
+  }
+
+  const sequence = parsed.glossSequence;
+  if (Array.isArray(sequence)) {
+    return sequence;
+  }
+  if (typeof sequence === "string" && sequence.trim()) {
+    return sequence.trim().split(/\s+/);
+  }
+
+  return null;
+}
+
+function normalizeGlossSequence(tokens) {
+  return tokens
+    .map((token) =>
+      String(token)
+        .trim()
+        .toUpperCase()
+        .replace(/[^\w-?]/g, ""),
+    )
+    .filter((token) => token && !JSON_ARTIFACT_TOKENS.has(token));
 }
 
 function parseSignText(content) {

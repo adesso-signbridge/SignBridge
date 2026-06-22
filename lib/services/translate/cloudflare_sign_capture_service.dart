@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'cloudflare_sign_config.dart';
@@ -165,6 +166,8 @@ final class CloudflareSignCaptureService implements SignCaptureService {
       );
     }
 
+    final glossSequence = _parseGlossSequence(decoded['glossSequence']);
+
     final durationMs = decoded['durationMs'];
     final duration = durationMs is num && durationMs > 0
         ? Duration(milliseconds: durationMs.round())
@@ -175,12 +178,34 @@ final class CloudflareSignCaptureService implements SignCaptureService {
         ? modelUsed.trim()
         : null;
 
+    if (modelLabel != null) {
+      debugPrint(
+        '[SignBridge/Sign] Gemini model: $modelLabel '
+        '(video sign→text, jobId=$jobId, gloss=${glossSequence.length})',
+      );
+    } else {
+      debugPrint(
+        '[SignBridge/Sign] Sign recognition ok (model unknown, jobId=$jobId)',
+      );
+    }
+
     return SignCaptureResult(
       text: text,
       duration: duration,
+      glossSequence: glossSequence,
       videoPath: videoPath,
       modelUsed: modelLabel,
     );
+  }
+
+  static List<String> _parseGlossSequence(Object? raw) {
+    if (raw is! List) {
+      return const [];
+    }
+    return raw
+        .map((value) => '$value'.trim().toUpperCase())
+        .where((token) => token.isNotEmpty)
+        .toList();
   }
 
   void dispose() {

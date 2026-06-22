@@ -90,7 +90,7 @@ void main() {
     await tester.tap(find.byKey(const Key('talk_sign_button')));
     await tester.pump();
 
-    expect(find.text('Recording signs…'), findsOneWidget);
+    expect(find.textContaining('Recording signs'), findsOneWidget);
     expect(find.text('Tap to translate'), findsOneWidget);
     expect(find.text('Clear history'), findsNothing);
 
@@ -101,6 +101,7 @@ void main() {
     expect(find.text('Clear history'), findsNothing);
 
     await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(milliseconds: 700));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('talk_sign_spoken_content')), findsOneWidget);

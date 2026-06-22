@@ -13,6 +13,7 @@ final class MockSignCaptureService implements SignCaptureService {
     return const SignCaptureResult(
       text: 'My name is Alex. I am deaf.',
       duration: Duration(seconds: 60),
+      glossSequence: ['MY', 'NAME', 'ALEX', 'ME', 'DEAF'],
     );
   }
 

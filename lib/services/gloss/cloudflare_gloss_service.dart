@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'cloudflare_gloss_config.dart';
@@ -74,6 +75,18 @@ final class CloudflareGlossService implements GlossService {
     if (decoded['ok'] != true) {
       final detail = decoded['detail'] ?? decoded['error'] ?? 'unknown error';
       throw HttpException('Gloss worker failed: $detail', uri: Uri.parse(_workerUrl));
+    }
+
+    final modelUsed = decoded['modelUsed'];
+    if (modelUsed is String && modelUsed.trim().isNotEmpty) {
+      debugPrint(
+        '[SignBridge/Gloss] Gemini model: ${modelUsed.trim()} '
+        '(caption gloss, jobId=$jobId)',
+      );
+    } else {
+      debugPrint(
+        '[SignBridge/Gloss] Cloud gloss ok (model unknown, jobId=$jobId)',
+      );
     }
 
     final glossRaw = decoded['glossSequence'];

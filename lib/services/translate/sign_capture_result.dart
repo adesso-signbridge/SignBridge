@@ -3,12 +3,16 @@ class SignCaptureResult {
   const SignCaptureResult({
     required this.text,
     required this.duration,
+    this.glossSequence = const [],
     this.videoPath,
     this.modelUsed,
   });
 
   final String text;
   final Duration duration;
+
+  /// One gloss token per identified sign, in chronological order.
+  final List<String> glossSequence;
   final String? videoPath;
   final String? modelUsed;
 
@@ -21,10 +25,19 @@ class SignCaptureResult {
 
   bool get hasText => text.trim().isNotEmpty;
 
-  SignCaptureResult copyWith({String? videoPath, String? modelUsed}) {
+  bool get hasGloss => glossSequence.isNotEmpty;
+
+  String get glossPhrase => glossSequence.join(' ');
+
+  SignCaptureResult copyWith({
+    String? videoPath,
+    String? modelUsed,
+    List<String>? glossSequence,
+  }) {
     return SignCaptureResult(
       text: text,
       duration: duration,
+      glossSequence: glossSequence ?? this.glossSequence,
       videoPath: videoPath ?? this.videoPath,
       modelUsed: modelUsed ?? this.modelUsed,
     );

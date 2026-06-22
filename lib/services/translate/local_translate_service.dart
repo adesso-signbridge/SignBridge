@@ -179,6 +179,10 @@ final class LocalTranslateService implements TranslateService {
     if (_sessionActive) {
       _autoResumeEnabled = true;
     }
+    debugPrint(
+      '[SignBridge/STT] Device speech-to-text (not Gemini), '
+      'locale=${localeId ?? 'system default'}',
+    );
     return true;
   }
 
@@ -680,6 +684,13 @@ final class LocalTranslateService implements TranslateService {
       controller.add(update);
     } on StateError {
       // Stream closed while emitting — safe to ignore during teardown.
+    }
+
+    if (kDebugMode) {
+      final preview = text.length > 80 ? '${text.substring(0, 80)}…' : text;
+      debugPrint(
+        '[SignBridge/STT] caption ${isFinal ? 'final' : 'partial'}: $preview',
+      );
     }
   }
 

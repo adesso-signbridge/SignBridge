@@ -137,11 +137,27 @@ class TalkSignSpokenContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TalkSignHeardSection(heardResult: heardResult, uiCopy: uiCopy),
+        if (signResult.hasGloss) ...[
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.talkSessionStatusBottom,
+              ),
+              child: TalkSignGlossCapturedRow(
+                label: uiCopy.signsCapturedLabel,
+                glossSequence: signResult.glossSequence,
+              ),
+            ),
+          ),
+        ],
         Align(
           alignment: Alignment.centerRight,
           child: Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.talkSessionStatusBottom,
+            padding: EdgeInsets.only(
+              top: signResult.hasGloss
+                  ? AppSpacing.talkSessionStatusBottom
+                  : AppSpacing.talkSessionStatusBottom,
             ),
             child: TalkSignSpokenMessage(
               transcript: signResult.text,
@@ -154,6 +170,84 @@ class TalkSignSpokenContent extends StatelessWidget {
         ),
         const Spacer(),
       ],
+    );
+  }
+}
+
+/// One chip per gloss token so each captured sign is visible before TTS.
+class TalkSignGlossCapturedRow extends StatelessWidget {
+  const TalkSignGlossCapturedRow({
+    super.key,
+    required this.label,
+    required this.glossSequence,
+  });
+
+  final String label;
+  final List<String> glossSequence;
+
+  @override
+  Widget build(BuildContext context) {
+    return TalkSignRightStatusBubble(
+      backgroundColor: AppColors.talkSignAnalyzingBubbleBg,
+      borderColor: AppColors.talkSignAnalyzingBubbleBorder,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Klavika',
+              fontWeight: FontWeight.w400,
+              fontSize: 11,
+              height: 16 / 11,
+              color: AppColors.talkMutedText,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final gloss in glossSequence)
+                TalkSignGlossChip(token: gloss),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TalkSignGlossChip extends StatelessWidget {
+  const TalkSignGlossChip({super.key, required this.token});
+
+  final String token;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.splashBlue.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: AppColors.splashBlue.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(
+          token,
+          style: const TextStyle(
+            fontFamily: 'Klavika',
+            fontWeight: FontWeight.w400,
+            fontSize: 12,
+            height: 16 / 12,
+            color: AppColors.splashBlue,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ),
     );
   }
 }

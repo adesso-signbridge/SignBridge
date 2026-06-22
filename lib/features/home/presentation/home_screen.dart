@@ -10,11 +10,10 @@ import '../../../core/platform/speech_permission.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../services/caption/gloss_sequence_mapper.dart';
+import '../../../services/gloss/gloss_sequence_mapper.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
-import '../../../services/gloss/local_gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_config.dart';
@@ -36,6 +35,7 @@ class HomeScreen extends StatefulWidget {
     required this.signCaptureService,
     required this.phraseSpeechService,
     required this.glossService,
+    required this.localGlossService,
     required this.selectedLanguageCode,
     required this.uiCopy,
     required this.emergencyActive,
@@ -51,6 +51,7 @@ class HomeScreen extends StatefulWidget {
   final SignCaptureService signCaptureService;
   final PhraseSpeechService phraseSpeechService;
   final GlossService glossService;
+  final GlossService localGlossService;
   final String selectedLanguageCode;
   final HomeUiCopy uiCopy;
   final bool emergencyActive;
@@ -82,10 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _signRecordingActive = false;
   DateTime? _signRecordingStartedAt;
   int _signGeneration = 0;
+  int _signSpeakGeneration = 0;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
   final List<String> _accumulatedGlossTokens = [];
-  final LocalGlossService _localGlossService = LocalGlossService();
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
@@ -391,11 +392,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _sessionPhase = TalkSessionPhase.stopped;
       });
       debugPrint(
-        'Sign recognition ok '
-        '(${result.modelUsed ?? 'unknown model'}, '
+        '[SignBridge/Sign] Spoken text (${result.glossSequence.length} gloss, '
         '${recordingDuration.inMilliseconds}ms clip): ${result.text}',
       );
-      await _speakSignResult(result);
+      _scheduleSignSpeechAfterTextShown(result, generation);
     } on Object catch (error) {
       if (!mounted || generation != _signGeneration) {
         return;
@@ -422,7 +422,8 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
       if (message.contains('empty text') ||
-          message.contains('empty sign text')) {
+          message.contains('empty sign text') ||
+          message.contains('No signs detected')) {
         return widget.uiCopy.signNoSignsDetectedLabel;
       }
       if (message.contains('401')) {
@@ -436,6 +437,33 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     return widget.uiCopy.signCaptureFailedLabel;
+  }
+
+  /// Shows gloss + spoken text on screen first, then plays TTS.
+  void _scheduleSignSpeechAfterTextShown(
+    SignCaptureResult result,
+    int signGeneration,
+  ) {
+    final speakGeneration = ++_signSpeakGeneration;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted ||
+          signGeneration != _signGeneration ||
+          speakGeneration != _signSpeakGeneration) {
+        return;
+      }
+      // Brief pause so the user reads captured signs and text before audio.
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      if (!mounted ||
+          signGeneration != _signGeneration ||
+          speakGeneration != _signSpeakGeneration) {
+        return;
+      }
+      if (_signPhase != SignFlowPhase.spoken ||
+          _signResult?.text != result.text) {
+        return;
+      }
+      await _speakSignResult(result);
+    });
   }
 
   Future<void> _speakSignResult(SignCaptureResult result) async {
@@ -808,12 +836,16 @@ class _HomeScreenState extends State<HomeScreen> {
         if (tokens.isNotEmpty) {
           return tokens;
         }
-      } on Object {
-        // Fall through to on-device gloss.
+        debugPrint(
+          '[SignBridge/Gloss] Cloud returned empty gloss; using on-device rules',
+        );
+      } on Object catch (error) {
+        debugPrint('[SignBridge/Gloss] Cloud failed ($error); using on-device rules');
       }
     }
 
-    return _localGlossService.requestGloss(
+    debugPrint('[SignBridge/Gloss] On-device gloss (not Gemini)');
+    return widget.localGlossService.requestGloss(
       jobId: jobId,
       caption: caption,
       signLanguage: signLanguage,
@@ -875,6 +907,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = null;
       _resetLiveGlossState();
       _signGeneration++;
+      _signSpeakGeneration++;
       _signPhase = SignFlowPhase.idle;
       _signResult = null;
       _signRecordingActive = false;

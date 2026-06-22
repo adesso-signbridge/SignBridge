@@ -17,7 +17,8 @@ void main() {
           'ok': true,
           'jobId': 'job-1',
           'text': 'My name is Alex. I am deaf.',
-          'modelUsed': 'gemini-3.5-flash',
+          'glossSequence': ['MY', 'NAME', 'ALEX', 'ME', 'DEAF'],
+          'modelUsed': 'gemini-3.5-flash+gemini-3.1-flash-lite',
           'durationMs': 4500,
         }),
         200,
@@ -41,8 +42,9 @@ void main() {
     );
 
     expect(result.text, 'My name is Alex. I am deaf.');
+    expect(result.glossSequence, ['MY', 'NAME', 'ALEX', 'ME', 'DEAF']);
     expect(result.duration, const Duration(milliseconds: 4500));
-    expect(result.modelUsed, 'gemini-3.5-flash');
+    expect(result.modelUsed, 'gemini-3.5-flash+gemini-3.1-flash-lite');
     expect(result.videoPath, videoFile.path);
     service.dispose();
     await tempDir.delete(recursive: true);
