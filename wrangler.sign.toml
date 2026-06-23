@@ -3,8 +3,6 @@ main = "workers/sign/index.js"
 compatibility_date = "2026-06-16"
 
 [vars]
-GROQ_MODEL = "llama-3.1-8b-instant"
-ADESSO_MODEL = "qwen-3.6-35b-sovereign"
 GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 GEMINI_LITE_MODEL = "gemini-3.1-flash-lite"
