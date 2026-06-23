@@ -17,6 +17,7 @@ import '../../../services/gloss/gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_config.dart';
+import '../../../services/translate/sign_capture_error_mapper.dart';
 import '../../../services/translate/sign_capture_service.dart';
 import '../../../services/translate/sign_language_system.dart';
 import '../../../services/translate/translate_service.dart';
@@ -311,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final cameraGranted = await cameraPermissionRequester();
     if (!cameraGranted) {
       if (mounted) {
-        _showListenError(widget.uiCopy.cameraPermissionRequiredLabel);
+        _showSignMessage(widget.uiCopy.cameraPermissionRequiredLabel);
       }
       return;
     }
@@ -351,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       setState(() => _signPhase = SignFlowPhase.idle);
-      _showListenError(widget.uiCopy.signRecordingTooShortLabel);
+      _showSignMessage(widget.uiCopy.signRecordingTooShortLabel);
       return;
     }
 
@@ -362,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
         setState(() => _signPhase = SignFlowPhase.idle);
-        _showListenError(widget.uiCopy.signCaptureFailedLabel);
+        _showSignMessage(widget.uiCopy.signCaptureFailedLabel);
         return;
       }
       final videoBytes = await videoFile.length();
@@ -371,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
         setState(() => _signPhase = SignFlowPhase.idle);
-        _showListenError(widget.uiCopy.signRecordingEmptyLabel);
+        _showSignMessage(widget.uiCopy.signRecordingEmptyLabel);
         return;
       }
     }
@@ -402,41 +403,30 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       debugPrint('Sign analysis failed: $error');
       setState(() => _signPhase = SignFlowPhase.idle);
-      _showListenError(_signCaptureErrorMessage(error));
+      _showSignError(error);
     }
   }
 
-  String _signCaptureErrorMessage(Object error) {
-    if (error is HttpException) {
-      final message = error.message;
-      final detailMatch = RegExp(
-        r'"detail"\s*:\s*"([^"]+)"',
-      ).firstMatch(message);
-      if (detailMatch != null) {
-        final detail = detailMatch.group(1)!;
-        if (detail.contains('GEMINI_KEY not configured')) {
-          return 'Sign analysis is not configured on the server.';
-        }
-        if (detail.length <= 120) {
-          return detail;
-        }
-      }
-      if (message.contains('empty text') ||
-          message.contains('empty sign text') ||
-          message.contains('No signs detected')) {
-        return widget.uiCopy.signNoSignsDetectedLabel;
-      }
-      if (message.contains('401')) {
-        return 'Sign analysis unauthorized. Check app configuration.';
-      }
-      if (message.contains('429') || message.contains('You exceeded')) {
-        return 'Sign video analysis is rate-limited. Wait a minute and try again.';
-      }
-      if (message.contains('404') && message.contains('models/gemini')) {
-        return 'Sign video model is not available on the server. Check SIGN_GEMINI_MODEL.';
-      }
-    }
-    return widget.uiCopy.signCaptureFailedLabel;
+  /// Shows sign-flow snackbars with user-friendly messages for worker/Gemini errors.
+  void _showSignError(Object error) {
+    final message = SignCaptureErrorMapper.userMessage(error, widget.uiCopy);
+    final duration = SignCaptureErrorMapper.snackbarDuration(error);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: duration,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showSignMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   /// Shows gloss + spoken text on screen first, then plays TTS.
@@ -949,7 +939,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onRecordingStopped: _analyzeSignVideo,
         onCameraError: (message) {
           debugPrint('Sign camera error: $message');
-          _showListenError(widget.uiCopy.signCaptureFailedLabel);
+          _showSignMessage(widget.uiCopy.signCaptureFailedLabel);
           setState(() => _signPhase = SignFlowPhase.idle);
         },
       );

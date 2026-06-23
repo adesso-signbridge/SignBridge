@@ -13,6 +13,11 @@ class HomeUiCopy {
     required this.replayLabel,
     required this.cameraPermissionRequiredLabel,
     required this.signCaptureFailedLabel,
+    required this.signCaptureRateLimitedLabel,
+    required this.signCaptureModelUnavailableLabel,
+    required this.signCaptureServiceUnavailableLabel,
+    required this.signCaptureNotConfiguredLabel,
+    required this.signCaptureUnauthorizedLabel,
     required this.listeningLabel,
     required this.signingPrefix,
     required this.signingListeningWord,
@@ -66,6 +71,11 @@ class HomeUiCopy {
   final String replayLabel;
   final String cameraPermissionRequiredLabel;
   final String signCaptureFailedLabel;
+  final String signCaptureRateLimitedLabel;
+  final String signCaptureModelUnavailableLabel;
+  final String signCaptureServiceUnavailableLabel;
+  final String signCaptureNotConfiguredLabel;
+  final String signCaptureUnauthorizedLabel;
   final String listeningLabel;
   final String signingPrefix;
   final String signingListeningWord;
@@ -129,6 +139,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     cameraPermissionRequiredLabel:
         'Camera permission is required to record signs.',
     signCaptureFailedLabel: 'Could not analyze signs. Please try again.',
+    signCaptureRateLimitedLabel:
+        'Sign analysis is busy right now. Please wait a minute and try again.',
+    signCaptureModelUnavailableLabel:
+        'Sign analysis is temporarily unavailable. Please try again later.',
+    signCaptureServiceUnavailableLabel:
+        'Sign analysis server is unavailable. Please try again shortly.',
+    signCaptureNotConfiguredLabel:
+        'Sign analysis is not configured yet. Please try again later.',
+    signCaptureUnauthorizedLabel:
+        'Sign analysis could not be authorized. Please try again later.',
     listeningLabel: 'Listening...',
     signingPrefix: 'Signing:',
     signingListeningWord: '...',
@@ -197,6 +217,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'സൈനുകൾ റെക്കോർഡ് ചെയ്യാൻ ക്യാമറ അനുമതി ആവശ്യമാണ്.',
     signCaptureFailedLabel:
         'സൈനുകൾ വിശകലനം ചെയ്യാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureRateLimitedLabel:
+        'സൈൻ വിശകലനം ഇപ്പോൾ തിരക്കിലാണ്. ഒരു മിനിറ്റ് കാത്തിരുന്ന് വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureModelUnavailableLabel:
+        'സൈൻ വിശകലനം താൽക്കാലികമായി ലഭ്യമല്ല. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureServiceUnavailableLabel:
+        'സൈൻ വിശകലന സർവർ ലഭ്യമല്ല. കുറച്ച് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureNotConfiguredLabel:
+        'സൈൻ വിശകലനം ഇതുവരെ ക്രമീകരിച്ചിട്ടില്ല. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureUnauthorizedLabel:
+        'സൈൻ വിശകലനം അംഗീകരിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
     listeningLabel: 'കേൾക്കുന്നു...',
     signingPrefix: 'സൈൻ ചെയ്യുന്നു:',
     signingListeningWord: '...',
@@ -265,6 +295,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'साइन रिकॉर्ड करने के लिए कैमरा अनुमति आवश्यक है।',
     signCaptureFailedLabel:
         'साइन का विश्लेषण नहीं हो सका। कृपया पुनः प्रयास करें।',
+    signCaptureRateLimitedLabel:
+        'साइन विश्लेषण अभी व्यस्त है। एक मिनट रुककर पुनः प्रयास करें।',
+    signCaptureModelUnavailableLabel:
+        'साइन विश्लेषण अस्थायी रूप से उपलब्ध नहीं है। बाद में पुनः प्रयास करें।',
+    signCaptureServiceUnavailableLabel:
+        'साइन विश्लेषण सर्वर उपलब्ध नहीं है। थोड़ी देर बाद पुनः प्रयास करें।',
+    signCaptureNotConfiguredLabel:
+        'साइन विश्लेषण अभी कॉन्फ़िगर नहीं है। बाद में पुनः प्रयास करें।',
+    signCaptureUnauthorizedLabel:
+        'साइन विश्लेषण अधिकृत नहीं हो सका। पुनः प्रयास करें।',
     listeningLabel: 'सुन रहा है...',
     signingPrefix: 'साइन कर रहा है:',
     signingListeningWord: '...',
@@ -331,6 +371,16 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     cameraPermissionRequiredLabel: 'சைகைகளை பதிவு செய்ய கேமரா அனுமதி தேவை.',
     signCaptureFailedLabel:
         'சைகைகளை பகுப்பாய்வு செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
+    signCaptureRateLimitedLabel:
+        'சைகை பகுப்பாய்வு இப்போது பிஸியாக உள்ளது. ஒரு நிமிடம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.',
+    signCaptureModelUnavailableLabel:
+        'சைகை பகுப்பாய்வு தற்காலிகமாக கிடைக்கவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்.',
+    signCaptureServiceUnavailableLabel:
+        'சைகை பகுப்பாய்வு சேவையகம் கிடைக்கவில்லை. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.',
+    signCaptureNotConfiguredLabel:
+        'சைகை பகுப்பாய்வு இன்னும் அமைக்கப்படவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்.',
+    signCaptureUnauthorizedLabel:
+        'சைகை பகுப்பாய்வை அங்கீகரிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
     listeningLabel: 'கேட்கிறது...',
     signingPrefix: 'சைகை செய்கிறது:',
     signingListeningWord: '...',
