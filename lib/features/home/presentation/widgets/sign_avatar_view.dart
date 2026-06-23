@@ -3,11 +3,12 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_bridge/services/translate/sign_language_system.dart';
+import 'package:sign_bridge/services/translate/sign_token.dart';
 
 import 'asl_sign_overlay.dart';
-import 'cwasa_avatar_view.dart';
+import 'sign_video_avatar_view.dart';
 
-/// Renders the signing avatar with illustration + animated sign overlay.
+/// Renders the signing avatar with Hugging Face signer videos when available.
 class SignAvatarView extends StatelessWidget {
   const SignAvatarView({
     super.key,
@@ -15,6 +16,7 @@ class SignAvatarView extends StatelessWidget {
     required this.signSystem,
     required this.fallbackAsset,
     required this.signingWord,
+    this.signSequence = const [],
     this.signPulse = 0,
     this.showNative = true,
   });
@@ -23,13 +25,14 @@ class SignAvatarView extends StatelessWidget {
   final SignLanguageSystem signSystem;
   final String fallbackAsset;
   final String signingWord;
+  final List<SignToken> signSequence;
   final int signPulse;
   final bool showNative;
 
   static bool get _isFlutterTest =>
       Platform.environment.containsKey('FLUTTER_TEST');
 
-  bool get _useCwasa {
+  bool get _useSignerVideo {
     if (!showNative || kIsWeb || _isFlutterTest) {
       return false;
     }
@@ -40,21 +43,13 @@ class SignAvatarView extends StatelessWidget {
   }
 
   bool get _showOverlay {
-    if (_useCwasa || !showNative || kIsWeb || _isFlutterTest) {
+    if (_useSignerVideo || !showNative || kIsWeb || _isFlutterTest) {
       return false;
     }
     return signTokenId != SignTokenIds.thinking;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_useCwasa) {
-      return CwasaAvatarView(
-        glossPhrase: signingWord,
-        pulse: signPulse,
-      );
-    }
-
+  Widget _buildFallback() {
     return Stack(
       fit: StackFit.expand,
       alignment: Alignment.bottomCenter,
@@ -73,6 +68,20 @@ class SignAvatarView extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_useSignerVideo) {
+      return SignVideoAvatarView(
+        signSystem: signSystem,
+        signSequence: signSequence,
+        pulse: signPulse,
+        fallback: _buildFallback(),
+      );
+    }
+
+    return _buildFallback();
   }
 }
 

@@ -78,6 +78,38 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
+  test('analyzeRecording sends conversation context when provided', () async {
+    final client = MockClient((request) async {
+      expect(request.fields['conversationContext'], 'How are you today?');
+      return http.Response(
+        jsonEncode({
+          'ok': true,
+          'text': 'I am fine.',
+          'glossSequence': ['ME', 'FINE'],
+        }),
+        200,
+      );
+    });
+
+    final tempDir = await Directory.systemTemp.createTemp('sign_capture_test');
+    final videoFile = File('${tempDir.path}/sample.mp4');
+    await videoFile.writeAsBytes(const [0, 1, 2]);
+
+    final service = CloudflareSignCaptureService(
+      workerUrl: 'https://sign.example.com/sign',
+      client: client,
+    );
+
+    await service.analyzeRecording(
+      videoPath: videoFile.path,
+      languageCode: 'ENG',
+      conversationContext: 'How are you today?',
+    );
+
+    service.dispose();
+    await tempDir.delete(recursive: true);
+  });
+
   test('does not treat Gemini 404 inside 502 as missing worker', () async {
     var requestCount = 0;
     final client = MockClient((request) async {

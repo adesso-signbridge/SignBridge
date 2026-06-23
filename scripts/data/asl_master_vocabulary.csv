@@ -1,0 +1,598 @@
+sno,category,english,asl_gloss,meaning,has_local_video
+1,Question Words,Who,WHO,Person,yes
+2,Question Words,What,WHAT,Thing / Information,yes
+3,Question Words,Where,WHERE,Place,yes
+4,Question Words,When,WHEN,Time,yes
+5,Question Words,Why,WHY,Reason,yes
+6,Question Words,Which,WHICH,Choice,yes
+7,Question Words,Whose,WHOSE,Ownership,no
+8,Question Words,How,HOW,Method / Manner,yes
+9,Question Words,How Many,HOW-MANY,Countable quantity,no
+10,Question Words,How Much,HOW-MUCH,Amount / Price,no
+11,Question Words,How Long,HOW-LONG,Duration / Length,no
+12,Question Words,How Often,HOW-OFTEN,Frequency,no
+13,Question Words,How Far,HOW-FAR,Distance,no
+14,Question Words,How Old,HOW-OLD,Age,no
+15,Question Words,What Time,WHAT-TIME,Specific time,no
+16,Question Words,What Kind,WHAT-KIND,Type,no
+17,Question Words,For What,FOR-WHAT,Purpose,no
+18,Question Words,Since When,SINCE-WHEN,Starting time,no
+19,Question Words,Until When,UNTIL-WHEN,Ending time,no
+20,Question Words,How Come,HOW-COME,Reason,no
+21,Greetings & Politeness,Hello,HELLO,General greeting,yes
+22,Greetings & Politeness,Hi,HI,Casual greeting,yes
+23,Greetings & Politeness,Hey,HEY,Casual greeting,yes
+24,Greetings & Politeness,Good Morning,GOOD-MORNING,Morning greeting,no
+25,Greetings & Politeness,Good Afternoon,GOOD-AFTERNOON,Afternoon greeting,no
+26,Greetings & Politeness,Good Evening,GOOD-EVENING,Evening greeting,no
+27,Greetings & Politeness,Welcome,WELCOME,Greeting someone arriving,yes
+28,Greetings & Politeness,How Are You?,HOW-YOU,Ask about well-being,no
+29,Greetings & Politeness,Nice To Meet You,NICE-MEET-YOU,First introduction,no
+30,Greetings & Politeness,Good To See You,GOOD-SEE-YOU,Friendly greeting,no
+31,Greetings & Politeness,Goodbye,GOODBYE,Leaving,yes
+32,Greetings & Politeness,Bye,BYE,Casual farewell,yes
+33,Greetings & Politeness,See You Later,SEE-YOU-LATER,Casual farewell,no
+34,Greetings & Politeness,See You Tomorrow,SEE-YOU-TOMORROW,Farewell,no
+35,Greetings & Politeness,Have A Nice Day,HAVE-NICE-DAY,Polite farewell,no
+36,Greetings & Politeness,Have A Good Weekend,HAVE-GOOD-WEEKEND,Weekend farewell,no
+37,Greetings & Politeness,Please,PLEASE,Polite request,yes
+38,Greetings & Politeness,Thank You,THANK-YOU,Gratitude,yes
+39,Greetings & Politeness,Thanks A Lot,THANK-YOU,Strong gratitude,yes
+40,Greetings & Politeness,You're Welcome,WELCOME,Response to thanks,yes
+41,Greetings & Politeness,Excuse Me,EXCUSE-ME,Attention / apology,yes
+42,Greetings & Politeness,Sorry,SORRY,Apology,yes
+43,Greetings & Politeness,Pardon Me,EXCUSE-ME,Polite apology,yes
+44,Greetings & Politeness,No Problem,NO-PROBLEM,Reassurance,no
+45,Greetings & Politeness,Good Luck,GOOD-LUCK,Well wishes,no
+46,Greetings & Politeness,Congratulations,CONGRATULATIONS,Celebration,yes
+47,Greetings & Politeness,Take Care,TAKE-CARE,Friendly farewell,yes
+48,Greetings & Politeness,Safe Trip,SAFE-TRIP,Travel farewell,no
+49,Greetings & Politeness,Bless You,BLESS-YOU,After sneeze,no
+50,Greetings & Politeness,Happy Birthday,HAPPY-BIRTHDAY,Birthday wish,no
+51,People & Pronouns,I,ME,First person,yes
+52,People & Pronouns,You,YOU,Second person,yes
+53,People & Pronouns,He,HE,Male third person,yes
+54,People & Pronouns,She,SHE,Female third person,yes
+55,People & Pronouns,It,IT,Object / animal,no
+56,People & Pronouns,We,WE,First person plural,yes
+57,People & Pronouns,They,THEY,Third person plural,yes
+58,People & Pronouns,My,MY,Possessive,yes
+59,People & Pronouns,Your,YOUR,Possessive,yes
+60,People & Pronouns,His,HIS,Possessive,yes
+61,People & Pronouns,Her,HER,Possessive,yes
+62,People & Pronouns,Our,OUR,Possessive,yes
+63,People & Pronouns,Their,THEIR,Possessive,yes
+64,People & Pronouns,Person,PERSON,Individual,yes
+65,People & Pronouns,Adult,ADULT,Grown person,yes
+66,People & Pronouns,Child,CHILD,Young person,yes
+67,People & Pronouns,Teenager,TEENAGER,Adolescent,yes
+68,People & Pronouns,Baby,BABY,Infant,yes
+69,People & Pronouns,Friend,FRIEND,Companion,yes
+70,People & Pronouns,Best Friend,BEST-FRIEND,Close friend,no
+71,People & Pronouns,Neighbor,NEIGHBOR,Nearby resident,yes
+72,People & Pronouns,Coworker,COWORKER,Work colleague,no
+73,People & Pronouns,Teacher,TEACHER,Educator,yes
+74,People & Pronouns,Student,STUDENT,Learner,yes
+75,People & Pronouns,Doctor,DOCTOR,Medical professional,yes
+76,People & Pronouns,Nurse,NURSE,Medical caregiver,yes
+77,People & Pronouns,Engineer,ENGINEER,Technical professional,yes
+78,People & Pronouns,Programmer,PROGRAMMER,Software developer,no
+79,People & Pronouns,Manager,MANAGER,Supervisor,yes
+80,People & Pronouns,Boss,BOSS,Employer lead,yes
+81,People & Pronouns,Employee,EMPLOYEE,Worker,no
+82,Family,Family,FAMILY,Relatives,yes
+83,Family,Father,FATHER,Male parent,yes
+84,Family,Mother,MOTHER,Female parent,yes
+85,Family,Parents,PARENTS,Mother and father,yes
+86,Family,Son,SON,Male child,yes
+87,Family,Daughter,DAUGHTER,Female child,yes
+88,Family,Brother,BROTHER,Male sibling,yes
+89,Family,Sister,SISTER,Female sibling,yes
+90,Family,Husband,HUSBAND,Male spouse,yes
+91,Family,Wife,WIFE,Female spouse,yes
+92,Family,Grandfather,GRANDFATHER,Father's/mother's father,yes
+93,Family,Grandmother,GRANDMOTHER,Father's/mother's mother,yes
+94,Family,Uncle,UNCLE,Parent's brother,yes
+95,Family,Aunt,AUNT,Parent's sister,yes
+96,Family,Cousin,COUSIN,Extended family,yes
+97,Family,Nephew,NEPHEW,Sibling's son,yes
+98,Family,Niece,NIECE,Sibling's daughter,yes
+99,Family,Grandchild,GRANDCHILD,Child's child,no
+100,Family,Relative,RELATIVE,Family member,no
+101,Family,In-Law,IN-LAW,Marriage relation,no
+102,Time,Time,TIME,Clock / duration,yes
+103,Time,Now,NOW,Present moment,yes
+104,Time,Today,TODAY,This day,yes
+105,Time,Yesterday,YESTERDAY,Previous day,yes
+106,Time,Tomorrow,TOMORROW,Next day,yes
+107,Time,Morning,MORNING,AM period,yes
+108,Time,Afternoon,AFTERNOON,Midday period,yes
+109,Time,Evening,EVENING,PM period,yes
+110,Time,Night,NIGHT,Nighttime,yes
+111,Time,Midnight,MIDNIGHT,12 AM,yes
+112,Time,Noon,NOON,12 PM,yes
+113,Time,Minute,MINUTE,60 seconds,yes
+114,Time,Hour,HOUR,60 minutes,yes
+115,Time,Day,DAY,24 hours,yes
+116,Time,Week,WEEK,7 days,yes
+117,Time,Month,MONTH,Calendar month,yes
+118,Time,Year,YEAR,12 months,yes
+119,Time,Decade,DECADE,10 years,no
+120,Time,Century,CENTURY,100 years,no
+121,Time,Early,EARLY,Before expected,yes
+122,Time,Late,LATE,After expected,yes
+123,Time,Soon,SOON,Near future,yes
+124,Time,Later,LATER,After now,yes
+125,Time,Before,BEFORE,Earlier than,yes
+126,Time,After,AFTER,Later than,yes
+127,Time,Past,PAST,Earlier time,yes
+128,Time,Future,FUTURE,Later time,yes
+129,Time,Present,PRESENT,Current time,yes
+130,Time,Always,ALWAYS,Every time,yes
+131,Time,Never,NEVER,Not ever,yes
+132,Feelings,Happy,HAPPY,Positive emotion,yes
+133,Feelings,Sad,SAD,Sorrow,yes
+134,Feelings,Angry,ANGRY,Anger,yes
+135,Feelings,Excited,EXCITED,Enthusiasm,yes
+136,Feelings,Tired,TIRED,Fatigue,yes
+137,Feelings,Hungry,HUNGRY,Need food,yes
+138,Feelings,Thirsty,THIRSTY,Need drink,yes
+139,Feelings,Good,GOOD,Positive state,yes
+140,Feelings,Bad,BAD,Negative state,yes
+141,Feelings,Fine,FINE,Okay,yes
+142,Feelings,Okay,OKAY,Acceptable,yes
+143,Common Verbs,Go,GO,Move away,yes
+144,Common Verbs,Come,COME,Move toward,yes
+145,Common Verbs,Walk,WALK,Move on foot,yes
+146,Common Verbs,Run,RUN,Move fast,yes
+147,Common Verbs,Sit,SIT,Take a seat,yes
+148,Common Verbs,Stand,STAND,Be upright,yes
+149,Common Verbs,Eat,EAT,Consume food,yes
+150,Common Verbs,Drink,DRINK,Consume liquid,yes
+151,Common Verbs,Sleep,SLEEP,Rest,yes
+152,Common Verbs,Wake Up,WAKE-UP,Stop sleeping,yes
+153,Common Verbs,Study,STUDY,Learn academically,yes
+154,Common Verbs,Learn,LEARN,Acquire knowledge,yes
+155,Common Verbs,Teach,TEACH,Instruct,yes
+156,Common Verbs,Read,READ,Read text,yes
+157,Common Verbs,Write,WRITE,Write text,yes
+158,Common Verbs,Talk,TALK,Speak,yes
+159,Common Verbs,Listen,LISTEN,Hear attentively,yes
+160,Common Verbs,Watch,WATCH,Observe,yes
+161,Common Verbs,See,SEE,Perceive visually,yes
+162,Common Verbs,Look,LOOK,Direct gaze,no
+163,Common Verbs,Ask,ASK,Request information,yes
+164,Common Verbs,Answer,ANSWER,Respond,yes
+165,Common Verbs,Tell,TELL,Inform,yes
+166,Common Verbs,Explain,EXPLAIN,Clarify,yes
+167,Common Verbs,Help,HELP,Assist,yes
+168,Common Verbs,Call,CALL,Phone / summon,yes
+169,Common Verbs,Understand,UNDERSTAND,Comprehend,yes
+170,Common Verbs,Know,KNOW,Have knowledge,yes
+171,Common Verbs,Remember,REMEMBER,Recall,yes
+172,Common Verbs,Forget,FORGET,Fail to recall,yes
+173,Common Verbs,Buy,BUY,Purchase,yes
+174,Common Verbs,Sell,SELL,Offer for sale,yes
+175,Common Verbs,Pay,PAY,Give money,yes
+176,Common Verbs,Open,OPEN,Make open,yes
+177,Common Verbs,Close,CLOSE,Shut,yes
+178,Common Verbs,Start,START,Begin,yes
+179,Common Verbs,Finish,FINISH,Complete,yes
+180,Common Verbs,Wait,WAIT,Stay until,yes
+181,Common Verbs,Drive,DRIVE,Operate vehicle,yes
+182,Common Verbs,Ride,RIDE,Travel on,yes
+183,Common Verbs,Cook,COOK,Prepare food,yes
+184,Common Verbs,Clean,CLEAN,Make clean,yes
+185,Common Verbs,Wash,WASH,Clean with water,yes
+186,Common Verbs,Use,USE,Utilize,yes
+187,Common Verbs,Need,NEED,Require,yes
+188,Common Verbs,Want,WANT,Desire,yes
+189,Common Verbs,Like,LIKE,Enjoy,yes
+190,Common Verbs,Love,LOVE,Strong affection,yes
+191,Common Verbs,Hate,HATE,Strong dislike,yes
+192,Common Verbs,Choose,CHOOSE,Select,yes
+193,Common Verbs,Decide,DECIDE,Make decision,yes
+194,Common Verbs,Build,BUILD,Construct,yes
+195,Common Verbs,Create,CREATE,Make new,yes
+196,Common Verbs,Fix,FIX,Repair,yes
+197,Common Verbs,Move,MOVE,Change position,yes
+198,Common Verbs,Carry,CARRY,Transport,yes
+199,Common Verbs,Send,SEND,Dispatch,yes
+200,Common Verbs,Receive,RECEIVE,Get,yes
+201,Common Verbs,Search,SEARCH,Look for,yes
+202,Common Verbs,Find,FIND,Discover,yes
+203,Common Verbs,Lose,LOSE,Misplace,yes
+204,Descriptions - Size,Big,BIG,Large size,yes
+205,Descriptions - Size,Small,SMALL,Little size,yes
+206,Descriptions - Size,Large,LARGE,Big,yes
+207,Descriptions - Size,Tiny,TINY,Very small,yes
+208,Descriptions - Size,Huge,HUGE,Very big,no
+209,Descriptions - Size,Giant,GIANT,Extremely big,no
+210,Descriptions - Size,Long,LONG,Extended length,yes
+211,Descriptions - Size,Short,SHORT,Brief length,yes
+212,Descriptions - Size,Tall,TALL,High height,yes
+213,Descriptions - Size,Wide,WIDE,Broad,yes
+214,Descriptions - Size,Narrow,NARROW,Not wide,yes
+215,Descriptions - Size,Thick,THICK,Dense,yes
+216,Descriptions - Size,Thin,THIN,Slim,yes
+217,Descriptions - Size,Deep,DEEP,Far down,yes
+218,Descriptions - Size,Shallow,SHALLOW,Not deep,no
+219,Descriptions - Size,Heavy,HEAVY,High weight,yes
+220,Descriptions - Size,Light,LIGHT,Low weight,yes
+221,Descriptions - Quality,Excellent,EXCELLENT,Very good,no
+222,Descriptions - Quality,Perfect,PERFECT,Flawless,yes
+223,Descriptions - Quality,Amazing,AMAZING,Surprising good,yes
+224,Descriptions - Quality,Wonderful,WONDERFUL,Delightful,yes
+225,Descriptions - Quality,Nice,NICE,Pleasant,yes
+226,Descriptions - Quality,Terrible,TERRIBLE,Very bad,yes
+227,Descriptions - Quality,Easy,EASY,Not difficult,yes
+228,Descriptions - Quality,Difficult,DIFFICULT,Hard,yes
+229,Descriptions - Quality,Simple,SIMPLE,Basic,yes
+230,Descriptions - Quality,Complex,COMPLEX,Complicated,yes
+231,Descriptions - Quality,Fast,FAST,Quick,yes
+232,Descriptions - Quality,Slow,SLOW,Not fast,yes
+233,Descriptions - Quality,Beautiful,BEAUTIFUL,Attractive,yes
+234,Descriptions - Quality,Ugly,UGLY,Unattractive,yes
+235,Descriptions - Quality,Dirty,DIRTY,Not clean,yes
+236,Descriptions - Quality,Young,YOUNG,Low age,yes
+237,Descriptions - Quality,Old,OLD,High age,yes
+238,Descriptions - Quality,Strong,STRONG,Powerful,yes
+239,Descriptions - Quality,Weak,WEAK,Not strong,yes
+240,Descriptions - Quality,Broken,BROKEN,Not working,no
+241,Descriptions - Quality,Lost,LOST,Missing,yes
+242,Colors,Red,RED,Color,yes
+243,Colors,Blue,BLUE,Color,yes
+244,Colors,Green,GREEN,Color,yes
+245,Colors,Yellow,YELLOW,Color,yes
+246,Colors,Black,BLACK,Color,yes
+247,Colors,White,WHITE,Color,yes
+248,Colors,Brown,BROWN,Color,yes
+249,Colors,Orange,ORANGE,Color,yes
+250,Colors,Pink,PINK,Color,yes
+251,Colors,Purple,PURPLE,Color,yes
+252,Colors,Gray,GRAY,Color,yes
+253,Colors,Silver,SILVER,Color,yes
+254,Colors,Gold,GOLD,Color,yes
+255,Colors,Beige,BEIGE,Color,no
+256,Colors,Maroon,MAROON,Color,no
+257,Home,Home,HOME,Residence,yes
+258,Home,House,HOUSE,Building,yes
+259,Home,Room,ROOM,Interior space,yes
+260,Home,Kitchen,KITCHEN,Cooking area,yes
+261,Home,Bedroom,BEDROOM,Sleeping room,yes
+262,Home,Bathroom,BATHROOM,Washroom,yes
+263,Home,Bed,BED,Sleep furniture,yes
+264,Home,Door,DOOR,Entry,yes
+265,Home,Key,KEY,Lock opener,yes
+266,Home,Table,TABLE,Furniture,yes
+267,Home,Chair,CHAIR,Seat,yes
+268,Food & Drinks,Water,WATER,Drink,yes
+269,Food & Drinks,Coffee,COFFEE,Hot drink,yes
+270,Food & Drinks,Tea,TEA,Hot drink,yes
+271,Food & Drinks,Milk,MILK,Dairy drink,yes
+272,Food & Drinks,Juice,JUICE,Fruit drink,no
+273,Food & Drinks,Soda,SODA,Soft drink,yes
+274,Food & Drinks,Rice,RICE,Grain food,no
+275,Food & Drinks,Bread,BREAD,Baked food,yes
+276,Food & Drinks,Chapati,CHAPATI,Flatbread,no
+277,Food & Drinks,Idli,IDLI,South Indian food,no
+278,Food & Drinks,Dosa,DOSA,South Indian food,no
+279,Food & Drinks,Pizza,PIZZA,Italian food,yes
+280,Food & Drinks,Burger,BURGER,Fast food,no
+281,Food & Drinks,Sandwich,SANDWICH,Filled bread,yes
+282,Food & Drinks,Chicken,CHICKEN,Poultry,yes
+283,Food & Drinks,Fish,FISH,Seafood,yes
+284,Food & Drinks,Egg,EGG,Protein,yes
+285,Food & Drinks,Fruit,FRUIT,Produce,yes
+286,Food & Drinks,Apple,APPLE,Fruit,yes
+287,Food & Drinks,Banana,BANANA,Fruit,yes
+288,Food & Drinks,Mango,MANGO,Fruit,no
+289,Food & Drinks,Grapes,GRAPES,Fruit,yes
+290,Food & Drinks,Vegetable,VEGETABLE,Produce,yes
+291,Food & Drinks,Potato,POTATO,Vegetable,yes
+292,Food & Drinks,Onion,ONION,Vegetable,yes
+293,Food & Drinks,Tomato,TOMATO,Vegetable,yes
+294,Food & Drinks,Breakfast,BREAKFAST,Morning meal,yes
+295,Food & Drinks,Lunch,LUNCH,Midday meal,yes
+296,Food & Drinks,Dinner,DINNER,Evening meal,yes
+297,Food & Drinks,Snack,SNACK,Light food,yes
+298,Food & Drinks,Restaurant,RESTAURANT,Eatery,yes
+299,Food & Drinks,Menu,MENU,Food list,no
+300,Food & Drinks,Order,ORDER,Request food,yes
+301,Food & Drinks,Bill,BILL,Check / invoice,no
+302,Food & Drinks,Salt,SALT,Seasoning,yes
+303,Food & Drinks,Sugar,SUGAR,Sweetener,yes
+304,Food & Drinks,Pepper,PEPPER,Spice,yes
+305,Food & Drinks,Spice,SPICE,Flavoring,no
+306,Food & Drinks,Soup,SOUP,Liquid dish,yes
+307,Food & Drinks,Salad,SALAD,Mixed greens,yes
+308,Food & Drinks,Dessert,DESSERT,Sweet course,yes
+309,Food & Drinks,Ice Cream,ICE-CREAM,Frozen dessert,yes
+310,Food & Drinks,Cake,CAKE,Baked dessert,yes
+311,Food & Drinks,Cookie,COOKIE,Small baked sweet,yes
+312,Food & Drinks,Chocolate,CHOCOLATE,Cocoa sweet,yes
+313,Food & Drinks,Vegetarian,VEGETARIAN,No meat diet,no
+314,Food & Drinks,Vegan,VEGAN,Plant-only diet,no
+315,Food & Drinks,Delicious,DELICIOUS,Tasty,yes
+316,Food & Drinks,Sweet,SWEET,Sugar taste,yes
+317,Food & Drinks,Sour,SOUR,Acid taste,yes
+318,Food & Drinks,Bitter,BITTER,Sharp taste,yes
+319,Food & Drinks,Spicy,SPICY,Hot taste,yes
+320,Food & Drinks,Fresh,FRESH,Not stale,no
+321,Food & Drinks,Frozen,FROZEN,Very cold,no
+322,Food & Drinks,Food,FOOD,Nourishment,yes
+323,Travel & Transport,Travel,TRAVEL,Journey,yes
+324,Travel & Transport,Airport,AIRPORT,Flight hub,no
+325,Travel & Transport,Flight,FLIGHT,Air travel,no
+326,Travel & Transport,Plane,PLANE,Aircraft,no
+327,Travel & Transport,Train,TRAIN,Rail transport,yes
+328,Travel & Transport,Bus,BUS,Road transport,yes
+329,Travel & Transport,Taxi,TAXI,Hired car,no
+330,Travel & Transport,Car,CAR,Automobile,yes
+331,Travel & Transport,Map,MAP,Navigation chart,no
+332,Travel & Transport,Hotel,HOTEL,Lodging,yes
+333,Travel & Transport,Passport,PASSPORT,Travel ID,yes
+334,Travel & Transport,Ticket,TICKET,Travel pass,yes
+335,Travel & Transport,Luggage,LUGGAGE,Bags,no
+336,Travel & Transport,Station,STATION,Transit stop,no
+337,Travel & Transport,Road,ROAD,Street route,yes
+338,Travel & Transport,Traffic,TRAFFIC,Vehicle flow,yes
+339,Health & Medical,Hospital,HOSPITAL,Medical facility,yes
+340,Health & Medical,Medicine,MEDICINE,Medication,yes
+341,Health & Medical,Pharmacy,PHARMACY,Drug store,no
+342,Health & Medical,Fever,FEVER,High temperature,no
+343,Health & Medical,Headache,HEADACHE,Head pain,yes
+344,Health & Medical,Allergy,ALLERGY,Immune reaction,yes
+345,Health & Medical,Emergency,EMERGENCY,Urgent crisis,yes
+346,Health & Medical,Ambulance,AMBULANCE,Emergency vehicle,no
+347,Health & Medical,Appointment,APPOINTMENT,Scheduled visit,yes
+348,Health & Medical,Pain,PAIN,Physical hurt,yes
+349,School & Work,School,SCHOOL,Education place,yes
+350,School & Work,Classroom,CLASSROOM,Learning room,yes
+351,School & Work,Homework,HOMEWORK,Home assignment,yes
+352,School & Work,Exam,EXAM,Test,no
+353,School & Work,Office,OFFICE,Workplace,yes
+354,School & Work,Meeting,MEETING,Work gathering,yes
+355,School & Work,Project,PROJECT,Work task,yes
+356,School & Work,Work,WORK,Labor / job,yes
+357,School & Work,Job,JOB,Employment,yes
+358,Shopping & Money,Shop,SHOP,Retail store,yes
+359,Shopping & Money,Store,STORE,Retail place,yes
+360,Shopping & Money,Market,MARKET,Marketplace,no
+361,Shopping & Money,Mall,MALL,Shopping center,no
+362,Shopping & Money,Money,MONEY,Currency,yes
+363,Shopping & Money,Cash,CASH,Paper money,no
+364,Shopping & Money,Coin,COIN,Metal money,no
+365,Shopping & Money,Price,PRICE,Cost tag,yes
+366,Shopping & Money,Cost,COST,Amount charged,yes
+367,Shopping & Money,Cheap,CHEAP,Low price,yes
+368,Shopping & Money,Expensive,EXPENSIVE,High price,yes
+369,Shopping & Money,Discount,DISCOUNT,Price reduction,yes
+370,Shopping & Money,Sale,SALE,Reduced prices,no
+371,Shopping & Money,Customer,CUSTOMER,Buyer,yes
+372,Shopping & Money,Receipt,RECEIPT,Purchase proof,no
+373,Shopping & Money,Wallet,WALLET,Money holder,yes
+374,Shopping & Money,Credit Card,CREDIT-CARD,Card payment,yes
+375,Shopping & Money,Debit Card,DEBIT-CARD,Bank card,no
+376,Shopping & Money,Change,CHANGE,Returned money,yes
+377,Shopping & Money,Payment,PAYMENT,Money transfer,no
+378,Shopping & Money,Product,PRODUCT,Item sold,no
+379,Shopping & Money,Item,ITEM,Object,no
+380,Shopping & Money,Brand,BRAND,Maker label,no
+381,Shopping & Money,Size,SIZE,Dimensions,yes
+382,Shopping & Money,Try On,TRY-ON,Test clothing,no
+383,Shopping & Money,Return,RETURN,Give back purchase,no
+384,Shopping & Money,Exchange,EXCHANGE,Swap purchase,yes
+385,Shopping & Money,Grocery,GROCERY,Food shopping,no
+386,Shopping & Money,Basket,BASKET,Carrying container,no
+387,Shopping & Money,Cart,CART,Shopping trolley,no
+388,Shopping & Money,Checkout,CHECKOUT,Pay counter,no
+389,Shopping & Money,Tax,TAX,Government fee,no
+390,Directions & Locations,Left,LEFT,Direction,yes
+391,Directions & Locations,Right,RIGHT,Direction,yes
+392,Directions & Locations,Straight,STRAIGHT,Forward,yes
+393,Directions & Locations,Turn,TURN,Change direction,yes
+394,Directions & Locations,Here,HERE,This place,yes
+395,Directions & Locations,There,THERE,That place,yes
+396,Directions & Locations,Near,NEAR,Close,yes
+397,Directions & Locations,Far,FAR,Distant,yes
+398,Directions & Locations,Across,ACROSS,Opposite side,yes
+399,Directions & Locations,Behind,BEHIND,Back of,yes
+400,Directions & Locations,Front,FRONT,Forward side,yes
+401,Directions & Locations,Corner,CORNER,Intersection angle,yes
+402,Directions & Locations,Intersection,INTERSECTION,Road cross,yes
+403,Directions & Locations,Street,STREET,Urban road,yes
+404,Directions & Locations,Highway,HIGHWAY,Major road,yes
+405,Directions & Locations,Bridge,BRIDGE,Road over water,yes
+406,Directions & Locations,Address,ADDRESS,Location text,yes
+407,Directions & Locations,Location,LOCATION,Place,no
+408,Directions & Locations,North,NORTH,Compass direction,yes
+409,Directions & Locations,South,SOUTH,Compass direction,yes
+410,Directions & Locations,East,EAST,Compass direction,yes
+411,Directions & Locations,West,WEST,Compass direction,yes
+412,Directions & Locations,Upstairs,UPSTAIRS,Upper floor,yes
+413,Directions & Locations,Downstairs,DOWNSTAIRS,Lower floor,yes
+414,Directions & Locations,Entrance,ENTRANCE,Way in,no
+415,Directions & Locations,Exit,EXIT,Way out,no
+416,Directions & Locations,Parking,PARKING,Vehicle area,no
+417,Directions & Locations,Building,BUILDING,Structure,yes
+418,Directions & Locations,Floor,FLOOR,Level,yes
+419,Directions & Locations,Elevator,ELEVATOR,Lift,yes
+420,Directions & Locations,Stairs,STAIRS,Steps,yes
+421,Directions & Locations,Traffic Light,TRAFFIC-LIGHT,Signal,no
+422,Directions & Locations,Crosswalk,CROSSWALK,Pedestrian crossing,no
+423,Technology & Communication,Phone,PHONE,Mobile device,yes
+424,Technology & Communication,Smartphone,SMARTPHONE,Mobile phone,no
+425,Technology & Communication,Computer,COMPUTER,PC,yes
+426,Technology & Communication,Laptop,LAPTOP,Portable computer,yes
+427,Technology & Communication,Tablet,TABLET,Touch device,yes
+428,Technology & Communication,Internet,INTERNET,Online network,yes
+429,Technology & Communication,Wi-Fi,WI-FI,Wireless internet,no
+430,Technology & Communication,Website,WEBSITE,Web page,no
+431,Technology & Communication,Browser,BROWSER,Web viewer,no
+432,Technology & Communication,Email,EMAIL,Electronic mail,yes
+433,Technology & Communication,Message,MESSAGE,Text communication,yes
+434,Technology & Communication,Chat,CHAT,Conversation online,yes
+435,Technology & Communication,Video Call,VIDEO-CALL,Live video chat,no
+436,Technology & Communication,Camera,CAMERA,Image capture,yes
+437,Technology & Communication,Password,PASSWORD,Login secret,no
+438,Technology & Communication,Login,LOGIN,Sign in,no
+439,Technology & Communication,Logout,LOGOUT,Sign out,no
+440,Technology & Communication,Download,DOWNLOAD,Get file,yes
+441,Technology & Communication,Upload,UPLOAD,Send file,yes
+442,Technology & Communication,App,APP,Application,no
+443,Technology & Communication,Software,SOFTWARE,Programs,no
+444,Technology & Communication,Hardware,HARDWARE,Physical tech,no
+445,Technology & Communication,AI,AI,Artificial intelligence,no
+446,Technology & Communication,Robot,ROBOT,Automaton,yes
+447,Technology & Communication,Cloud,CLOUD,Online storage,yes
+448,Technology & Communication,Server,SERVER,Network host,no
+449,Technology & Communication,Database,DATABASE,Data store,no
+450,Technology & Communication,Code,CODE,Programming text,no
+451,Technology & Communication,Program,PROGRAM,Software,yes
+452,Technology & Communication,Network,NETWORK,Connected system,yes
+453,Technology & Communication,Keyboard,KEYBOARD,Typing input,yes
+454,Technology & Communication,Mouse,MOUSE,Pointer device,yes
+455,Technology & Communication,Monitor,MONITOR,Display screen,no
+456,Technology & Communication,Screen,SCREEN,Display,no
+457,Technology & Communication,Printer,PRINTER,Print device,yes
+458,Technology & Communication,Scanner,SCANNER,Scan device,no
+459,Technology & Communication,Microphone,MICROPHONE,Audio input,yes
+460,Technology & Communication,Speaker,SPEAKER,Audio output,no
+461,Technology & Communication,Headphones,HEADPHONES,Ear audio,yes
+462,Technology & Communication,Charger,CHARGER,Power adapter,no
+463,Technology & Communication,Battery,BATTERY,Power cell,yes
+464,Technology & Communication,Cable,CABLE,Wire connector,no
+465,Technology & Communication,USB,USB,USB port,no
+466,Technology & Communication,Folder,FOLDER,File container,no
+467,Technology & Communication,File,FILE,Document,no
+468,Technology & Communication,Document,DOCUMENT,Text file,yes
+469,Technology & Communication,Spreadsheet,SPREADSHEET,Table file,no
+470,Technology & Communication,Presentation,PRESENTATION,Slides file,yes
+471,Technology & Communication,Social Media,SOCIAL-MEDIA,Online platforms,no
+472,Technology & Communication,Profile,PROFILE,User page,no
+473,Technology & Communication,Account,ACCOUNT,User record,no
+474,Technology & Communication,Username,USERNAME,Login name,no
+475,Technology & Communication,Notification,NOTIFICATION,Alert,no
+476,Technology & Communication,Update,UPDATE,New version,no
+477,Technology & Communication,Security,SECURITY,Protection,no
+478,Technology & Communication,Backup,BACKUP,Copy data,no
+479,Weather,Weather,WEATHER,Climate conditions,yes
+480,Weather,Sunny,SUNNY,Clear sky,no
+481,Weather,Cloudy,CLOUDY,Overcast,no
+482,Weather,Rain,RAIN,Precipitation,yes
+483,Weather,Drizzle,DRIZZLE,Light rain,no
+484,Weather,Storm,STORM,Severe weather,no
+485,Weather,Thunder,THUNDER,Loud sky sound,yes
+486,Weather,Lightning,LIGHTNING,Sky electricity,yes
+487,Weather,Wind,WIND,Moving air,yes
+488,Weather,Windy,WINDY,Strong wind,yes
+489,Weather,Hot,HOT,High temperature,yes
+490,Weather,Warm,WARM,Mild heat,yes
+491,Weather,Cool,COOL,Mild cold,yes
+492,Weather,Cold,COLD,Low temperature,yes
+493,Weather,Snow,SNOW,Frozen precipitation,yes
+494,Weather,Fog,FOG,Low visibility,no
+495,Weather,Humid,HUMID,Moist air,no
+496,Weather,Dry,DRY,Low moisture,yes
+497,Weather,Summer,SUMMER,Hot season,yes
+498,Weather,Winter,WINTER,Cold season,yes
+499,Weather,Spring,SPRING,Growth season,yes
+500,Weather,Autumn,AUTUMN,Fall season,yes
+501,Hobbies & Entertainment,Hobby,HOBBY,Pastime,no
+502,Hobbies & Entertainment,Sport,SPORT,Athletics,no
+503,Hobbies & Entertainment,Football,FOOTBALL,Soccer,yes
+504,Hobbies & Entertainment,Cricket,CRICKET,Bat-and-ball sport,no
+505,Hobbies & Entertainment,Basketball,BASKETBALL,Court sport,yes
+506,Hobbies & Entertainment,Tennis,TENNIS,Racket sport,yes
+507,Hobbies & Entertainment,Volleyball,VOLLEYBALL,Net sport,yes
+508,Hobbies & Entertainment,Swimming,SWIMMING,Water sport,yes
+509,Hobbies & Entertainment,Running,RUNNING,Fast jogging,no
+510,Hobbies & Entertainment,Walking,WALKING,Strolling,no
+511,Hobbies & Entertainment,Gym,GYM,Fitness center,yes
+512,Hobbies & Entertainment,Exercise,EXERCISE,Physical activity,yes
+513,Hobbies & Entertainment,Music,MUSIC,Sound art,yes
+514,Hobbies & Entertainment,Song,SONG,Musical piece,yes
+515,Hobbies & Entertainment,Singer,SINGER,Vocal performer,yes
+516,Hobbies & Entertainment,Guitar,GUITAR,String instrument,yes
+517,Hobbies & Entertainment,Piano,PIANO,Keyboard instrument,yes
+518,Hobbies & Entertainment,Dance,DANCE,Movement art,yes
+519,Hobbies & Entertainment,Movie,MOVIE,Film,yes
+520,Hobbies & Entertainment,Film,FILM,Cinema,yes
+521,Hobbies & Entertainment,TV,TV,Television,yes
+522,Hobbies & Entertainment,Series,SERIES,Show episodes,no
+523,Hobbies & Entertainment,Book,BOOK,Reading material,yes
+524,Hobbies & Entertainment,Magazine,MAGAZINE,Periodical,yes
+525,Hobbies & Entertainment,Reading,READING,Read activity,no
+526,Hobbies & Entertainment,Writing,WRITING,Write activity,no
+527,Hobbies & Entertainment,Drawing,DRAWING,Sketch art,no
+528,Hobbies & Entertainment,Painting,PAINTING,Color art,no
+529,Hobbies & Entertainment,Photography,PHOTOGRAPHY,Photo art,yes
+530,Hobbies & Entertainment,Camping,CAMPING,Outdoor stay,yes
+531,Hobbies & Entertainment,Fishing,FISHING,Catch fish,yes
+532,Hobbies & Entertainment,Gardening,GARDENING,Plant care,no
+533,Hobbies & Entertainment,Collecting,COLLECTING,Gather items,no
+534,Hobbies & Entertainment,Game,GAME,Play activity,yes
+535,Emergencies & Safety,Danger,DANGER,Risk,yes
+536,Emergencies & Safety,Safe,SAFE,Not dangerous,yes
+537,Emergencies & Safety,Unsafe,UNSAFE,Dangerous,no
+538,Emergencies & Safety,Accident,ACCIDENT,Mishap,yes
+539,Emergencies & Safety,Injury,INJURY,Harm,no
+540,Emergencies & Safety,Fire,FIRE,Flame disaster,yes
+541,Emergencies & Safety,Smoke,SMOKE,Fire vapor,yes
+542,Emergencies & Safety,Police,POLICE,Law enforcement,yes
+543,Emergencies & Safety,Rescue,RESCUE,Save from danger,yes
+544,Emergencies & Safety,Emergency Number,EMERGENCY-NUMBER,Crisis phone,no
+545,Emergencies & Safety,First Aid,FIRST-AID,Initial medical care,no
+546,Emergencies & Safety,Warning,WARNING,Alert,no
+547,Emergencies & Safety,Alarm,ALARM,Alert sound,yes
+548,Emergencies & Safety,Escape,ESCAPE,Get away,yes
+549,Emergencies & Safety,Protect,PROTECT,Keep safe,yes
+550,Emergencies & Safety,Found,FOUND,Located,no
+551,Emergencies & Safety,Theft,THEFT,Stealing,no
+552,Emergencies & Safety,Robbery,ROBBERY,Violent theft,no
+553,Emergencies & Safety,Emergency Exit,EMERGENCY-EXIT,Escape route,no
+554,Emergencies & Safety,Earthquake,EARTHQUAKE,Ground shake,yes
+555,Emergencies & Safety,Flood,FLOOD,Water disaster,yes
+556,Community & Public Places,Community,COMMUNITY,Local group,yes
+557,Community & Public Places,City,CITY,Urban area,yes
+558,Community & Public Places,Town,TOWN,Small urban area,yes
+559,Community & Public Places,Village,VILLAGE,Rural settlement,yes
+560,Community & Public Places,Neighborhood,NEIGHBORHOOD,Local area,no
+561,Community & Public Places,Bank,BANK,Financial institution,yes
+562,Community & Public Places,ATM,ATM,Cash machine,no
+563,Community & Public Places,Post Office,POST-OFFICE,Mail service,no
+564,Community & Public Places,Library,LIBRARY,Book lending,yes
+565,Community & Public Places,College,COLLEGE,Higher education,yes
+566,Community & Public Places,University,UNIVERSITY,Higher education,yes
+567,Community & Public Places,Clinic,CLINIC,Small medical office,no
+568,Community & Public Places,Park,PARK,Public green space,yes
+569,Community & Public Places,Playground,PLAYGROUND,Children play area,yes
+570,Community & Public Places,Museum,MUSEUM,Exhibit building,yes
+571,Community & Public Places,Theater,THEATER,Performance venue,yes
+572,Community & Public Places,Bus Station,BUS-STATION,Bus hub,no
+573,Community & Public Places,Train Station,TRAIN-STATION,Rail hub,no
+574,Community & Public Places,Government Office,GOVERNMENT-OFFICE,Public admin,no
+575,Community & Public Places,Court,COURT,Legal building,yes
+576,Community & Public Places,Police Station,POLICE-STATION,Police HQ,no
+577,Community & Public Places,Temple,TEMPLE,Hindu place,yes
+578,Community & Public Places,Church,CHURCH,Christian place,yes
+579,Community & Public Places,Mosque,MOSQUE,Muslim place,no
+580,Community & Public Places,Shopping Mall,SHOPPING-MALL,Large retail center,no
+581,Daily Conversations & Storytelling,Story,STORY,Narrative,yes
+582,Daily Conversations & Storytelling,Conversation,CONVERSATION,Dialogue,yes
+583,Daily Conversations & Storytelling,Discuss,DISCUSS,Talk about,yes
+584,Daily Conversations & Storytelling,Describe,DESCRIBE,Detail,yes
+585,Daily Conversations & Storytelling,Think,THINK,Consider,yes
+586,Daily Conversations & Storytelling,Believe,BELIEVE,Accept as true,yes
+587,Daily Conversations & Storytelling,Guess,GUESS,Estimate,yes
+588,Daily Conversations & Storytelling,Opinion,OPINION,Viewpoint,yes
+589,Daily Conversations & Storytelling,Idea,IDEA,Thought,yes
+590,Daily Conversations & Storytelling,Example,EXAMPLE,Sample case,yes
+591,Daily Conversations & Storytelling,Event,EVENT,Occurrence,yes
+592,Daily Conversations & Storytelling,Experience,EXPERIENCE,Lived event,yes
+593,Daily Conversations & Storytelling,Beginning,BEGINNING,Start point,yes
+594,Daily Conversations & Storytelling,Middle,MIDDLE,Center,yes
+595,Daily Conversations & Storytelling,End,END,Finish point,yes
+596,Daily Conversations & Storytelling,Happened,HAPPENED,Occurred,no
+597,Daily Conversations & Storytelling,More,MORE,Additional,yes

@@ -8,15 +8,69 @@ import '../../../../core/platform/sign_camera_test_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
+/// Controls [SignCameraRecorder] from an overlay (e.g. flip camera).
+class SignCameraRecorderController extends ChangeNotifier {
+  _SignCameraRecorderState? _state;
+  bool _canFlipCamera = false;
+  bool _isFlipping = false;
+
+  bool get canFlipCamera => _canFlipCamera;
+  bool get isFlipping => _isFlipping;
+
+  Future<void> flipCamera() async {
+    await _state?.flipCamera();
+  }
+
+  void _attach(_SignCameraRecorderState state) {
+    _state = state;
+    _syncFromState();
+  }
+
+  void _detach(_SignCameraRecorderState state) {
+    if (_state == state) {
+      _state = null;
+      _setCanFlipCamera(false);
+      _setFlipping(false);
+    }
+  }
+
+  void _syncFromState() {
+    final state = _state;
+    if (state == null) {
+      return;
+    }
+    _setCanFlipCamera(state._canFlipCamera);
+    _setFlipping(state._isFlipping);
+  }
+
+  void _setCanFlipCamera(bool value) {
+    if (_canFlipCamera == value) {
+      return;
+    }
+    _canFlipCamera = value;
+    notifyListeners();
+  }
+
+  void _setFlipping(bool value) {
+    if (_isFlipping == value) {
+      return;
+    }
+    _isFlipping = value;
+    notifyListeners();
+  }
+}
+
 /// Front-camera preview that records sign-language video to a temp file.
 class SignCameraRecorder extends StatefulWidget {
   const SignCameraRecorder({
     super.key,
+    this.controller,
     required this.isRecording,
     required this.onRecordingStopped,
     required this.onError,
   });
 
+  final SignCameraRecorderController? controller;
   final bool isRecording;
   final ValueChanged<String> onRecordingStopped;
   final ValueChanged<String> onError;
@@ -27,13 +81,25 @@ class SignCameraRecorder extends StatefulWidget {
 
 class _SignCameraRecorderState extends State<SignCameraRecorder> {
   CameraController? _controller;
+  List<CameraDescription> _cameras = const [];
   bool _isRecordingVideo = false;
   bool _stopPending = false;
   bool _startInFlight = false;
+  bool _isFlipping = false;
+
+  bool get _canFlipCamera {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) {
+      return false;
+    }
+    final current = controller.value.description.lensDirection;
+    return _cameras.any((camera) => camera.lensDirection != current);
+  }
 
   @override
   void initState() {
     super.initState();
+    widget.controller?._attach(this);
     if (signCameraTestModeEnabled) {
       return;
     }
@@ -43,6 +109,10 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
   @override
   void didUpdateWidget(covariant SignCameraRecorder oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?._detach(this);
+      widget.controller?._attach(this);
+    }
     if (widget.isRecording && !_isRecordingVideo && !_stopPending) {
       unawaited(_startRecording());
     } else if (!widget.isRecording) {
@@ -50,9 +120,51 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     }
   }
 
+  Future<void> flipCamera() async {
+    final controller = _controller;
+    if (controller == null ||
+        !controller.value.isInitialized ||
+        !_canFlipCamera ||
+        _isFlipping) {
+      return;
+    }
+
+    final current = controller.value.description.lensDirection;
+    final opposite = current == CameraLensDirection.front
+        ? CameraLensDirection.back
+        : CameraLensDirection.front;
+    final nextCamera = _cameras.firstWhere(
+      (camera) => camera.lensDirection == opposite,
+      orElse: () => _cameras.firstWhere(
+        (camera) => camera.lensDirection != current,
+      ),
+    );
+
+    _isFlipping = true;
+    widget.controller?._setFlipping(true);
+    try {
+      await controller.setDescription(nextCamera);
+    } on Object catch (error) {
+      widget.onError(error.toString());
+    } finally {
+      _isFlipping = false;
+      widget.controller?._setFlipping(false);
+      widget.controller?._setCanFlipCamera(_canFlipCamera);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _publishCameraControls() {
+    widget.controller?._setCanFlipCamera(_canFlipCamera);
+    widget.controller?._setFlipping(_isFlipping);
+  }
+
   Future<void> _initCamera() async {
     try {
       final cameras = await availableCameras();
+      _cameras = cameras;
       final camera = cameras.firstWhere(
         (description) => description.lensDirection == CameraLensDirection.front,
         orElse: () => cameras.first,
@@ -71,6 +183,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
         return;
       }
       setState(() => _controller = controller);
+      _publishCameraControls();
       if (widget.isRecording) {
         await _startRecording();
       } else if (_stopPending) {
@@ -155,6 +268,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
 
   @override
   void dispose() {
+    widget.controller?._detach(this);
     final controller = _controller;
     _controller = null;
     controller?.dispose();
@@ -200,9 +314,14 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
 
 /// Figma camera card: dark stage, blue border, corner brackets.
 class SignCameraStageFrame extends StatelessWidget {
-  const SignCameraStageFrame({super.key, required this.child});
+  const SignCameraStageFrame({
+    super.key,
+    required this.child,
+    this.overlay,
+  });
 
   final Widget child;
+  final Widget? overlay;
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +342,11 @@ class SignCameraStageFrame extends StatelessWidget {
         ),
         child: Stack(
           fit: StackFit.expand,
-          children: [child, const SignCameraCornerBrackets()],
+          children: [
+            child,
+            const IgnorePointer(child: SignCameraCornerBrackets()),
+            if (overlay != null) overlay!,
+          ],
         ),
       ),
     );
@@ -390,6 +513,133 @@ class _RecDot extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.8),
         shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+/// Flip + send controls overlaid on the sign camera preview.
+class TalkSignCameraActionBar extends StatelessWidget {
+  const TalkSignCameraActionBar({
+    super.key,
+    required this.flipSemanticsLabel,
+    required this.sendSemanticsLabel,
+    required this.canFlip,
+    required this.flipBusy,
+    required this.sendEnabled,
+    required this.onFlip,
+    required this.onSend,
+  });
+
+  final String flipSemanticsLabel;
+  final String sendSemanticsLabel;
+  final bool canFlip;
+  final bool flipBusy;
+  final bool sendEnabled;
+  final VoidCallback onFlip;
+  final VoidCallback onSend;
+
+  static const double _tapSize = 48;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.splashBlue.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x66000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _TalkSignCameraAction(
+              buttonKey: const Key('talk_sign_flip_camera_button'),
+              icon: Icons.cameraswitch_rounded,
+              semanticsLabel: flipSemanticsLabel,
+              enabled: canFlip && !flipBusy,
+              busy: flipBusy,
+              onTap: onFlip,
+            ),
+            if (sendEnabled) ...[
+              Container(
+                width: 1,
+                height: 28,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                color: AppColors.white.withValues(alpha: 0.35),
+              ),
+              _TalkSignCameraAction(
+                buttonKey: const Key('talk_sign_send_button'),
+                icon: Icons.send_rounded,
+                semanticsLabel: sendSemanticsLabel,
+                enabled: true,
+                onTap: onSend,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TalkSignCameraAction extends StatelessWidget {
+  const _TalkSignCameraAction({
+    required this.buttonKey,
+    required this.icon,
+    required this.semanticsLabel,
+    required this.enabled,
+    required this.onTap,
+    this.busy = false,
+  });
+
+  final Key buttonKey;
+  final IconData icon;
+  final String semanticsLabel;
+  final bool enabled;
+  final bool busy;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = enabled
+        ? AppColors.white
+        : AppColors.white.withValues(alpha: 0.72);
+
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: semanticsLabel,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: buttonKey,
+          onTap: enabled ? onTap : null,
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(
+            width: TalkSignCameraActionBar._tapSize,
+            height: TalkSignCameraActionBar._tapSize,
+            child: Center(
+              child: busy
+                  ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: iconColor,
+                      ),
+                    )
+                  : Icon(icon, size: 24, color: iconColor),
+            ),
+          ),
+        ),
       ),
     );
   }

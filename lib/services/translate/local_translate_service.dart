@@ -46,6 +46,7 @@ final class LocalTranslateService implements TranslateService {
   bool _autoResumeEnabled = false;
   bool _shuttingDown = false;
   bool _resumeInFlight = false;
+  bool _listeningPaused = false;
   bool _speechEngineReady = false;
   bool _useMockFallback = false;
   Timer? _mockTimer;
@@ -250,6 +251,7 @@ final class LocalTranslateService implements TranslateService {
   Future<void> cancelListening() async {
     _autoResumeEnabled = false;
     _sessionActive = false;
+    _listeningPaused = false;
     _shuttingDown = true;
     await _stopCapture();
     _shuttingDown = false;
@@ -272,6 +274,44 @@ final class LocalTranslateService implements TranslateService {
   }
 
   @override
+  Future<void> pauseListening() async {
+    if (!_sessionActive) {
+      return;
+    }
+    _autoResumeEnabled = false;
+    _listeningPaused = true;
+    _mockTimer?.cancel();
+    _mockTimer = null;
+    _levelMockTimer?.cancel();
+    _levelMockTimer = null;
+    await _stopCapture();
+    _emitLevel(0);
+  }
+
+  @override
+  Future<bool> resumeListening() async {
+    if (!_sessionActive || _controller == null || _controller!.isClosed) {
+      return false;
+    }
+
+    _listeningPaused = false;
+    _latestWords = '';
+    _sessionCaption = '';
+    _lastDoneEmittedCaption = '';
+    _transcript.reset();
+    _mockWordIndex = 0;
+    _autoResumeEnabled = true;
+
+    if (_useMockFallback) {
+      _startMockListening();
+      _startMockLevelPump();
+      return true;
+    }
+
+    return activateListening();
+  }
+
+  @override
   TalkListenResult peekListenResult(String languageCode) {
     return _mockByLanguage[languageCode] ?? _mockByLanguage['ENG']!;
   }
@@ -285,6 +325,7 @@ final class LocalTranslateService implements TranslateService {
     _transcript.reset();
     _sessionActive = true;
     _autoResumeEnabled = true;
+    _listeningPaused = false;
     _shuttingDown = false;
     _resumeInFlight = false;
     _activeLocaleId = null;
@@ -542,6 +583,9 @@ final class LocalTranslateService implements TranslateService {
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
+    if (_listeningPaused) {
+      return;
+    }
     if (_useMockFallback) {
       return;
     }
@@ -650,6 +694,9 @@ final class LocalTranslateService implements TranslateService {
   }
 
   void _emitUpdate({required bool isFinal, String? overrideText}) {
+    if (_listeningPaused) {
+      return;
+    }
     final controller = _controller;
     if (controller == null || controller.isClosed) {
       return;

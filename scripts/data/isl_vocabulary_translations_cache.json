@@ -1,0 +1,2737 @@
+{
+  "who": {
+    "hindi": "कौन",
+    "tamil": "யார்",
+    "malayalam": "ആർ"
+  },
+  "what": {
+    "hindi": "क्या",
+    "tamil": "என்ன",
+    "malayalam": "എന്ത്"
+  },
+  "where": {
+    "hindi": "कहाँ",
+    "tamil": "எங்கே",
+    "malayalam": "എവിടെ"
+  },
+  "when": {
+    "hindi": "कब",
+    "tamil": "எப்போது",
+    "malayalam": "എപ്പോൾ"
+  },
+  "why": {
+    "hindi": "क्यों",
+    "tamil": "ஏன்",
+    "malayalam": "എന്തുകൊണ്ട്"
+  },
+  "which": {
+    "hindi": "कौन",
+    "tamil": "எது",
+    "malayalam": "ഏത്"
+  },
+  "whose": {
+    "hindi": "किसका",
+    "tamil": "யாருடைய",
+    "malayalam": "ആരുടെ"
+  },
+  "how": {
+    "hindi": "कैसे",
+    "tamil": "எப்படி",
+    "malayalam": "എങ്ങനെ"
+  },
+  "hello": {
+    "hindi": "नमस्ते",
+    "tamil": "வணக்கம்",
+    "malayalam": "ഹലോ"
+  },
+  "hi": {
+    "hindi": "नमस्ते",
+    "tamil": "வணக்கம்",
+    "malayalam": "ഹായ്"
+  },
+  "hey": {
+    "hindi": "अरे",
+    "tamil": "ஏய்",
+    "malayalam": "ഹേയ്"
+  },
+  "welcome": {
+    "hindi": "स्वागत",
+    "tamil": "வரவேற்கிறேன்",
+    "malayalam": "സ്വാഗതം"
+  },
+  "goodbye": {
+    "hindi": "अलविदा",
+    "tamil": "விடைபெறுகிறேன்",
+    "malayalam": "വിട"
+  },
+  "bye": {
+    "hindi": "अलविदा",
+    "tamil": "விடைபெறுகிறேன்",
+    "malayalam": "വിട"
+  },
+  "have a good weekend": {
+    "hindi": "आपका सप्ताहांत अच्छा रहे",
+    "tamil": "நல்ல வார இறுதியில் இருக்கட்டும்",
+    "malayalam": "നല്ലൊരു വാരാന്ത്യം ആശംസിക്കുന്നു"
+  },
+  "please": {
+    "hindi": "कृपया",
+    "tamil": "தயவுசெய்து",
+    "malayalam": "ദയവായി"
+  },
+  "sorry": {
+    "hindi": "क्षमा मांगना",
+    "tamil": "மன்னிக்கவும்",
+    "malayalam": "ക്ഷമിക്കണം"
+  },
+  "congratulations": {
+    "hindi": "बधाई हो",
+    "tamil": "வாழ்த்துக்கள்",
+    "malayalam": "അഭിനന്ദനങ്ങൾ"
+  },
+  "i": {
+    "hindi": "मैं",
+    "tamil": "நான்",
+    "malayalam": "ഞാൻ"
+  },
+  "you": {
+    "hindi": "आप",
+    "tamil": "நீ",
+    "malayalam": "നിങ്ങൾ"
+  },
+  "he": {
+    "hindi": "वह",
+    "tamil": "அவர்",
+    "malayalam": "അവൻ"
+  },
+  "she": {
+    "hindi": "वह",
+    "tamil": "அவள்",
+    "malayalam": "അവൾ"
+  },
+  "it": {
+    "hindi": "यह",
+    "tamil": "அது",
+    "malayalam": "അത്"
+  },
+  "we": {
+    "hindi": "हम",
+    "tamil": "நாங்கள்",
+    "malayalam": "ഞങ്ങൾ"
+  },
+  "they": {
+    "hindi": "वे",
+    "tamil": "அவர்கள்",
+    "malayalam": "അവർ"
+  },
+  "my": {
+    "hindi": "मेरा",
+    "tamil": "என்",
+    "malayalam": "എൻ്റെ"
+  },
+  "your": {
+    "hindi": "आपका",
+    "tamil": "உங்கள்",
+    "malayalam": "നിങ്ങളുടെ"
+  },
+  "his": {
+    "hindi": "उसका",
+    "tamil": "அவரது",
+    "malayalam": "അവൻ്റെ"
+  },
+  "her": {
+    "hindi": "उसकी",
+    "tamil": "அவளை",
+    "malayalam": "അവളെ"
+  },
+  "our": {
+    "hindi": "हमारा",
+    "tamil": "எங்கள்",
+    "malayalam": "ഞങ്ങളുടെ"
+  },
+  "their": {
+    "hindi": "उनका",
+    "tamil": "அவர்களின்",
+    "malayalam": "അവരുടെ"
+  },
+  "person": {
+    "hindi": "व्यक्ति",
+    "tamil": "நபர்",
+    "malayalam": "വ്യക്തി"
+  },
+  "adult": {
+    "hindi": "वयस्क",
+    "tamil": "வயது வந்தோர்",
+    "malayalam": "മുതിർന്നവർ"
+  },
+  "child": {
+    "hindi": "बच्चा",
+    "tamil": "குழந்தை",
+    "malayalam": "കുട്ടി"
+  },
+  "teenager": {
+    "hindi": "किशोर",
+    "tamil": "இளம்பெண்",
+    "malayalam": "കൗമാരക്കാരൻ"
+  },
+  "baby": {
+    "hindi": "बच्चा",
+    "tamil": "குழந்தை",
+    "malayalam": "കുഞ്ഞ്"
+  },
+  "friend": {
+    "hindi": "दोस्त",
+    "tamil": "நண்பர்",
+    "malayalam": "സുഹൃത്ത്"
+  },
+  "neighbor": {
+    "hindi": "पड़ोसी",
+    "tamil": "பக்கத்து வீட்டுக்காரர்",
+    "malayalam": "അയൽക്കാരൻ"
+  },
+  "coworker": {
+    "hindi": "साथ में कम करने वाला",
+    "tamil": "சக பணியாளர்",
+    "malayalam": "സഹപ്രവർത്തകൻ"
+  },
+  "teacher": {
+    "hindi": "अध्यापक",
+    "tamil": "ஆசிரியர்",
+    "malayalam": "അധ്യാപകൻ"
+  },
+  "student": {
+    "hindi": "विद्यार्थी",
+    "tamil": "மாணவர்",
+    "malayalam": "വിദ്യാർത്ഥി"
+  },
+  "doctor": {
+    "hindi": "चिकित्सक",
+    "tamil": "மருத்துவர்",
+    "malayalam": "ഡോക്ടർ"
+  },
+  "nurse": {
+    "hindi": "देखभाल करना",
+    "tamil": "செவிலியர்",
+    "malayalam": "നഴ്സ്"
+  },
+  "engineer": {
+    "hindi": "अभियंता",
+    "tamil": "பொறியாளர்",
+    "malayalam": "എഞ്ചിനീയർ"
+  },
+  "programmer": {
+    "hindi": "प्रोग्रामर",
+    "tamil": "புரோகிராமர்",
+    "malayalam": "പ്രോഗ്രാമർ"
+  },
+  "manager": {
+    "hindi": "प्रबंधक",
+    "tamil": "மேலாளர்",
+    "malayalam": "മാനേജർ"
+  },
+  "boss": {
+    "hindi": "मालिक",
+    "tamil": "முதலாளி",
+    "malayalam": "മുതലാളി"
+  },
+  "employee": {
+    "hindi": "कर्मचारी",
+    "tamil": "பணியாளர்",
+    "malayalam": "ജീവനക്കാരൻ"
+  },
+  "family": {
+    "hindi": "परिवार",
+    "tamil": "குடும்பம்",
+    "malayalam": "കുടുംബം"
+  },
+  "father": {
+    "hindi": "पिता",
+    "tamil": "தந்தை",
+    "malayalam": "അച്ഛൻ"
+  },
+  "mother": {
+    "hindi": "माँ",
+    "tamil": "தாய்",
+    "malayalam": "അമ്മ"
+  },
+  "parents": {
+    "hindi": "अभिभावक",
+    "tamil": "பெற்றோர்கள்",
+    "malayalam": "മാതാപിതാക്കൾ"
+  },
+  "son": {
+    "hindi": "बेटा",
+    "tamil": "மகன்",
+    "malayalam": "മകൻ"
+  },
+  "daughter": {
+    "hindi": "बेटी",
+    "tamil": "மகள்",
+    "malayalam": "മകൾ"
+  },
+  "brother": {
+    "hindi": "भाई",
+    "tamil": "அண்ணன்",
+    "malayalam": "സഹോദരൻ"
+  },
+  "sister": {
+    "hindi": "बहन",
+    "tamil": "சகோதரி",
+    "malayalam": "സഹോദരി"
+  },
+  "husband": {
+    "hindi": "पति",
+    "tamil": "கணவன்",
+    "malayalam": "ഭർത്താവ്"
+  },
+  "wife": {
+    "hindi": "पत्नी",
+    "tamil": "மனைவி",
+    "malayalam": "ഭാര്യ"
+  },
+  "grandfather": {
+    "hindi": "दादा",
+    "tamil": "தாத்தா",
+    "malayalam": "മുത്തച്ഛൻ"
+  },
+  "grandmother": {
+    "hindi": "दादी",
+    "tamil": "பாட்டி",
+    "malayalam": "മുത്തശ്ശി"
+  },
+  "uncle": {
+    "hindi": "चाचा",
+    "tamil": "மாமா",
+    "malayalam": "അമ്മാവൻ"
+  },
+  "aunt": {
+    "hindi": "चाची",
+    "tamil": "அத்தை",
+    "malayalam": "അമ്മായി"
+  },
+  "cousin": {
+    "hindi": "चचेरा",
+    "tamil": "உறவினர்",
+    "malayalam": "ബന്ധു"
+  },
+  "nephew": {
+    "hindi": "भतीजा",
+    "tamil": "மருமகன்",
+    "malayalam": "മരുമകൻ"
+  },
+  "niece": {
+    "hindi": "भतीजी",
+    "tamil": "மருமகள்",
+    "malayalam": "മരുമകൾ"
+  },
+  "grandchild": {
+    "hindi": "पोता",
+    "tamil": "பேரக்குழந்தை",
+    "malayalam": "പേരക്കുട്ടി"
+  },
+  "relative": {
+    "hindi": "रिश्तेदार",
+    "tamil": "உறவினர்",
+    "malayalam": "ബന്ധു"
+  },
+  "in-law": {
+    "hindi": "ससुराल वाले",
+    "tamil": "மாமியார்",
+    "malayalam": "ഇൻ ലോ"
+  },
+  "time": {
+    "hindi": "समय",
+    "tamil": "நேரம்",
+    "malayalam": "സമയം"
+  },
+  "now": {
+    "hindi": "अब",
+    "tamil": "இப்போது",
+    "malayalam": "ഇപ്പോൾ"
+  },
+  "today": {
+    "hindi": "आज",
+    "tamil": "இன்று",
+    "malayalam": "ഇന്ന്"
+  },
+  "yesterday": {
+    "hindi": "कल",
+    "tamil": "நேற்று",
+    "malayalam": "ഇന്നലെ"
+  },
+  "tomorrow": {
+    "hindi": "कल",
+    "tamil": "நாளை",
+    "malayalam": "നാളെ"
+  },
+  "morning": {
+    "hindi": "सुबह",
+    "tamil": "காலை",
+    "malayalam": "രാവിലെ"
+  },
+  "afternoon": {
+    "hindi": "दोपहर",
+    "tamil": "பிற்பகல்",
+    "malayalam": "ഉച്ചയ്ക്ക്"
+  },
+  "evening": {
+    "hindi": "शाम",
+    "tamil": "மாலை",
+    "malayalam": "വൈകുന്നേരം"
+  },
+  "night": {
+    "hindi": "रात",
+    "tamil": "இரவு",
+    "malayalam": "രാത്രി"
+  },
+  "midnight": {
+    "hindi": "मध्यरात्रि",
+    "tamil": "நள்ளிரவு",
+    "malayalam": "അർദ്ധരാത്രി"
+  },
+  "noon": {
+    "hindi": "दोपहर",
+    "tamil": "மதியம்",
+    "malayalam": "ഉച്ച"
+  },
+  "minute": {
+    "hindi": "मिनट",
+    "tamil": "நிமிடம்",
+    "malayalam": "മിനിറ്റ്"
+  },
+  "hour": {
+    "hindi": "घंटा",
+    "tamil": "மணி",
+    "malayalam": "മണിക്കൂർ"
+  },
+  "day": {
+    "hindi": "दिन",
+    "tamil": "நாள்",
+    "malayalam": "ദിവസം"
+  },
+  "week": {
+    "hindi": "सप्ताह",
+    "tamil": "வாரம்",
+    "malayalam": "ആഴ്ച"
+  },
+  "month": {
+    "hindi": "महीना",
+    "tamil": "மாதம்",
+    "malayalam": "മാസം"
+  },
+  "year": {
+    "hindi": "वर्ष",
+    "tamil": "ஆண்டு",
+    "malayalam": "വർഷം"
+  },
+  "decade": {
+    "hindi": "दशक",
+    "tamil": "தசாப்தம்",
+    "malayalam": "ദശകം"
+  },
+  "century": {
+    "hindi": "शतक",
+    "tamil": "நூற்றாண்டு",
+    "malayalam": "നൂറ്റാണ്ട്"
+  },
+  "early": {
+    "hindi": "जल्दी",
+    "tamil": "ஆரம்ப",
+    "malayalam": "നേരത്തെ"
+  },
+  "late": {
+    "hindi": "देर",
+    "tamil": "தாமதமாக",
+    "malayalam": "വൈകി"
+  },
+  "soon": {
+    "hindi": "जल्द ही",
+    "tamil": "விரைவில்",
+    "malayalam": "ഉടൻ"
+  },
+  "later": {
+    "hindi": "बाद में",
+    "tamil": "பின்னர்",
+    "malayalam": "പിന്നീട്"
+  },
+  "before": {
+    "hindi": "पहले",
+    "tamil": "முன்",
+    "malayalam": "മുമ്പ്"
+  },
+  "after": {
+    "hindi": "बाद",
+    "tamil": "பிறகு",
+    "malayalam": "ശേഷം"
+  },
+  "past": {
+    "hindi": "अतीत",
+    "tamil": "கடந்த",
+    "malayalam": "കഴിഞ്ഞത്"
+  },
+  "future": {
+    "hindi": "भविष्य",
+    "tamil": "எதிர்காலம்",
+    "malayalam": "ഭാവി"
+  },
+  "present": {
+    "hindi": "उपस्थित",
+    "tamil": "தற்போது",
+    "malayalam": "ഹാജർ"
+  },
+  "always": {
+    "hindi": "हमेशा",
+    "tamil": "எப்போதும்",
+    "malayalam": "എപ്പോഴും"
+  },
+  "never": {
+    "hindi": "कभी नहीं",
+    "tamil": "ஒருபோதும்",
+    "malayalam": "ഒരിക്കലും"
+  },
+  "happy": {
+    "hindi": "खुश",
+    "tamil": "மகிழ்ச்சி",
+    "malayalam": "സന്തോഷം"
+  },
+  "sad": {
+    "hindi": "दुखद",
+    "tamil": "வருத்தம்",
+    "malayalam": "ദുഃഖം"
+  },
+  "angry": {
+    "hindi": "गुस्सा",
+    "tamil": "கோபம்",
+    "malayalam": "ദേഷ്യം"
+  },
+  "excited": {
+    "hindi": "उत्साहित",
+    "tamil": "உற்சாகமாக",
+    "malayalam": "ആവേശഭരിതനായി"
+  },
+  "tired": {
+    "hindi": "थका हुआ",
+    "tamil": "சோர்வாக",
+    "malayalam": "തളർന്നു"
+  },
+  "hungry": {
+    "hindi": "भूखा",
+    "tamil": "பசி",
+    "malayalam": "വിശക്കുന്നു"
+  },
+  "thirsty": {
+    "hindi": "प्यासा",
+    "tamil": "தாகம்",
+    "malayalam": "ദാഹിക്കുന്നു"
+  },
+  "good": {
+    "hindi": "अच्छा",
+    "tamil": "நல்லது",
+    "malayalam": "നല്ലത്"
+  },
+  "bad": {
+    "hindi": "खराब",
+    "tamil": "மோசமான",
+    "malayalam": "മോശം"
+  },
+  "fine": {
+    "hindi": "अच्छा",
+    "tamil": "நன்றாக",
+    "malayalam": "നന്നായി"
+  },
+  "okay": {
+    "hindi": "ठीक है",
+    "tamil": "சரி",
+    "malayalam": "ശരി"
+  },
+  "go": {
+    "hindi": "जाना",
+    "tamil": "போ",
+    "malayalam": "പോകൂ"
+  },
+  "come": {
+    "hindi": "आना",
+    "tamil": "வாருங்கள்",
+    "malayalam": "വരൂ"
+  },
+  "walk": {
+    "hindi": "टहलना",
+    "tamil": "நடக்க",
+    "malayalam": "നടക്കുക"
+  },
+  "run": {
+    "hindi": "दौड़ना",
+    "tamil": "ஓடு",
+    "malayalam": "ഓടുക"
+  },
+  "sit": {
+    "hindi": "बैठना",
+    "tamil": "உட்காருங்கள்",
+    "malayalam": "ഇരിക്കുക"
+  },
+  "stand": {
+    "hindi": "खड़ा होना",
+    "tamil": "நிற்க",
+    "malayalam": "നിൽക്കുക"
+  },
+  "eat": {
+    "hindi": "खाओ",
+    "tamil": "சாப்பிடு",
+    "malayalam": "തിന്നുക"
+  },
+  "drink": {
+    "hindi": "पीना",
+    "tamil": "குடிக்க",
+    "malayalam": "കുടിക്കുക"
+  },
+  "sleep": {
+    "hindi": "नींद",
+    "tamil": "தூக்கம்",
+    "malayalam": "ഉറങ്ങുക"
+  },
+  "study": {
+    "hindi": "अध्ययन",
+    "tamil": "படிப்பு",
+    "malayalam": "പഠനം"
+  },
+  "learn": {
+    "hindi": "सीखना",
+    "tamil": "கற்றுக்கொள்",
+    "malayalam": "പഠിക്കുക"
+  },
+  "teach": {
+    "hindi": "पढ़ाना",
+    "tamil": "கற்பிக்கின்றன",
+    "malayalam": "പഠിപ്പിക്കുക"
+  },
+  "read": {
+    "hindi": "पढ़ना",
+    "tamil": "படித்தேன்",
+    "malayalam": "വായിച്ചു"
+  },
+  "write": {
+    "hindi": "लिखना",
+    "tamil": "எழுது",
+    "malayalam": "എഴുതുക"
+  },
+  "talk": {
+    "hindi": "बात करना",
+    "tamil": "பேச",
+    "malayalam": "സംസാരിക്കുക"
+  },
+  "listen": {
+    "hindi": "सुनना",
+    "tamil": "கேளுங்கள்",
+    "malayalam": "കേൾക്കുക"
+  },
+  "watch": {
+    "hindi": "घड़ी",
+    "tamil": "பார்க்க",
+    "malayalam": "വാച്ച്"
+  },
+  "see": {
+    "hindi": "देखना",
+    "tamil": "பார்க்க",
+    "malayalam": "കാണുക"
+  },
+  "look": {
+    "hindi": "देखना",
+    "tamil": "பார்",
+    "malayalam": "നോക്കൂ"
+  },
+  "ask": {
+    "hindi": "पूछना",
+    "tamil": "கேட்க",
+    "malayalam": "ചോദിക്കുക"
+  },
+  "answer": {
+    "hindi": "उत्तर",
+    "tamil": "பதில்",
+    "malayalam": "ഉത്തരം"
+  },
+  "tell": {
+    "hindi": "कहना",
+    "tamil": "சொல்லுங்கள்",
+    "malayalam": "പറയൂ"
+  },
+  "explain": {
+    "hindi": "व्याख्या करना",
+    "tamil": "விளக்கவும்",
+    "malayalam": "വിശദീകരിക്കുക"
+  },
+  "help": {
+    "hindi": "मदद",
+    "tamil": "உதவி",
+    "malayalam": "സഹായം"
+  },
+  "call": {
+    "hindi": "पुकारना",
+    "tamil": "அழைப்பு",
+    "malayalam": "വിളിക്കുക"
+  },
+  "understand": {
+    "hindi": "समझना",
+    "tamil": "புரியும்",
+    "malayalam": "മനസ്സിലാക്കുക"
+  },
+  "know": {
+    "hindi": "जानना",
+    "tamil": "தெரியும்",
+    "malayalam": "അറിയാം"
+  },
+  "remember": {
+    "hindi": "याद करना",
+    "tamil": "நினைவில் கொள்க",
+    "malayalam": "ഓർക്കുക"
+  },
+  "forget": {
+    "hindi": "भूल जाओ",
+    "tamil": "மறந்துவிடு",
+    "malayalam": "മറക്കുക"
+  },
+  "buy": {
+    "hindi": "खरीदना",
+    "tamil": "வாங்க",
+    "malayalam": "വാങ്ങുക"
+  },
+  "sell": {
+    "hindi": "बेचना",
+    "tamil": "விற்க",
+    "malayalam": "വിൽക്കുക"
+  },
+  "pay": {
+    "hindi": "वेतन",
+    "tamil": "செலுத்து",
+    "malayalam": "പണം നൽകുക"
+  },
+  "open": {
+    "hindi": "खुला",
+    "tamil": "திறந்த",
+    "malayalam": "തുറക്കുക"
+  },
+  "close": {
+    "hindi": "बंद करना",
+    "tamil": "நெருக்கமான",
+    "malayalam": "അടുത്ത്"
+  },
+  "start": {
+    "hindi": "शुरू",
+    "tamil": "தொடங்கு",
+    "malayalam": "ആരംഭിക്കുക"
+  },
+  "finish": {
+    "hindi": "खत्म करना",
+    "tamil": "முடிக்க",
+    "malayalam": "പൂർത്തിയാക്കുക"
+  },
+  "wait": {
+    "hindi": "इंतज़ार",
+    "tamil": "காத்திருக்கவும்",
+    "malayalam": "കാത്തിരിക്കുക"
+  },
+  "drive": {
+    "hindi": "गाड़ी चलाना",
+    "tamil": "ஓட்டு",
+    "malayalam": "ഡ്രൈവ് ചെയ്യുക"
+  },
+  "ride": {
+    "hindi": "सवारी",
+    "tamil": "சவாரி",
+    "malayalam": "സവാരി"
+  },
+  "cook": {
+    "hindi": "पकाना",
+    "tamil": "சமைக்க",
+    "malayalam": "പാചകം ചെയ്യുക"
+  },
+  "clean": {
+    "hindi": "साफ",
+    "tamil": "சுத்தமான",
+    "malayalam": "ശുദ്ധമായ"
+  },
+  "wash": {
+    "hindi": "धोना",
+    "tamil": "கழுவு",
+    "malayalam": "കഴുകുക"
+  },
+  "use": {
+    "hindi": "उपयोग",
+    "tamil": "பயன்படுத்த",
+    "malayalam": "ഉപയോഗിക്കുക"
+  },
+  "need": {
+    "hindi": "ज़रूरत",
+    "tamil": "தேவை",
+    "malayalam": "ആവശ്യം"
+  },
+  "want": {
+    "hindi": "चाहना",
+    "tamil": "வேண்டும்",
+    "malayalam": "ആഗ്രഹിക്കുന്നു"
+  },
+  "like": {
+    "hindi": "पसंद",
+    "tamil": "போன்ற",
+    "malayalam": "പോലെ"
+  },
+  "love": {
+    "hindi": "प्यार",
+    "tamil": "அன்பு",
+    "malayalam": "സ്നേഹം"
+  },
+  "hate": {
+    "hindi": "घृणा",
+    "tamil": "வெறுக்கிறேன்",
+    "malayalam": "വെറുക്കുന്നു"
+  },
+  "choose": {
+    "hindi": "चुनना",
+    "tamil": "தேர்வு",
+    "malayalam": "തിരഞ്ഞെടുക്കുക"
+  },
+  "decide": {
+    "hindi": "तय करना",
+    "tamil": "முடிவு செய்யுங்கள்",
+    "malayalam": "തീരുമാനിക്കുക"
+  },
+  "build": {
+    "hindi": "निर्माण",
+    "tamil": "கட்ட",
+    "malayalam": "പണിയുക"
+  },
+  "create": {
+    "hindi": "बनाएं",
+    "tamil": "உருவாக்க",
+    "malayalam": "സൃഷ്ടിക്കുക"
+  },
+  "fix": {
+    "hindi": "हल करना",
+    "tamil": "சரி",
+    "malayalam": "പരിഹരിക്കുക"
+  },
+  "move": {
+    "hindi": "कदम",
+    "tamil": "நகர்த்த",
+    "malayalam": "നീക്കുക"
+  },
+  "carry": {
+    "hindi": "ढोना",
+    "tamil": "சுமந்து செல்",
+    "malayalam": "കൊണ്ടുപോകുക"
+  },
+  "send": {
+    "hindi": "भेजना",
+    "tamil": "அனுப்பு",
+    "malayalam": "അയയ്ക്കുക"
+  },
+  "receive": {
+    "hindi": "प्राप्त करें",
+    "tamil": "பெறும்",
+    "malayalam": "സ്വീകരിക്കുക"
+  },
+  "search": {
+    "hindi": "खोज",
+    "tamil": "தேடல்",
+    "malayalam": "തിരയുക"
+  },
+  "find": {
+    "hindi": "खोजो",
+    "tamil": "கண்டுபிடிக்க",
+    "malayalam": "കണ്ടെത്തുക"
+  },
+  "lose": {
+    "hindi": "खोना",
+    "tamil": "இழக்க",
+    "malayalam": "നഷ്ടപ്പെടുക"
+  },
+  "big": {
+    "hindi": "बड़ा",
+    "tamil": "பெரிய",
+    "malayalam": "വലിയ"
+  },
+  "small": {
+    "hindi": "छोटा",
+    "tamil": "சிறிய",
+    "malayalam": "ചെറിയ"
+  },
+  "large": {
+    "hindi": "बड़ा",
+    "tamil": "பெரிய",
+    "malayalam": "വലിയ"
+  },
+  "tiny": {
+    "hindi": "छोटा",
+    "tamil": "சிறிய",
+    "malayalam": "ചെറിയ"
+  },
+  "huge": {
+    "hindi": "विशाल",
+    "tamil": "மிகப்பெரிய",
+    "malayalam": "വലിയ"
+  },
+  "giant": {
+    "hindi": "बहुत बड़ा",
+    "tamil": "மாபெரும்",
+    "malayalam": "ഭീമൻ"
+  },
+  "long": {
+    "hindi": "लंबा",
+    "tamil": "நீளமானது",
+    "malayalam": "നീണ്ട"
+  },
+  "short": {
+    "hindi": "छोटा",
+    "tamil": "குறுகிய",
+    "malayalam": "ചെറുത്"
+  },
+  "tall": {
+    "hindi": "लंबा",
+    "tamil": "உயரமான",
+    "malayalam": "ഉയരമുള്ള"
+  },
+  "wide": {
+    "hindi": "चौड़ा",
+    "tamil": "பரந்த",
+    "malayalam": "വിശാലമായ"
+  },
+  "narrow": {
+    "hindi": "सँकरा",
+    "tamil": "குறுகிய",
+    "malayalam": "ഇടുങ്ങിയ"
+  },
+  "thick": {
+    "hindi": "मोटा",
+    "tamil": "தடித்த",
+    "malayalam": "കട്ടിയുള്ള"
+  },
+  "thin": {
+    "hindi": "पतला",
+    "tamil": "மெல்லிய",
+    "malayalam": "നേർത്ത"
+  },
+  "deep": {
+    "hindi": "गहरा",
+    "tamil": "ஆழமான",
+    "malayalam": "ആഴമുള്ള"
+  },
+  "shallow": {
+    "hindi": "उथला",
+    "tamil": "ஆழமற்ற",
+    "malayalam": "ആഴം കുറഞ്ഞ"
+  },
+  "heavy": {
+    "hindi": "भारी",
+    "tamil": "கனமான",
+    "malayalam": "കനത്ത"
+  },
+  "light": {
+    "hindi": "रोशनी",
+    "tamil": "ஒளி",
+    "malayalam": "വെളിച്ചം"
+  },
+  "excellent": {
+    "hindi": "उत्कृष्ट",
+    "tamil": "சிறந்த",
+    "malayalam": "മികച്ചത്"
+  },
+  "perfect": {
+    "hindi": "उत्तम",
+    "tamil": "சரியான",
+    "malayalam": "തികഞ്ഞ"
+  },
+  "amazing": {
+    "hindi": "अद्भुत",
+    "tamil": "அற்புதமான",
+    "malayalam": "അത്ഭുതകരമായ"
+  },
+  "wonderful": {
+    "hindi": "आश्चर्यजनक",
+    "tamil": "அற்புதமான",
+    "malayalam": "അത്ഭുതകരമായ"
+  },
+  "nice": {
+    "hindi": "अच्छा",
+    "tamil": "நல்ல",
+    "malayalam": "കൊള്ളാം"
+  },
+  "terrible": {
+    "hindi": "भयानक",
+    "tamil": "பயங்கரமான",
+    "malayalam": "ഭയങ്കരമായ"
+  },
+  "easy": {
+    "hindi": "आसान",
+    "tamil": "எளிதாக",
+    "malayalam": "എളുപ്പമാണ്"
+  },
+  "difficult": {
+    "hindi": "कठिन",
+    "tamil": "கடினமான",
+    "malayalam": "ബുദ്ധിമുട്ടുള്ള"
+  },
+  "simple": {
+    "hindi": "सरल",
+    "tamil": "எளிய",
+    "malayalam": "ലളിതമായ"
+  },
+  "complex": {
+    "hindi": "जटिल",
+    "tamil": "சிக்கலான",
+    "malayalam": "സങ്കീർണ്ണമായ"
+  },
+  "fast": {
+    "hindi": "तेज़",
+    "tamil": "வேகமாக",
+    "malayalam": "വേഗം"
+  },
+  "slow": {
+    "hindi": "धीमा",
+    "tamil": "மெதுவாக",
+    "malayalam": "പതുക്കെ"
+  },
+  "beautiful": {
+    "hindi": "सुंदर",
+    "tamil": "அழகான",
+    "malayalam": "മനോഹരം"
+  },
+  "ugly": {
+    "hindi": "कुरूप",
+    "tamil": "அசிங்கமான",
+    "malayalam": "വൃത്തികെട്ട"
+  },
+  "dirty": {
+    "hindi": "गंदा",
+    "tamil": "அழுக்கு",
+    "malayalam": "വൃത്തികെട്ട"
+  },
+  "young": {
+    "hindi": "युवा",
+    "tamil": "இளம்",
+    "malayalam": "ചെറുപ്പക്കാർ"
+  },
+  "old": {
+    "hindi": "पुराना",
+    "tamil": "பழைய",
+    "malayalam": "പഴയത്"
+  },
+  "strong": {
+    "hindi": "मज़बूत",
+    "tamil": "வலுவான",
+    "malayalam": "ശക്തമായ"
+  },
+  "weak": {
+    "hindi": "कमज़ोर",
+    "tamil": "பலவீனமான",
+    "malayalam": "ദുർബലമായ"
+  },
+  "broken": {
+    "hindi": "टूटा हुआ",
+    "tamil": "உடைந்தது",
+    "malayalam": "തകർന്നു"
+  },
+  "lost": {
+    "hindi": "खो गया",
+    "tamil": "இழந்தது",
+    "malayalam": "നഷ്ടപ്പെട്ടു"
+  },
+  "red": {
+    "hindi": "लाल",
+    "tamil": "சிவப்பு",
+    "malayalam": "ചുവപ്പ്"
+  },
+  "blue": {
+    "hindi": "नीला",
+    "tamil": "நீலம்",
+    "malayalam": "നീല"
+  },
+  "green": {
+    "hindi": "हरा",
+    "tamil": "பச்சை",
+    "malayalam": "പച്ച"
+  },
+  "yellow": {
+    "hindi": "पीला",
+    "tamil": "மஞ்சள்",
+    "malayalam": "മഞ്ഞ"
+  },
+  "black": {
+    "hindi": "काला",
+    "tamil": "கருப்பு",
+    "malayalam": "കറുപ്പ്"
+  },
+  "white": {
+    "hindi": "सफ़ेद",
+    "tamil": "வெள்ளை",
+    "malayalam": "വെള്ള"
+  },
+  "brown": {
+    "hindi": "भूरा",
+    "tamil": "பழுப்பு",
+    "malayalam": "തവിട്ട്"
+  },
+  "orange": {
+    "hindi": "नारंगी",
+    "tamil": "ஆரஞ்சு",
+    "malayalam": "ഓറഞ്ച്"
+  },
+  "pink": {
+    "hindi": "गुलाबी",
+    "tamil": "இளஞ்சிவப்பு",
+    "malayalam": "പിങ്ക്"
+  },
+  "purple": {
+    "hindi": "बैंगनी",
+    "tamil": "ஊதா",
+    "malayalam": "ധൂമ്രനൂൽ"
+  },
+  "gray": {
+    "hindi": "स्लेटी",
+    "tamil": "சாம்பல்",
+    "malayalam": "ചാരനിറം"
+  },
+  "silver": {
+    "hindi": "चाँदी",
+    "tamil": "வெள்ளி",
+    "malayalam": "വെള്ളി"
+  },
+  "gold": {
+    "hindi": "सोना",
+    "tamil": "தங்கம்",
+    "malayalam": "സ്വർണ്ണം"
+  },
+  "beige": {
+    "hindi": "बेज",
+    "tamil": "பழுப்பு",
+    "malayalam": "ബീജ്"
+  },
+  "maroon": {
+    "hindi": "लाल रंग",
+    "tamil": "மெரூன்",
+    "malayalam": "മെറൂൺ"
+  },
+  "home": {
+    "hindi": "घर",
+    "tamil": "வீடு",
+    "malayalam": "വീട്"
+  },
+  "house": {
+    "hindi": "घर",
+    "tamil": "வீடு",
+    "malayalam": "വീട്"
+  },
+  "room": {
+    "hindi": "कमरा",
+    "tamil": "அறை",
+    "malayalam": "മുറി"
+  },
+  "kitchen": {
+    "hindi": "रसोईघर",
+    "tamil": "சமையலறை",
+    "malayalam": "അടുക്കള"
+  },
+  "bedroom": {
+    "hindi": "सोने का कमरा",
+    "tamil": "படுக்கையறை",
+    "malayalam": "കിടപ്പുമുറി"
+  },
+  "bathroom": {
+    "hindi": "स्नानघर",
+    "tamil": "குளியலறை",
+    "malayalam": "കുളിമുറി"
+  },
+  "bed": {
+    "hindi": "बिस्तर",
+    "tamil": "படுக்கை",
+    "malayalam": "കിടക്ക"
+  },
+  "door": {
+    "hindi": "दरवाजा",
+    "tamil": "கதவு",
+    "malayalam": "വാതിൽ"
+  },
+  "key": {
+    "hindi": "चाबी",
+    "tamil": "முக்கிய",
+    "malayalam": "താക്കോൽ"
+  },
+  "table": {
+    "hindi": "मेज़",
+    "tamil": "அட்டவணை",
+    "malayalam": "മേശ"
+  },
+  "chair": {
+    "hindi": "कुर्सी",
+    "tamil": "நாற்காலி",
+    "malayalam": "കസേര"
+  },
+  "water": {
+    "hindi": "पानी",
+    "tamil": "தண்ணீர்",
+    "malayalam": "വെള്ളം"
+  },
+  "coffee": {
+    "hindi": "कॉफी",
+    "tamil": "காபி",
+    "malayalam": "കോഫി"
+  },
+  "tea": {
+    "hindi": "चाय",
+    "tamil": "தேநீர்",
+    "malayalam": "ചായ"
+  },
+  "milk": {
+    "hindi": "दूध",
+    "tamil": "பால்",
+    "malayalam": "പാൽ"
+  },
+  "juice": {
+    "hindi": "रस",
+    "tamil": "சாறு",
+    "malayalam": "ജ്യൂസ്"
+  },
+  "soda": {
+    "hindi": "सोडा",
+    "tamil": "சோடா",
+    "malayalam": "സോഡ"
+  },
+  "rice": {
+    "hindi": "चावल",
+    "tamil": "அரிசி",
+    "malayalam": "അരി"
+  },
+  "bread": {
+    "hindi": "रोटी",
+    "tamil": "ரொட்டி",
+    "malayalam": "അപ്പം"
+  },
+  "chapati": {
+    "hindi": "चपाती",
+    "tamil": "சப்பாத்தி",
+    "malayalam": "ചപ്പാത്തി"
+  },
+  "idli": {
+    "hindi": "इडली",
+    "tamil": "இட்லி",
+    "malayalam": "ഇഡ്ഡലി"
+  },
+  "dosa": {
+    "hindi": "डोसा",
+    "tamil": "தோசை",
+    "malayalam": "ദോശ"
+  },
+  "pizza": {
+    "hindi": "पिज़्ज़ा",
+    "tamil": "பீஸ்ஸா",
+    "malayalam": "പിസ്സ"
+  },
+  "burger": {
+    "hindi": "बर्गर",
+    "tamil": "பர்கர்",
+    "malayalam": "ബർഗർ"
+  },
+  "sandwich": {
+    "hindi": "सैंडविच",
+    "tamil": "சாண்ட்விச்",
+    "malayalam": "സാൻഡ്വിച്ച്"
+  },
+  "chicken": {
+    "hindi": "मुर्गा",
+    "tamil": "கோழி",
+    "malayalam": "കോഴി"
+  },
+  "fish": {
+    "hindi": "मछली",
+    "tamil": "மீன்",
+    "malayalam": "മത്സ്യം"
+  },
+  "egg": {
+    "hindi": "अंडा",
+    "tamil": "முட்டை",
+    "malayalam": "മുട്ട"
+  },
+  "fruit": {
+    "hindi": "फल",
+    "tamil": "பழம்",
+    "malayalam": "ഫലം"
+  },
+  "apple": {
+    "hindi": "सेब",
+    "tamil": "ஆப்பிள்",
+    "malayalam": "ആപ്പിൾ"
+  },
+  "banana": {
+    "hindi": "केला",
+    "tamil": "வாழைப்பழம்",
+    "malayalam": "വാഴപ്പഴം"
+  },
+  "mango": {
+    "hindi": "आम",
+    "tamil": "மாம்பழம்",
+    "malayalam": "മാമ്പഴം"
+  },
+  "grapes": {
+    "hindi": "अंगूर",
+    "tamil": "திராட்சை",
+    "malayalam": "മുന്തിരി"
+  },
+  "vegetable": {
+    "hindi": "सब्ज़ी",
+    "tamil": "காய்கறி",
+    "malayalam": "പച്ചക്കറി"
+  },
+  "potato": {
+    "hindi": "आलू",
+    "tamil": "உருளைக்கிழங்கு",
+    "malayalam": "ഉരുളക്കിഴങ്ങ്"
+  },
+  "onion": {
+    "hindi": "प्याज",
+    "tamil": "வெங்காயம்",
+    "malayalam": "ഉള്ളി"
+  },
+  "tomato": {
+    "hindi": "टमाटर",
+    "tamil": "தக்காளி",
+    "malayalam": "തക്കാളി"
+  },
+  "breakfast": {
+    "hindi": "नाश्ता",
+    "tamil": "காலை உணவு",
+    "malayalam": "പ്രാതൽ"
+  },
+  "lunch": {
+    "hindi": "दिन का खाना",
+    "tamil": "மதிய உணவு",
+    "malayalam": "ഉച്ചഭക്ഷണം"
+  },
+  "dinner": {
+    "hindi": "रात का खाना",
+    "tamil": "இரவு உணவு",
+    "malayalam": "അത്താഴം"
+  },
+  "snack": {
+    "hindi": "नाश्ता",
+    "tamil": "சிற்றுண்டி",
+    "malayalam": "ലഘുഭക്ഷണം"
+  },
+  "restaurant": {
+    "hindi": "रेस्टोरेंट",
+    "tamil": "உணவகம்",
+    "malayalam": "ഭക്ഷണശാല"
+  },
+  "menu": {
+    "hindi": "मेनू",
+    "tamil": "மெனு",
+    "malayalam": "മെനു"
+  },
+  "order": {
+    "hindi": "आदेश",
+    "tamil": "உத்தரவு",
+    "malayalam": "ഓർഡർ"
+  },
+  "bill": {
+    "hindi": "बिल",
+    "tamil": "மசோதா",
+    "malayalam": "ബിൽ"
+  },
+  "salt": {
+    "hindi": "नमक",
+    "tamil": "உப்பு",
+    "malayalam": "ഉപ്പ്"
+  },
+  "sugar": {
+    "hindi": "चीनी",
+    "tamil": "சர்க்கரை",
+    "malayalam": "പഞ്ചസാര"
+  },
+  "pepper": {
+    "hindi": "काली मिर्च",
+    "tamil": "மிளகு",
+    "malayalam": "കുരുമുളക്"
+  },
+  "spice": {
+    "hindi": "मसाला",
+    "tamil": "மசாலா",
+    "malayalam": "സുഗന്ധവ്യഞ്ജനങ്ങൾ"
+  },
+  "soup": {
+    "hindi": "शोरबा",
+    "tamil": "சூப்",
+    "malayalam": "സൂപ്പ്"
+  },
+  "salad": {
+    "hindi": "सलाद",
+    "tamil": "சாலட்",
+    "malayalam": "സാലഡ്"
+  },
+  "dessert": {
+    "hindi": "मिठाई",
+    "tamil": "இனிப்பு",
+    "malayalam": "മധുരപലഹാരം"
+  },
+  "cake": {
+    "hindi": "केक",
+    "tamil": "கேக்",
+    "malayalam": "കേക്ക്"
+  },
+  "cookie": {
+    "hindi": "कुकी",
+    "tamil": "குக்கீ",
+    "malayalam": "കുക്കി"
+  },
+  "chocolate": {
+    "hindi": "चॉकलेट",
+    "tamil": "சாக்லேட்",
+    "malayalam": "ചോക്കലേറ്റ്"
+  },
+  "vegetarian": {
+    "hindi": "शाकाहारी",
+    "tamil": "சைவம்",
+    "malayalam": "വെജിറ്റേറിയൻ"
+  },
+  "vegan": {
+    "hindi": "शाकाहारी",
+    "tamil": "சைவ உணவு உண்பவர்",
+    "malayalam": "സസ്യാഹാരം"
+  },
+  "delicious": {
+    "hindi": "स्वादिष्ट",
+    "tamil": "சுவையான",
+    "malayalam": "രുചികരമായ"
+  },
+  "sweet": {
+    "hindi": "मिठाई",
+    "tamil": "இனிப்பு",
+    "malayalam": "മധുരം"
+  },
+  "sour": {
+    "hindi": "खट्टा",
+    "tamil": "புளிப்பு",
+    "malayalam": "പുളിച്ച"
+  },
+  "bitter": {
+    "hindi": "कड़वा",
+    "tamil": "கசப்பான",
+    "malayalam": "കയ്പേറിയ"
+  },
+  "spicy": {
+    "hindi": "मसालेदार",
+    "tamil": "காரமான",
+    "malayalam": "മസാലകൾ"
+  },
+  "fresh": {
+    "hindi": "ताजा",
+    "tamil": "புதியது",
+    "malayalam": "പുതിയത്"
+  },
+  "frozen": {
+    "hindi": "जमा हुआ",
+    "tamil": "உறைந்த",
+    "malayalam": "മരവിച്ചു"
+  },
+  "food": {
+    "hindi": "खाना",
+    "tamil": "உணவு",
+    "malayalam": "ഭക്ഷണം"
+  },
+  "travel": {
+    "hindi": "यात्रा",
+    "tamil": "பயணம்",
+    "malayalam": "യാത്ര"
+  },
+  "airport": {
+    "hindi": "एयरपोर्ट",
+    "tamil": "விமான நிலையம்",
+    "malayalam": "വിമാനത്താവളം"
+  },
+  "flight": {
+    "hindi": "उड़ान",
+    "tamil": "விமானம்",
+    "malayalam": "വിമാനം"
+  },
+  "plane": {
+    "hindi": "विमान",
+    "tamil": "விமானம்",
+    "malayalam": "വിമാനം"
+  },
+  "train": {
+    "hindi": "रेलगाड़ी",
+    "tamil": "ரயில்",
+    "malayalam": "തീവണ്ടി"
+  },
+  "bus": {
+    "hindi": "बस",
+    "tamil": "பேருந்து",
+    "malayalam": "ബസ്"
+  },
+  "taxi": {
+    "hindi": "टैक्सी",
+    "tamil": "டாக்ஸி",
+    "malayalam": "ടാക്സി"
+  },
+  "car": {
+    "hindi": "कार",
+    "tamil": "கார்",
+    "malayalam": "കാർ"
+  },
+  "map": {
+    "hindi": "नक्शा",
+    "tamil": "வரைபடம்",
+    "malayalam": "ഭൂപടം"
+  },
+  "hotel": {
+    "hindi": "होटल",
+    "tamil": "ஹோட்டல்",
+    "malayalam": "ഹോട്ടൽ"
+  },
+  "passport": {
+    "hindi": "पासपोर्ट",
+    "tamil": "கடவுச்சீட்டு",
+    "malayalam": "പാസ്പോർട്ട്"
+  },
+  "ticket": {
+    "hindi": "टिकट",
+    "tamil": "டிக்கெட்",
+    "malayalam": "ടിക്കറ്റ്"
+  },
+  "luggage": {
+    "hindi": "सामान",
+    "tamil": "சாமான்கள்",
+    "malayalam": "ലഗേജ്"
+  },
+  "station": {
+    "hindi": "स्टेशन",
+    "tamil": "நிலையம்",
+    "malayalam": "സ്റ്റേഷൻ"
+  },
+  "road": {
+    "hindi": "सड़क",
+    "tamil": "சாலை",
+    "malayalam": "റോഡ്"
+  },
+  "traffic": {
+    "hindi": "ट्रैफ़िक",
+    "tamil": "போக்குவரத்து",
+    "malayalam": "ഗതാഗതം"
+  },
+  "hospital": {
+    "hindi": "अस्पताल",
+    "tamil": "மருத்துவமனை",
+    "malayalam": "ആശുപത്രി"
+  },
+  "medicine": {
+    "hindi": "दवा",
+    "tamil": "மருந்து",
+    "malayalam": "മരുന്ന്"
+  },
+  "pharmacy": {
+    "hindi": "फार्मेसी",
+    "tamil": "மருந்தகம்",
+    "malayalam": "ഫാർമസി"
+  },
+  "fever": {
+    "hindi": "बुखार",
+    "tamil": "காய்ச்சல்",
+    "malayalam": "പനി"
+  },
+  "headache": {
+    "hindi": "सिरदर्द",
+    "tamil": "தலைவலி",
+    "malayalam": "തലവേദന"
+  },
+  "allergy": {
+    "hindi": "एलर्जी",
+    "tamil": "ஒவ்வாமை",
+    "malayalam": "അലർജി"
+  },
+  "emergency": {
+    "hindi": "आपातकाल",
+    "tamil": "அவசரநிலை",
+    "malayalam": "അടിയന്തരാവസ്ഥ"
+  },
+  "ambulance": {
+    "hindi": "एम्बुलेंस",
+    "tamil": "ஆம்புலன்ஸ்",
+    "malayalam": "ആംബുലൻസ്"
+  },
+  "appointment": {
+    "hindi": "नियुक्ति",
+    "tamil": "நியமனம்",
+    "malayalam": "നിയമനം"
+  },
+  "pain": {
+    "hindi": "दर्द",
+    "tamil": "வலி",
+    "malayalam": "വേദന"
+  },
+  "school": {
+    "hindi": "विद्यालय",
+    "tamil": "பள்ளி",
+    "malayalam": "സ്കൂൾ"
+  },
+  "classroom": {
+    "hindi": "कक्षा",
+    "tamil": "வகுப்பறை",
+    "malayalam": "ക്ലാസ് മുറി"
+  },
+  "homework": {
+    "hindi": "गृहकार्य",
+    "tamil": "வீட்டுப்பாடம்",
+    "malayalam": "ഹോം വർക്ക്"
+  },
+  "exam": {
+    "hindi": "परीक्षा",
+    "tamil": "தேர்வு",
+    "malayalam": "പരീക്ഷ"
+  },
+  "office": {
+    "hindi": "कार्यालय",
+    "tamil": "அலுவலகம்",
+    "malayalam": "ഓഫീസ്"
+  },
+  "meeting": {
+    "hindi": "बैठक",
+    "tamil": "சந்திப்பு",
+    "malayalam": "യോഗം"
+  },
+  "project": {
+    "hindi": "परियोजना",
+    "tamil": "திட்டம்",
+    "malayalam": "പദ്ധതി"
+  },
+  "work": {
+    "hindi": "काम",
+    "tamil": "வேலை",
+    "malayalam": "ജോലി"
+  },
+  "job": {
+    "hindi": "काम",
+    "tamil": "வேலை",
+    "malayalam": "ജോലി"
+  },
+  "shop": {
+    "hindi": "दुकान",
+    "tamil": "கடை",
+    "malayalam": "കട"
+  },
+  "store": {
+    "hindi": "इकट्ठा करना",
+    "tamil": "கடை",
+    "malayalam": "സ്റ്റോർ"
+  },
+  "market": {
+    "hindi": "बाज़ार",
+    "tamil": "சந்தை",
+    "malayalam": "വിപണി"
+  },
+  "mall": {
+    "hindi": "मॉल",
+    "tamil": "வணிக வளாகம்",
+    "malayalam": "മാൾ"
+  },
+  "money": {
+    "hindi": "धन",
+    "tamil": "பணம்",
+    "malayalam": "പണം"
+  },
+  "cash": {
+    "hindi": "नकद",
+    "tamil": "பணம்",
+    "malayalam": "പണം"
+  },
+  "coin": {
+    "hindi": "सिक्का",
+    "tamil": "நாணயம்",
+    "malayalam": "നാണയം"
+  },
+  "price": {
+    "hindi": "कीमत",
+    "tamil": "விலை",
+    "malayalam": "വില"
+  },
+  "cost": {
+    "hindi": "लागत",
+    "tamil": "செலவு",
+    "malayalam": "ചെലവ്"
+  },
+  "cheap": {
+    "hindi": "सस्ता",
+    "tamil": "மலிவான",
+    "malayalam": "വിലകുറഞ്ഞ"
+  },
+  "expensive": {
+    "hindi": "महँगा",
+    "tamil": "விலையுயர்ந்த",
+    "malayalam": "ചെലവേറിയ"
+  },
+  "discount": {
+    "hindi": "छूट",
+    "tamil": "தள்ளுபடி",
+    "malayalam": "കിഴിവ്"
+  },
+  "sale": {
+    "hindi": "बिक्री",
+    "tamil": "விற்பனை",
+    "malayalam": "വിൽപ്പന"
+  },
+  "customer": {
+    "hindi": "ग्राहक",
+    "tamil": "வாடிக்கையாளர்",
+    "malayalam": "ഉപഭോക്താവ്"
+  },
+  "receipt": {
+    "hindi": "रसीद",
+    "tamil": "ரசீது",
+    "malayalam": "രസീത്"
+  },
+  "wallet": {
+    "hindi": "बटुआ",
+    "tamil": "பணப்பை",
+    "malayalam": "വാലറ്റ്"
+  },
+  "change": {
+    "hindi": "परिवर्तन",
+    "tamil": "மாற்றம்",
+    "malayalam": "മാറ്റം"
+  },
+  "payment": {
+    "hindi": "भुगतान",
+    "tamil": "கட்டணம்",
+    "malayalam": "പേയ്മെൻ്റ്"
+  },
+  "product": {
+    "hindi": "उत्पाद",
+    "tamil": "தயாரிப்பு",
+    "malayalam": "ഉൽപ്പന്നം"
+  },
+  "item": {
+    "hindi": "वस्तु",
+    "tamil": "பொருள்",
+    "malayalam": "ഇനം"
+  },
+  "brand": {
+    "hindi": "ब्रांड",
+    "tamil": "பிராண்ட்",
+    "malayalam": "ബ്രാൻഡ്"
+  },
+  "size": {
+    "hindi": "आकार",
+    "tamil": "அளவு",
+    "malayalam": "വലിപ്പം"
+  },
+  "return": {
+    "hindi": "वापस करना",
+    "tamil": "திரும்ப",
+    "malayalam": "മടങ്ങുക"
+  },
+  "exchange": {
+    "hindi": "अदला-बदली",
+    "tamil": "பரிமாற்றம்",
+    "malayalam": "കൈമാറ്റം"
+  },
+  "grocery": {
+    "hindi": "किराना",
+    "tamil": "மளிகை",
+    "malayalam": "പലചരക്ക്"
+  },
+  "basket": {
+    "hindi": "टोकरी",
+    "tamil": "கூடை",
+    "malayalam": "കൊട്ട"
+  },
+  "cart": {
+    "hindi": "कार्ट",
+    "tamil": "வண்டி",
+    "malayalam": "വണ്ടി"
+  },
+  "checkout": {
+    "hindi": "चेक आउट",
+    "tamil": "செக்அவுட்",
+    "malayalam": "ചെക്ക് ഔട്ട്"
+  },
+  "tax": {
+    "hindi": "कर",
+    "tamil": "வரி",
+    "malayalam": "നികുതി"
+  },
+  "left": {
+    "hindi": "बाएं",
+    "tamil": "விட்டு",
+    "malayalam": "വിട്ടുപോയി"
+  },
+  "right": {
+    "hindi": "सही",
+    "tamil": "சரி",
+    "malayalam": "ശരിയാണ്"
+  },
+  "straight": {
+    "hindi": "सीधा",
+    "tamil": "நேராக",
+    "malayalam": "ഋജുവായത്"
+  },
+  "turn": {
+    "hindi": "मोड़",
+    "tamil": "திரும்ப",
+    "malayalam": "തിരിയുക"
+  },
+  "here": {
+    "hindi": "यहाँ",
+    "tamil": "இங்கே",
+    "malayalam": "ഇവിടെ"
+  },
+  "there": {
+    "hindi": "वहाँ",
+    "tamil": "அங்கு",
+    "malayalam": "അവിടെ"
+  },
+  "near": {
+    "hindi": "पास में",
+    "tamil": "அருகில்",
+    "malayalam": "സമീപം"
+  },
+  "far": {
+    "hindi": "दूर",
+    "tamil": "தொலைவில்",
+    "malayalam": "ദൂരെ"
+  },
+  "across": {
+    "hindi": "आर-पार",
+    "tamil": "முழுவதும்",
+    "malayalam": "കുറുകെ"
+  },
+  "behind": {
+    "hindi": "पीछे",
+    "tamil": "பின்னால்",
+    "malayalam": "പിന്നിൽ"
+  },
+  "front": {
+    "hindi": "सामने",
+    "tamil": "முன்",
+    "malayalam": "മുന്നിൽ"
+  },
+  "corner": {
+    "hindi": "कोना",
+    "tamil": "மூலையில்",
+    "malayalam": "മൂല"
+  },
+  "intersection": {
+    "hindi": "चौराहा",
+    "tamil": "குறுக்குவெட்டு",
+    "malayalam": "കവല"
+  },
+  "street": {
+    "hindi": "गली",
+    "tamil": "தெரு",
+    "malayalam": "തെരുവ്"
+  },
+  "highway": {
+    "hindi": "राजमार्ग",
+    "tamil": "நெடுஞ்சாலை",
+    "malayalam": "ഹൈവേ"
+  },
+  "bridge": {
+    "hindi": "पुल",
+    "tamil": "பாலம்",
+    "malayalam": "പാലം"
+  },
+  "address": {
+    "hindi": "पता",
+    "tamil": "முகவரி",
+    "malayalam": "വിലാസം"
+  },
+  "location": {
+    "hindi": "जगह",
+    "tamil": "இடம்",
+    "malayalam": "സ്ഥാനം"
+  },
+  "north": {
+    "hindi": "उत्तर",
+    "tamil": "வடக்கு",
+    "malayalam": "വടക്ക്"
+  },
+  "south": {
+    "hindi": "दक्षिण",
+    "tamil": "தெற்கு",
+    "malayalam": "തെക്ക്"
+  },
+  "east": {
+    "hindi": "पूर्व",
+    "tamil": "கிழக்கு",
+    "malayalam": "കിഴക്ക്"
+  },
+  "west": {
+    "hindi": "पश्चिम",
+    "tamil": "மேற்கு",
+    "malayalam": "പടിഞ്ഞാറ്"
+  },
+  "upstairs": {
+    "hindi": "ऊपर",
+    "tamil": "மாடிக்கு",
+    "malayalam": "മുകളിലത്തെ നിലയിൽ"
+  },
+  "downstairs": {
+    "hindi": "सीढ़ी के नीचे",
+    "tamil": "கீழே",
+    "malayalam": "താഴെ"
+  },
+  "entrance": {
+    "hindi": "प्रवेश द्वार",
+    "tamil": "நுழைவாயில்",
+    "malayalam": "പ്രവേശനം"
+  },
+  "exit": {
+    "hindi": "बाहर निकलना",
+    "tamil": "வெளியேறு",
+    "malayalam": "പുറത്ത്"
+  },
+  "parking": {
+    "hindi": "पार्किंग",
+    "tamil": "பார்க்கிங்",
+    "malayalam": "പാർക്കിംഗ്"
+  },
+  "building": {
+    "hindi": "इमारत",
+    "tamil": "கட்டிடம்",
+    "malayalam": "കെട്ടിടം"
+  },
+  "floor": {
+    "hindi": "ज़मीन",
+    "tamil": "தரை",
+    "malayalam": "തറ"
+  },
+  "elevator": {
+    "hindi": "लिफ़्ट",
+    "tamil": "உயர்த்தி",
+    "malayalam": "എലിവേറ്റർ"
+  },
+  "stairs": {
+    "hindi": "सीढ़ियाँ",
+    "tamil": "படிக்கட்டுகள்",
+    "malayalam": "പടികൾ"
+  },
+  "crosswalk": {
+    "hindi": "क्रॉसवॉक",
+    "tamil": "குறுக்குவழி",
+    "malayalam": "ക്രോസ്വാക്ക്"
+  },
+  "phone": {
+    "hindi": "फ़ोन",
+    "tamil": "தொலைபேசி",
+    "malayalam": "ഫോൺ"
+  },
+  "smartphone": {
+    "hindi": "स्मार्टफोन",
+    "tamil": "ஸ்மார்ட்போன்",
+    "malayalam": "സ്മാർട്ട്ഫോൺ"
+  },
+  "computer": {
+    "hindi": "कंप्यूटर",
+    "tamil": "கணினி",
+    "malayalam": "കമ്പ്യൂട്ടർ"
+  },
+  "laptop": {
+    "hindi": "लैपटॉप",
+    "tamil": "மடிக்கணினி",
+    "malayalam": "ലാപ്ടോപ്പ്"
+  },
+  "tablet": {
+    "hindi": "गोली",
+    "tamil": "மாத்திரை",
+    "malayalam": "ടാബ്ലറ്റ്"
+  },
+  "internet": {
+    "hindi": "इंटरनेट",
+    "tamil": "இணையம்",
+    "malayalam": "ഇൻ്റർനെറ്റ്"
+  },
+  "wi-fi": {
+    "hindi": "वाईफ़ाई",
+    "tamil": "wi-fi",
+    "malayalam": "വൈഫൈ"
+  },
+  "website": {
+    "hindi": "वेबसाइट",
+    "tamil": "இணையதளம்",
+    "malayalam": "വെബ്സൈറ്റ്"
+  },
+  "browser": {
+    "hindi": "ब्राउज़र",
+    "tamil": "உலாவி",
+    "malayalam": "ബ്രൗസർ"
+  },
+  "email": {
+    "hindi": "ईमेल",
+    "tamil": "மின்னஞ்சல்",
+    "malayalam": "ഇമെയിൽ"
+  },
+  "message": {
+    "hindi": "संदेश",
+    "tamil": "செய்தி",
+    "malayalam": "സന്ദേശം"
+  },
+  "chat": {
+    "hindi": "बात करना",
+    "tamil": "அரட்டை",
+    "malayalam": "ചാറ്റ്"
+  },
+  "camera": {
+    "hindi": "कैमरा",
+    "tamil": "கேமரா",
+    "malayalam": "ക്യാമറ"
+  },
+  "password": {
+    "hindi": "पासवर्ड",
+    "tamil": "கடவுச்சொல்",
+    "malayalam": "പാസ്വേഡ്"
+  },
+  "login": {
+    "hindi": "लॉग इन करें",
+    "tamil": "புகுபதிகை",
+    "malayalam": "ലോഗിൻ"
+  },
+  "logout": {
+    "hindi": "लॉग आउट",
+    "tamil": "வெளியேறுதல்",
+    "malayalam": "പുറത്തുകടക്കുക"
+  },
+  "download": {
+    "hindi": "डाउनलोड करना",
+    "tamil": "பதிவிறக்கம்",
+    "malayalam": "ഡൗൺലോഡ് ചെയ്യുക"
+  },
+  "upload": {
+    "hindi": "अपलोड करें",
+    "tamil": "பதிவேற்றம்",
+    "malayalam": "അപ്ലോഡ്"
+  },
+  "app": {
+    "hindi": "अनुप्रयोग",
+    "tamil": "பயன்பாடு",
+    "malayalam": "അപ്ലിക്കേഷൻ"
+  },
+  "software": {
+    "hindi": "सॉफ़्टवेयर",
+    "tamil": "மென்பொருள்",
+    "malayalam": "സോഫ്റ്റ്വെയർ"
+  },
+  "hardware": {
+    "hindi": "हार्डवेयर",
+    "tamil": "வன்பொருள்",
+    "malayalam": "ഹാർഡ്വെയർ"
+  },
+  "ai": {
+    "hindi": "ऐ",
+    "tamil": "ai",
+    "malayalam": "ഐ"
+  },
+  "robot": {
+    "hindi": "रोबोट",
+    "tamil": "ரோபோ",
+    "malayalam": "റോബോട്ട്"
+  },
+  "cloud": {
+    "hindi": "बादल",
+    "tamil": "மேகம்",
+    "malayalam": "മേഘം"
+  },
+  "server": {
+    "hindi": "सर्वर",
+    "tamil": "சர்வர்",
+    "malayalam": "സെർവർ"
+  },
+  "database": {
+    "hindi": "डेटाबेस",
+    "tamil": "தரவுத்தளம்",
+    "malayalam": "ഡാറ്റാബേസ്"
+  },
+  "code": {
+    "hindi": "कोड",
+    "tamil": "குறியீடு",
+    "malayalam": "കോഡ്"
+  },
+  "program": {
+    "hindi": "कार्यक्रम",
+    "tamil": "திட்டம்",
+    "malayalam": "പ്രോഗ്രാം"
+  },
+  "network": {
+    "hindi": "नेटवर्क",
+    "tamil": "நெட்வொர்க்",
+    "malayalam": "നെറ്റ്വർക്ക്"
+  },
+  "keyboard": {
+    "hindi": "कीबोर्ड",
+    "tamil": "விசைப்பலகை",
+    "malayalam": "കീബോർഡ്"
+  },
+  "mouse": {
+    "hindi": "चूहा",
+    "tamil": "சுட்டி",
+    "malayalam": "മൗസ്"
+  },
+  "monitor": {
+    "hindi": "निगरानी करना",
+    "tamil": "கண்காணிக்க",
+    "malayalam": "നിരീക്ഷിക്കുക"
+  },
+  "screen": {
+    "hindi": "स्क्रीन",
+    "tamil": "திரை",
+    "malayalam": "സ്ക്രീൻ"
+  },
+  "printer": {
+    "hindi": "मुद्रक",
+    "tamil": "அச்சுப்பொறி",
+    "malayalam": "പ്രിൻ്റർ"
+  },
+  "scanner": {
+    "hindi": "स्कैनर",
+    "tamil": "ஸ்கேனர்",
+    "malayalam": "സ്കാനർ"
+  },
+  "microphone": {
+    "hindi": "माइक्रोफ़ोन",
+    "tamil": "ஒலிவாங்கி",
+    "malayalam": "മൈക്രോഫോൺ"
+  },
+  "speaker": {
+    "hindi": "वक्ता",
+    "tamil": "பேச்சாளர்",
+    "malayalam": "സ്പീക്കർ"
+  },
+  "headphones": {
+    "hindi": "हेडफोन",
+    "tamil": "ஹெட்ஃபோன்கள்",
+    "malayalam": "ഹെഡ്ഫോണുകൾ"
+  },
+  "charger": {
+    "hindi": "अभियोक्ता",
+    "tamil": "சார்ஜர்",
+    "malayalam": "ചാർജർ"
+  },
+  "battery": {
+    "hindi": "बैटरी",
+    "tamil": "பேட்டரி",
+    "malayalam": "ബാറ്ററി"
+  },
+  "cable": {
+    "hindi": "केबल",
+    "tamil": "கேபிள்",
+    "malayalam": "കേബിൾ"
+  },
+  "usb": {
+    "hindi": "USB",
+    "tamil": "usb",
+    "malayalam": "USB"
+  },
+  "folder": {
+    "hindi": "फ़ोल्डर",
+    "tamil": "கோப்புறை",
+    "malayalam": "ഫോൾഡർ"
+  },
+  "file": {
+    "hindi": "फ़ाइल",
+    "tamil": "கோப்பு",
+    "malayalam": "ഫയൽ"
+  },
+  "document": {
+    "hindi": "दस्तावेज़",
+    "tamil": "ஆவணம்",
+    "malayalam": "പ്രമാണം"
+  },
+  "spreadsheet": {
+    "hindi": "स्प्रेडशीट",
+    "tamil": "விரிதாள்",
+    "malayalam": "സ്പ്രെഡ്ഷീറ്റ്"
+  },
+  "presentation": {
+    "hindi": "प्रस्तुति",
+    "tamil": "விளக்கக்காட்சி",
+    "malayalam": "അവതരണം"
+  },
+  "profile": {
+    "hindi": "प्रोफ़ाइल",
+    "tamil": "சுயவிவரம்",
+    "malayalam": "പ്രൊഫൈൽ"
+  },
+  "account": {
+    "hindi": "खाता",
+    "tamil": "கணக்கு",
+    "malayalam": "അക്കൗണ്ട്"
+  },
+  "username": {
+    "hindi": "उपयोक्तानाम",
+    "tamil": "பயனர் பெயர்",
+    "malayalam": "ഉപയോക്തൃനാമം"
+  },
+  "notification": {
+    "hindi": "अधिसूचना",
+    "tamil": "அறிவிப்பு",
+    "malayalam": "അറിയിപ്പ്"
+  },
+  "update": {
+    "hindi": "अद्यतन",
+    "tamil": "மேம்படுத்தல்",
+    "malayalam": "അപ്ഡേറ്റ്"
+  },
+  "security": {
+    "hindi": "सुरक्षा",
+    "tamil": "பாதுகாப்பு",
+    "malayalam": "സുരക്ഷ"
+  },
+  "backup": {
+    "hindi": "बैकअप",
+    "tamil": "காப்பு",
+    "malayalam": "ബാക്കപ്പ്"
+  },
+  "weather": {
+    "hindi": "मौसम",
+    "tamil": "வானிலை",
+    "malayalam": "കാലാവസ്ഥ"
+  },
+  "sunny": {
+    "hindi": "धूप वाला",
+    "tamil": "வெயில்",
+    "malayalam": "വെയിൽ"
+  },
+  "cloudy": {
+    "hindi": "बादलों से घिरा",
+    "tamil": "மேகமூட்டம்",
+    "malayalam": "മേഘാവൃതമായ"
+  },
+  "rain": {
+    "hindi": "बारिश",
+    "tamil": "மழை",
+    "malayalam": "മഴ"
+  },
+  "drizzle": {
+    "hindi": "बूंदा बांदी",
+    "tamil": "தூறல்",
+    "malayalam": "ചാറ്റൽ മഴ"
+  },
+  "storm": {
+    "hindi": "आंधी",
+    "tamil": "புயல்",
+    "malayalam": "കൊടുങ്കാറ്റ്"
+  },
+  "thunder": {
+    "hindi": "गड़गड़ाहट",
+    "tamil": "இடி",
+    "malayalam": "ഇടിമുഴക്കം"
+  },
+  "lightning": {
+    "hindi": "बिजली चमकना",
+    "tamil": "மின்னல்",
+    "malayalam": "മിന്നൽ"
+  },
+  "wind": {
+    "hindi": "हवा",
+    "tamil": "காற்று",
+    "malayalam": "കാറ്റ്"
+  },
+  "windy": {
+    "hindi": "तूफ़ानी",
+    "tamil": "காற்று வீசும்",
+    "malayalam": "കാറ്റുള്ള"
+  },
+  "hot": {
+    "hindi": "गर्म",
+    "tamil": "சூடான",
+    "malayalam": "ചൂട്"
+  },
+  "warm": {
+    "hindi": "गरम",
+    "tamil": "சூடான",
+    "malayalam": "ചൂട്"
+  },
+  "cool": {
+    "hindi": "ठंडा",
+    "tamil": "குளிர்",
+    "malayalam": "തണുത്ത"
+  },
+  "cold": {
+    "hindi": "ठंडा",
+    "tamil": "குளிர்",
+    "malayalam": "തണുപ്പ്"
+  },
+  "snow": {
+    "hindi": "बर्फ",
+    "tamil": "பனி",
+    "malayalam": "മഞ്ഞ്"
+  },
+  "fog": {
+    "hindi": "कोहरा",
+    "tamil": "மூடுபனி",
+    "malayalam": "മൂടൽമഞ്ഞ്"
+  },
+  "humid": {
+    "hindi": "नमी",
+    "tamil": "ஈரமான",
+    "malayalam": "ഈർപ്പമുള്ള"
+  },
+  "dry": {
+    "hindi": "सूखा",
+    "tamil": "உலர்",
+    "malayalam": "വരണ്ട"
+  },
+  "summer": {
+    "hindi": "गर्मी",
+    "tamil": "கோடை",
+    "malayalam": "വേനൽക്കാലം"
+  },
+  "winter": {
+    "hindi": "सर्दी",
+    "tamil": "குளிர்காலம்",
+    "malayalam": "ശീതകാലം"
+  },
+  "spring": {
+    "hindi": "वसंत",
+    "tamil": "வசந்தம்",
+    "malayalam": "വസന്തം"
+  },
+  "autumn": {
+    "hindi": "शरद ऋतु",
+    "tamil": "இலையுதிர் காலம்",
+    "malayalam": "ശരത്കാലം"
+  },
+  "hobby": {
+    "hindi": "शौक",
+    "tamil": "பொழுதுபோக்கு",
+    "malayalam": "ഹോബി"
+  },
+  "sport": {
+    "hindi": "खेल",
+    "tamil": "விளையாட்டு",
+    "malayalam": "കായികം"
+  },
+  "football": {
+    "hindi": "फ़ुटबॉल",
+    "tamil": "கால்பந்து",
+    "malayalam": "ഫുട്ബോൾ"
+  },
+  "cricket": {
+    "hindi": "क्रिकेट",
+    "tamil": "கிரிக்கெட்",
+    "malayalam": "ക്രിക്കറ്റ്"
+  },
+  "basketball": {
+    "hindi": "बास्केटबाल",
+    "tamil": "கூடைப்பந்து",
+    "malayalam": "ബാസ്ക്കറ്റ്ബോൾ"
+  },
+  "tennis": {
+    "hindi": "टेनिस",
+    "tamil": "டென்னிஸ்",
+    "malayalam": "ടെന്നീസ്"
+  },
+  "volleyball": {
+    "hindi": "वालीबाल",
+    "tamil": "கைப்பந்து",
+    "malayalam": "വോളിബോൾ"
+  },
+  "swimming": {
+    "hindi": "तैरना",
+    "tamil": "நீச்சல்",
+    "malayalam": "നീന്തൽ"
+  },
+  "running": {
+    "hindi": "दौड़ना",
+    "tamil": "ஓடுகிறது",
+    "malayalam": "ഓടുന്നു"
+  },
+  "walking": {
+    "hindi": "चलना",
+    "tamil": "நடைபயிற்சி",
+    "malayalam": "നടക്കുന്നു"
+  },
+  "gym": {
+    "hindi": "जिम",
+    "tamil": "உடற்பயிற்சி கூடம்",
+    "malayalam": "ജിം"
+  },
+  "exercise": {
+    "hindi": "व्यायाम",
+    "tamil": "உடற்பயிற்சி",
+    "malayalam": "വ്യായാമം"
+  },
+  "music": {
+    "hindi": "संगीत",
+    "tamil": "இசை",
+    "malayalam": "സംഗീതം"
+  },
+  "song": {
+    "hindi": "गाना",
+    "tamil": "பாடல்",
+    "malayalam": "പാട്ട്"
+  },
+  "singer": {
+    "hindi": "गायक",
+    "tamil": "பாடகர்",
+    "malayalam": "ഗായകൻ"
+  },
+  "guitar": {
+    "hindi": "गिटार",
+    "tamil": "கிட்டார்",
+    "malayalam": "ഗിറ്റാർ"
+  },
+  "piano": {
+    "hindi": "पियानो",
+    "tamil": "பியானோ",
+    "malayalam": "പിയാനോ"
+  },
+  "dance": {
+    "hindi": "नृत्य",
+    "tamil": "நடனம்",
+    "malayalam": "നൃത്തം"
+  },
+  "movie": {
+    "hindi": "चलचित्र",
+    "tamil": "திரைப்படம்",
+    "malayalam": "സിനിമ"
+  },
+  "film": {
+    "hindi": "पतली परत",
+    "tamil": "படம்",
+    "malayalam": "സിനിമ"
+  },
+  "tv": {
+    "hindi": "टीवी",
+    "tamil": "தொலைக்காட்சி",
+    "malayalam": "ടിവി"
+  },
+  "series": {
+    "hindi": "शृंखला",
+    "tamil": "தொடர்",
+    "malayalam": "പരമ്പര"
+  },
+  "book": {
+    "hindi": "किताब",
+    "tamil": "புத்தகம்",
+    "malayalam": "പുസ്തകം"
+  },
+  "magazine": {
+    "hindi": "पत्रिका",
+    "tamil": "இதழ்",
+    "malayalam": "മാസിക"
+  },
+  "reading": {
+    "hindi": "पढ़ना",
+    "tamil": "வாசிப்பு",
+    "malayalam": "വായന"
+  },
+  "writing": {
+    "hindi": "लिखना",
+    "tamil": "எழுதுவது",
+    "malayalam": "എഴുത്ത്"
+  },
+  "drawing": {
+    "hindi": "चित्रकला",
+    "tamil": "வரைதல்",
+    "malayalam": "ഡ്രോയിംഗ്"
+  },
+  "painting": {
+    "hindi": "चित्रकारी",
+    "tamil": "ஓவியம்",
+    "malayalam": "പെയിൻ്റിംഗ്"
+  },
+  "photography": {
+    "hindi": "फोटोग्राफी",
+    "tamil": "புகைப்படம் எடுத்தல்",
+    "malayalam": "ഫോട്ടോഗ്രാഫി"
+  },
+  "camping": {
+    "hindi": "डेरा डालना",
+    "tamil": "முகாம்",
+    "malayalam": "ക്യാമ്പിംഗ്"
+  },
+  "fishing": {
+    "hindi": "मछली पकड़ने",
+    "tamil": "மீன்பிடித்தல்",
+    "malayalam": "മത്സ്യബന്ധനം"
+  },
+  "gardening": {
+    "hindi": "बागवानी",
+    "tamil": "தோட்டக்கலை",
+    "malayalam": "പൂന്തോട്ടപരിപാലനം"
+  },
+  "collecting": {
+    "hindi": "एकत्र",
+    "tamil": "சேகரிக்கிறது",
+    "malayalam": "ശേഖരിക്കുന്നു"
+  },
+  "game": {
+    "hindi": "खेल",
+    "tamil": "விளையாட்டு",
+    "malayalam": "കളി"
+  },
+  "danger": {
+    "hindi": "खतरा",
+    "tamil": "ஆபத்து",
+    "malayalam": "അപായം"
+  },
+  "safe": {
+    "hindi": "सुरक्षित",
+    "tamil": "பாதுகாப்பான",
+    "malayalam": "സുരക്ഷിതം"
+  },
+  "unsafe": {
+    "hindi": "असुरक्षित",
+    "tamil": "பாதுகாப்பற்ற",
+    "malayalam": "സുരക്ഷിതമല്ലാത്ത"
+  },
+  "accident": {
+    "hindi": "दुर्घटना",
+    "tamil": "விபத்து",
+    "malayalam": "അപകടം"
+  },
+  "injury": {
+    "hindi": "चोट",
+    "tamil": "காயம்",
+    "malayalam": "പരിക്ക്"
+  },
+  "fire": {
+    "hindi": "आग",
+    "tamil": "தீ",
+    "malayalam": "തീ"
+  },
+  "smoke": {
+    "hindi": "धुआँ",
+    "tamil": "புகை",
+    "malayalam": "പുക"
+  },
+  "police": {
+    "hindi": "पुलिस",
+    "tamil": "போலீஸ்",
+    "malayalam": "പോലീസ്"
+  },
+  "rescue": {
+    "hindi": "बचाव",
+    "tamil": "மீட்பு",
+    "malayalam": "രക്ഷാപ്രവർത്തനം"
+  },
+  "warning": {
+    "hindi": "चेतावनी",
+    "tamil": "எச்சரிக்கை",
+    "malayalam": "മുന്നറിയിപ്പ്"
+  },
+  "alarm": {
+    "hindi": "खतरे की घंटी",
+    "tamil": "எச்சரிக்கை",
+    "malayalam": "അലാറം"
+  },
+  "escape": {
+    "hindi": "पलायन",
+    "tamil": "தப்பிக்க",
+    "malayalam": "രക്ഷപ്പെടുക"
+  },
+  "protect": {
+    "hindi": "रक्षा करना",
+    "tamil": "பாதுகாக்க",
+    "malayalam": "സംരക്ഷിക്കുക"
+  },
+  "found": {
+    "hindi": "मिला",
+    "tamil": "கண்டுபிடிக்கப்பட்டது",
+    "malayalam": "കണ്ടെത്തി"
+  },
+  "theft": {
+    "hindi": "चोरी",
+    "tamil": "திருட்டு",
+    "malayalam": "മോഷണം"
+  },
+  "robbery": {
+    "hindi": "डकैती",
+    "tamil": "கொள்ளை",
+    "malayalam": "കവർച്ച"
+  },
+  "earthquake": {
+    "hindi": "भूकंप",
+    "tamil": "நிலநடுக்கம்",
+    "malayalam": "ഭൂകമ്പം"
+  },
+  "flood": {
+    "hindi": "बाढ़",
+    "tamil": "வெள்ளம்",
+    "malayalam": "വെള്ളപ്പൊക്കം"
+  },
+  "community": {
+    "hindi": "समुदाय",
+    "tamil": "சமூகம்",
+    "malayalam": "സമൂഹം"
+  },
+  "city": {
+    "hindi": "शहर",
+    "tamil": "நகரம்",
+    "malayalam": "നഗരം"
+  },
+  "town": {
+    "hindi": "शहर",
+    "tamil": "நகரம்",
+    "malayalam": "പട്ടണം"
+  },
+  "village": {
+    "hindi": "गाँव",
+    "tamil": "கிராமம்",
+    "malayalam": "ഗ്രാമം"
+  },
+  "neighborhood": {
+    "hindi": "अड़ोस-पड़ोस",
+    "tamil": "அக்கம்",
+    "malayalam": "അയൽപ്പക്കം"
+  },
+  "bank": {
+    "hindi": "किनारा",
+    "tamil": "வங்கி",
+    "malayalam": "ബാങ്ക്"
+  },
+  "atm": {
+    "hindi": "एटीएम",
+    "tamil": "atm",
+    "malayalam": "atm"
+  },
+  "library": {
+    "hindi": "पुस्तकालय",
+    "tamil": "நூலகம்",
+    "malayalam": "ലൈബ്രറി"
+  },
+  "college": {
+    "hindi": "कॉलेज",
+    "tamil": "கல்லூரி",
+    "malayalam": "കോളേജ്"
+  },
+  "university": {
+    "hindi": "विश्वविद्यालय",
+    "tamil": "பல்கலைக்கழகம்",
+    "malayalam": "യൂണിവേഴ്സിറ്റി"
+  },
+  "clinic": {
+    "hindi": "क्लिनिक",
+    "tamil": "கிளினிக்",
+    "malayalam": "ക്ലിനിക്ക്"
+  },
+  "park": {
+    "hindi": "पार्क",
+    "tamil": "பூங்கா",
+    "malayalam": "പാർക്ക്"
+  },
+  "playground": {
+    "hindi": "खेल का मैदान",
+    "tamil": "விளையாட்டு மைதானம்",
+    "malayalam": "കളിസ്ഥലം"
+  },
+  "museum": {
+    "hindi": "संग्रहालय",
+    "tamil": "அருங்காட்சியகம்",
+    "malayalam": "മ്യൂസിയം"
+  },
+  "theater": {
+    "hindi": "थिएटर",
+    "tamil": "தியேட்டர்",
+    "malayalam": "തിയേറ്റർ"
+  },
+  "court": {
+    "hindi": "अदालत",
+    "tamil": "நீதிமன்றம்",
+    "malayalam": "കോടതി"
+  },
+  "temple": {
+    "hindi": "मंदिर",
+    "tamil": "கோவில்",
+    "malayalam": "ക്ഷേത്രം"
+  },
+  "church": {
+    "hindi": "गिरजाघर",
+    "tamil": "தேவாலயம்",
+    "malayalam": "പള്ളി"
+  },
+  "mosque": {
+    "hindi": "मस्जिद",
+    "tamil": "மசூதி",
+    "malayalam": "പള്ളി"
+  },
+  "story": {
+    "hindi": "कहानी",
+    "tamil": "கதை",
+    "malayalam": "കഥ"
+  },
+  "conversation": {
+    "hindi": "बातचीत",
+    "tamil": "உரையாடல்",
+    "malayalam": "സംഭാഷണം"
+  },
+  "discuss": {
+    "hindi": "चर्चा करना",
+    "tamil": "விவாதிக்க",
+    "malayalam": "ചർച്ച ചെയ്യുക"
+  },
+  "describe": {
+    "hindi": "वर्णन करना",
+    "tamil": "விவரிக்க",
+    "malayalam": "വിവരിക്കുക"
+  },
+  "think": {
+    "hindi": "सोचना",
+    "tamil": "நினைக்கிறார்கள்",
+    "malayalam": "ചിന്തിക്കുക"
+  },
+  "believe": {
+    "hindi": "विश्वास",
+    "tamil": "நம்பு",
+    "malayalam": "വിശ്വസിക്കുന്നു"
+  },
+  "guess": {
+    "hindi": "अनुमान",
+    "tamil": "யூகிக்கிறேன்",
+    "malayalam": "ഊഹിക്കുക"
+  },
+  "opinion": {
+    "hindi": "राय",
+    "tamil": "கருத்து",
+    "malayalam": "അഭിപ്രായം"
+  },
+  "idea": {
+    "hindi": "विचार",
+    "tamil": "யோசனை",
+    "malayalam": "ആശയം"
+  },
+  "example": {
+    "hindi": "उदाहरण",
+    "tamil": "உதாரணம்",
+    "malayalam": "ഉദാഹരണം"
+  },
+  "event": {
+    "hindi": "आयोजन",
+    "tamil": "நிகழ்வு",
+    "malayalam": "സംഭവം"
+  },
+  "experience": {
+    "hindi": "अनुभव",
+    "tamil": "அனுபவம்",
+    "malayalam": "അനുഭവം"
+  },
+  "beginning": {
+    "hindi": "शुरुआत",
+    "tamil": "ஆரம்பம்",
+    "malayalam": "തുടക്കം"
+  },
+  "middle": {
+    "hindi": "मध्य",
+    "tamil": "நடுத்தர",
+    "malayalam": "മധ്യഭാഗം"
+  },
+  "end": {
+    "hindi": "अंत",
+    "tamil": "முடிவு",
+    "malayalam": "അവസാനിക്കുന്നു"
+  },
+  "happened": {
+    "hindi": "घटित",
+    "tamil": "நடந்தது",
+    "malayalam": "സംഭവിച്ചു"
+  },
+  "more": {
+    "hindi": "अधिक",
+    "tamil": "மேலும்",
+    "malayalam": "കൂടുതൽ"
+  }
+}

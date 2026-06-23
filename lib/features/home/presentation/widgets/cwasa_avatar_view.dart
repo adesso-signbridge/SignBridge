@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:sign_bridge/core/theme/app_colors.dart';
 import 'package:sign_bridge/services/avatar/cwasa_sigml_catalog.dart';
+import 'package:sign_bridge/services/translate/sign_token.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// Shared CWASA runtime so the WebView survives session UI phase changes.
@@ -63,10 +64,12 @@ class CwasaAvatarView extends StatefulWidget {
   const CwasaAvatarView({
     super.key,
     required this.glossPhrase,
+    this.signSequence = const [],
     this.pulse = 0,
   });
 
   final String glossPhrase;
+  final List<SignToken> signSequence;
   final int pulse;
 
   @override
@@ -76,6 +79,7 @@ class CwasaAvatarView extends StatefulWidget {
 class _CwasaAvatarViewState extends State<CwasaAvatarView> {
   late final WebViewController _controller;
   var _lastScheduledPhrase = '';
+  var _lastScheduledSequence = const <SignToken>[];
   Timer? _debounceTimer;
 
   @override
@@ -90,7 +94,8 @@ class _CwasaAvatarViewState extends State<CwasaAvatarView> {
   @override
   void didUpdateWidget(CwasaAvatarView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.glossPhrase != widget.glossPhrase) {
+    if (oldWidget.glossPhrase != widget.glossPhrase ||
+        !_sameSequence(oldWidget.signSequence, widget.signSequence)) {
       _schedulePlayback();
     } else if (oldWidget.pulse != widget.pulse &&
         widget.glossPhrase.trim().isNotEmpty) {
@@ -125,14 +130,44 @@ class _CwasaAvatarViewState extends State<CwasaAvatarView> {
     });
   }
 
+  bool _sameSequence(List<SignToken> a, List<SignToken> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (var index = 0; index < a.length; index++) {
+      final left = a[index];
+      final right = b[index];
+      if (left.id != right.id || left.gloss != right.gloss) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<SignToken> _playableSequence(List<SignToken> sequence) {
+    return sequence
+        .where((token) => token.id != SignToken.thinking.id)
+        .toList(growable: false);
+  }
+
   Future<void> _syncPlayback({required bool forceReplay}) async {
     if (!CwasaAvatarRuntime.ready) {
+      return;
+    }
+
+    final playableSequence = _playableSequence(widget.signSequence);
+    if (playableSequence.isNotEmpty) {
+      await _syncSequencePlayback(
+        playableSequence,
+        forceReplay: forceReplay,
+      );
       return;
     }
 
     final phrase = widget.glossPhrase.trim();
     if (phrase.isEmpty || phrase == '...') {
       _lastScheduledPhrase = '';
+      _lastScheduledSequence = const [];
       return;
     }
 
@@ -158,6 +193,7 @@ class _CwasaAvatarViewState extends State<CwasaAvatarView> {
         return;
       }
       _lastScheduledPhrase = phrase;
+      _lastScheduledSequence = const [];
       await _controller.runJavaScript(
         'window.SignBridge.resetAndPlayBatch(${jsonEncode(document)});',
       );
@@ -180,6 +216,56 @@ class _CwasaAvatarViewState extends State<CwasaAvatarView> {
     _lastScheduledPhrase = phrase;
     await _controller.runJavaScript(
       'window.SignBridge.enqueueBatch(${jsonEncode(deltaDocument)});',
+    );
+  }
+
+  Future<void> _syncSequencePlayback(
+    List<SignToken> sequence, {
+    required bool forceReplay,
+  }) async {
+    final previous = _lastScheduledSequence;
+
+    if (forceReplay ||
+        previous.isEmpty ||
+        sequence.length < previous.length) {
+      final document = CwasaSigmlCatalog.buildDocumentFromSequence(sequence);
+      if (document == null) {
+        return;
+      }
+      _lastScheduledSequence = sequence;
+      _lastScheduledPhrase = '';
+      await _controller.runJavaScript(
+        'window.SignBridge.resetAndPlayBatch(${jsonEncode(document)});',
+      );
+      return;
+    }
+
+    final delta = CwasaSigmlCatalog.sequenceTokenDelta(previous, sequence);
+    if (delta.isEmpty) {
+      return;
+    }
+
+    if (delta.length == sequence.length - previous.length) {
+      final deltaDocument = CwasaSigmlCatalog.buildDocumentFromSequence(delta);
+      if (deltaDocument == null) {
+        _lastScheduledSequence = sequence;
+        return;
+      }
+      _lastScheduledSequence = sequence;
+      await _controller.runJavaScript(
+        'window.SignBridge.enqueueBatch(${jsonEncode(deltaDocument)});',
+      );
+      return;
+    }
+
+    final document = CwasaSigmlCatalog.buildDocumentFromSequence(sequence);
+    if (document == null) {
+      return;
+    }
+    _lastScheduledSequence = sequence;
+    _lastScheduledPhrase = '';
+    await _controller.runJavaScript(
+      'window.SignBridge.resetAndPlayBatch(${jsonEncode(document)});',
     );
   }
 

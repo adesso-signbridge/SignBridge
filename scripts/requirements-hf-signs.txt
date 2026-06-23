@@ -1,0 +1,4 @@
+huggingface_hub>=0.26.0
+webdataset>=0.2.86
+pyarrow>=14.0.0
+yt-dlp>=2024.1.0

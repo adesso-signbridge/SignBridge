@@ -1,3 +1,6 @@
 GEMINI_KEY=your-gemini-api-key-here
+GROQ_KEY=your-groq-api-key-here
+ADESSO_KEY=your-adesso-api-key-here
+ADESSO_API_URL=https://your-adesso-endpoint.example/v1
 # Optional shared key for gloss + sign workers (Cloudflare secret: WORKER_SHARED_KEY)
 WORKER_SHARED_KEY=

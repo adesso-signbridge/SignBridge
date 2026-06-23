@@ -1,0 +1,696 @@
+ASL Master Vocabulary — Sign Bridge Curriculum
+========================================================================
+
+Total entries: 597
+Local ASL video available: 53
+Video still needed: 544
+
+
+## Question Words
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+1     Who                         WHO                     ·     Person
+2     What                        WHAT                    ·     Thing / Information
+3     Where                       WHERE                   ✓     Place
+4     When                        WHEN                    ·     Time
+5     Why                         WHY                     ✓     Reason
+6     Which                       WHICH                   ✓     Choice
+7     Whose                       WHOSE                   ·     Ownership
+8     How                         HOW                     ·     Method / Manner
+9     How Many                    HOW-MANY                ·     Countable quantity
+10    How Much                    HOW-MUCH                ·     Amount / Price
+11    How Long                    HOW-LONG                ·     Duration / Length
+12    How Often                   HOW-OFTEN               ·     Frequency
+13    How Far                     HOW-FAR                 ·     Distance
+14    How Old                     HOW-OLD                 ·     Age
+15    What Time                   WHAT-TIME               ·     Specific time
+16    What Kind                   WHAT-KIND               ·     Type
+17    For What                    FOR-WHAT                ·     Purpose
+18    Since When                  SINCE-WHEN              ·     Starting time
+19    Until When                  UNTIL-WHEN              ·     Ending time
+20    How Come                    HOW-COME                ·     Reason
+
+## Greetings & Politeness
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+21    Hello                       HELLO                   ✓     General greeting
+22    Hi                          HI                      ✓     Casual greeting
+23    Hey                         HEY                     ✓     Casual greeting
+24    Good Morning                GOOD-MORNING            ·     Morning greeting
+25    Good Afternoon              GOOD-AFTERNOON          ·     Afternoon greeting
+26    Good Evening                GOOD-EVENING            ·     Evening greeting
+27    Welcome                     WELCOME                 ·     Greeting someone arriving
+28    How Are You?                HOW-YOU                 ·     Ask about well-being
+29    Nice To Meet You            NICE-MEET-YOU           ·     First introduction
+30    Good To See You             GOOD-SEE-YOU            ·     Friendly greeting
+31    Goodbye                     GOODBYE                 ·     Leaving
+32    Bye                         BYE                     ·     Casual farewell
+33    See You Later               SEE-YOU-LATER           ·     Casual farewell
+34    See You Tomorrow            SEE-YOU-TOMORROW        ·     Farewell
+35    Have A Nice Day             HAVE-NICE-DAY           ·     Polite farewell
+36    Have A Good Weekend         HAVE-GOOD-WEEKEND       ·     Weekend farewell
+37    Please                      PLEASE                  ✓     Polite request
+38    Thank You                   THANK-YOU               ✓     Gratitude
+39    Thanks A Lot                THANK-YOU               ·     Strong gratitude
+40    You're Welcome              WELCOME                 ·     Response to thanks
+41    Excuse Me                   EXCUSE-ME               ✓     Attention / apology
+42    Sorry                       SORRY                   ✓     Apology
+43    Pardon Me                   EXCUSE-ME               ·     Polite apology
+44    No Problem                  NO-PROBLEM              ·     Reassurance
+45    Good Luck                   GOOD-LUCK               ·     Well wishes
+46    Congratulations             CONGRATULATIONS         ·     Celebration
+47    Take Care                   TAKE-CARE               ·     Friendly farewell
+48    Safe Trip                   SAFE-TRIP               ·     Travel farewell
+49    Bless You                   BLESS-YOU               ·     After sneeze
+50    Happy Birthday              HAPPY-BIRTHDAY          ·     Birthday wish
+
+## People & Pronouns
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+51    I                           ME                      ✓     First person
+52    You                         YOU                     ✓     Second person
+53    He                          HE                      ·     Male third person
+54    She                         SHE                     ·     Female third person
+55    It                          IT                      ·     Object / animal
+56    We                          WE                      ✓     First person plural
+57    They                        THEY                    ·     Third person plural
+58    My                          MY                      ✓     Possessive
+59    Your                        YOUR                    ✓     Possessive
+60    His                         HIS                     ·     Possessive
+61    Her                         HER                     ·     Possessive
+62    Our                         OUR                     ·     Possessive
+63    Their                       THEIR                   ·     Possessive
+64    Person                      PERSON                  ·     Individual
+65    Adult                       ADULT                   ·     Grown person
+66    Child                       CHILD                   ·     Young person
+67    Teenager                    TEENAGER                ·     Adolescent
+68    Baby                        BABY                    ·     Infant
+69    Friend                      FRIEND                  ·     Companion
+70    Best Friend                 BEST-FRIEND             ·     Close friend
+71    Neighbor                    NEIGHBOR                ·     Nearby resident
+72    Coworker                    COWORKER                ·     Work colleague
+73    Teacher                     TEACHER                 ·     Educator
+74    Student                     STUDENT                 ·     Learner
+75    Doctor                      DOCTOR                  ·     Medical professional
+76    Nurse                       NURSE                   ·     Medical caregiver
+77    Engineer                    ENGINEER                ·     Technical professional
+78    Programmer                  PROGRAMMER              ·     Software developer
+79    Manager                     MANAGER                 ·     Supervisor
+80    Boss                        BOSS                    ·     Employer lead
+81    Employee                    EMPLOYEE                ·     Worker
+
+## Family
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+82    Family                      FAMILY                  ·     Relatives
+83    Father                      FATHER                  ·     Male parent
+84    Mother                      MOTHER                  ·     Female parent
+85    Parents                     PARENTS                 ·     Mother and father
+86    Son                         SON                     ·     Male child
+87    Daughter                    DAUGHTER                ·     Female child
+88    Brother                     BROTHER                 ·     Male sibling
+89    Sister                      SISTER                  ·     Female sibling
+90    Husband                     HUSBAND                 ·     Male spouse
+91    Wife                        WIFE                    ·     Female spouse
+92    Grandfather                 GRANDFATHER             ·     Father's/mother's father
+93    Grandmother                 GRANDMOTHER             ·     Father's/mother's mother
+94    Uncle                       UNCLE                   ·     Parent's brother
+95    Aunt                        AUNT                    ·     Parent's sister
+96    Cousin                      COUSIN                  ·     Extended family
+97    Nephew                      NEPHEW                  ·     Sibling's son
+98    Niece                       NIECE                   ·     Sibling's daughter
+99    Grandchild                  GRANDCHILD              ·     Child's child
+100   Relative                    RELATIVE                ·     Family member
+101   In-Law                      IN-LAW                  ·     Marriage relation
+
+## Time
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+102   Time                        TIME                    ✓     Clock / duration
+103   Now                         NOW                     ✓     Present moment
+104   Today                       TODAY                   ✓     This day
+105   Yesterday                   YESTERDAY               ✓     Previous day
+106   Tomorrow                    TOMORROW                ✓     Next day
+107   Morning                     MORNING                 ✓     AM period
+108   Afternoon                   AFTERNOON               ·     Midday period
+109   Evening                     EVENING                 ·     PM period
+110   Night                       NIGHT                   ·     Nighttime
+111   Midnight                    MIDNIGHT                ·     12 AM
+112   Noon                        NOON                    ·     12 PM
+113   Minute                      MINUTE                  ·     60 seconds
+114   Hour                        HOUR                    ·     60 minutes
+115   Day                         DAY                     ·     24 hours
+116   Week                        WEEK                    ·     7 days
+117   Month                       MONTH                   ·     Calendar month
+118   Year                        YEAR                    ·     12 months
+119   Decade                      DECADE                  ·     10 years
+120   Century                     CENTURY                 ·     100 years
+121   Early                       EARLY                   ·     Before expected
+122   Late                        LATE                    ✓     After expected
+123   Soon                        SOON                    ·     Near future
+124   Later                       LATER                   ·     After now
+125   Before                      BEFORE                  ·     Earlier than
+126   After                       AFTER                   ·     Later than
+127   Past                        PAST                    ·     Earlier time
+128   Future                      FUTURE                  ·     Later time
+129   Present                     PRESENT                 ·     Current time
+130   Always                      ALWAYS                  ·     Every time
+131   Never                       NEVER                   ·     Not ever
+
+## Feelings
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+132   Happy                       HAPPY                   ·     Positive emotion
+133   Sad                         SAD                     ·     Sorrow
+134   Angry                       ANGRY                   ·     Anger
+135   Excited                     EXCITED                 ·     Enthusiasm
+136   Tired                       TIRED                   ·     Fatigue
+137   Hungry                      HUNGRY                  ·     Need food
+138   Thirsty                     THIRSTY                 ·     Need drink
+139   Good                        GOOD                    ✓     Positive state
+140   Bad                         BAD                     ✓     Negative state
+141   Fine                        FINE                    ✓     Okay
+142   Okay                        OKAY                    ✓     Acceptable
+
+## Common Verbs
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+143   Go                          GO                      ·     Move away
+144   Come                        COME                    ·     Move toward
+145   Walk                        WALK                    ·     Move on foot
+146   Run                         RUN                     ·     Move fast
+147   Sit                         SIT                     ·     Take a seat
+148   Stand                       STAND                   ·     Be upright
+149   Eat                         EAT                     ·     Consume food
+150   Drink                       DRINK                   ·     Consume liquid
+151   Sleep                       SLEEP                   ✓     Rest
+152   Wake Up                     WAKE-UP                 ·     Stop sleeping
+153   Study                       STUDY                   ·     Learn academically
+154   Learn                       LEARN                   ·     Acquire knowledge
+155   Teach                       TEACH                   ·     Instruct
+156   Read                        READ                    ·     Read text
+157   Write                       WRITE                   ·     Write text
+158   Talk                        TALK                    ·     Speak
+159   Listen                      LISTEN                  ·     Hear attentively
+160   Watch                       WATCH                   ·     Observe
+161   See                         SEE                     ·     Perceive visually
+162   Look                        LOOK                    ·     Direct gaze
+163   Ask                         ASK                     ·     Request information
+164   Answer                      ANSWER                  ·     Respond
+165   Tell                        TELL                    ·     Inform
+166   Explain                     EXPLAIN                 ·     Clarify
+167   Help                        HELP                    ✓     Assist
+168   Call                        CALL                    ✓     Phone / summon
+169   Understand                  UNDERSTAND              ✓     Comprehend
+170   Know                        KNOW                    ✓     Have knowledge
+171   Remember                    REMEMBER                ·     Recall
+172   Forget                      FORGET                  ·     Fail to recall
+173   Buy                         BUY                     ✓     Purchase
+174   Sell                        SELL                    ·     Offer for sale
+175   Pay                         PAY                     ✓     Give money
+176   Open                        OPEN                    ·     Make open
+177   Close                       CLOSE                   ·     Shut
+178   Start                       START                   ·     Begin
+179   Finish                      FINISH                  ✓     Complete
+180   Wait                        WAIT                    ✓     Stay until
+181   Drive                       DRIVE                   ·     Operate vehicle
+182   Ride                        RIDE                    ·     Travel on
+183   Cook                        COOK                    ·     Prepare food
+184   Clean                       CLEAN                   ✓     Make clean
+185   Wash                        WASH                    ·     Clean with water
+186   Use                         USE                     ·     Utilize
+187   Need                        NEED                    ✓     Require
+188   Want                        WANT                    ·     Desire
+189   Like                        LIKE                    ·     Enjoy
+190   Love                        LOVE                    ·     Strong affection
+191   Hate                        HATE                    ·     Strong dislike
+192   Choose                      CHOOSE                  ·     Select
+193   Decide                      DECIDE                  ·     Make decision
+194   Build                       BUILD                   ·     Construct
+195   Create                      CREATE                  ·     Make new
+196   Fix                         FIX                     ·     Repair
+197   Move                        MOVE                    ·     Change position
+198   Carry                       CARRY                   ·     Transport
+199   Send                        SEND                    ·     Dispatch
+200   Receive                     RECEIVE                 ·     Get
+201   Search                      SEARCH                  ·     Look for
+202   Find                        FIND                    ·     Discover
+203   Lose                        LOSE                    ·     Misplace
+
+## Descriptions - Size
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+204   Big                         BIG                     ·     Large size
+205   Small                       SMALL                   ·     Little size
+206   Large                       LARGE                   ·     Big
+207   Tiny                        TINY                    ·     Very small
+208   Huge                        HUGE                    ·     Very big
+209   Giant                       GIANT                   ·     Extremely big
+210   Long                        LONG                    ·     Extended length
+211   Short                       SHORT                   ·     Brief length
+212   Tall                        TALL                    ·     High height
+213   Wide                        WIDE                    ·     Broad
+214   Narrow                      NARROW                  ·     Not wide
+215   Thick                       THICK                   ·     Dense
+216   Thin                        THIN                    ·     Slim
+217   Deep                        DEEP                    ·     Far down
+218   Shallow                     SHALLOW                 ·     Not deep
+219   Heavy                       HEAVY                   ✓     High weight
+220   Light                       LIGHT                   ·     Low weight
+
+## Descriptions - Quality
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+221   Excellent                   EXCELLENT               ·     Very good
+222   Perfect                     PERFECT                 ·     Flawless
+223   Amazing                     AMAZING                 ·     Surprising good
+224   Wonderful                   WONDERFUL               ·     Delightful
+225   Nice                        NICE                    ·     Pleasant
+226   Terrible                    TERRIBLE                ·     Very bad
+227   Easy                        EASY                    ·     Not difficult
+228   Difficult                   DIFFICULT               ·     Hard
+229   Simple                      SIMPLE                  ·     Basic
+230   Complex                     COMPLEX                 ·     Complicated
+231   Fast                        FAST                    ·     Quick
+232   Slow                        SLOW                    ·     Not fast
+233   Beautiful                   BEAUTIFUL               ·     Attractive
+234   Ugly                        UGLY                    ·     Unattractive
+235   Dirty                       DIRTY                   ·     Not clean
+236   Young                       YOUNG                   ·     Low age
+237   Old                         OLD                     ·     High age
+238   Strong                      STRONG                  ·     Powerful
+239   Weak                        WEAK                    ·     Not strong
+240   Broken                      BROKEN                  ·     Not working
+241   Lost                        LOST                    ✓     Missing
+
+## Colors
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+242   Red                         RED                     ·     Color
+243   Blue                        BLUE                    ·     Color
+244   Green                       GREEN                   ·     Color
+245   Yellow                      YELLOW                  ·     Color
+246   Black                       BLACK                   ·     Color
+247   White                       WHITE                   ·     Color
+248   Brown                       BROWN                   ·     Color
+249   Orange                      ORANGE                  ·     Color
+250   Pink                        PINK                    ·     Color
+251   Purple                      PURPLE                  ·     Color
+252   Gray                        GRAY                    ·     Color
+253   Silver                      SILVER                  ·     Color
+254   Gold                        GOLD                    ·     Color
+255   Beige                       BEIGE                   ·     Color
+256   Maroon                      MAROON                  ·     Color
+
+## Home
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+257   Home                        HOME                    ✓     Residence
+258   House                       HOUSE                   ·     Building
+259   Room                        ROOM                    ·     Interior space
+260   Kitchen                     KITCHEN                 ·     Cooking area
+261   Bedroom                     BEDROOM                 ·     Sleeping room
+262   Bathroom                    BATHROOM                ·     Washroom
+263   Bed                         BED                     ·     Sleep furniture
+264   Door                        DOOR                    ·     Entry
+265   Key                         KEY                     ·     Lock opener
+266   Table                       TABLE                   ·     Furniture
+267   Chair                       CHAIR                   ·     Seat
+
+## Food & Drinks
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+268   Water                       WATER                   ✓     Drink
+269   Coffee                      COFFEE                  ✓     Hot drink
+270   Tea                         TEA                     ✓     Hot drink
+271   Milk                        MILK                    ·     Dairy drink
+272   Juice                       JUICE                   ·     Fruit drink
+273   Soda                        SODA                    ·     Soft drink
+274   Rice                        RICE                    ·     Grain food
+275   Bread                       BREAD                   ·     Baked food
+276   Chapati                     CHAPATI                 ·     Flatbread
+277   Idli                        IDLI                    ·     South Indian food
+278   Dosa                        DOSA                    ·     South Indian food
+279   Pizza                       PIZZA                   ·     Italian food
+280   Burger                      BURGER                  ·     Fast food
+281   Sandwich                    SANDWICH                ·     Filled bread
+282   Chicken                     CHICKEN                 ·     Poultry
+283   Fish                        FISH                    ·     Seafood
+284   Egg                         EGG                     ·     Protein
+285   Fruit                       FRUIT                   ·     Produce
+286   Apple                       APPLE                   ·     Fruit
+287   Banana                      BANANA                  ·     Fruit
+288   Mango                       MANGO                   ·     Fruit
+289   Grapes                      GRAPES                  ·     Fruit
+290   Vegetable                   VEGETABLE               ·     Produce
+291   Potato                      POTATO                  ·     Vegetable
+292   Onion                       ONION                   ·     Vegetable
+293   Tomato                      TOMATO                  ·     Vegetable
+294   Breakfast                   BREAKFAST               ·     Morning meal
+295   Lunch                       LUNCH                   ·     Midday meal
+296   Dinner                      DINNER                  ·     Evening meal
+297   Snack                       SNACK                   ·     Light food
+298   Restaurant                  RESTAURANT              ·     Eatery
+299   Menu                        MENU                    ·     Food list
+300   Order                       ORDER                   ·     Request food
+301   Bill                        BILL                    ·     Check / invoice
+302   Salt                        SALT                    ·     Seasoning
+303   Sugar                       SUGAR                   ·     Sweetener
+304   Pepper                      PEPPER                  ·     Spice
+305   Spice                       SPICE                   ·     Flavoring
+306   Soup                        SOUP                    ·     Liquid dish
+307   Salad                       SALAD                   ·     Mixed greens
+308   Dessert                     DESSERT                 ·     Sweet course
+309   Ice Cream                   ICE-CREAM               ·     Frozen dessert
+310   Cake                        CAKE                    ·     Baked dessert
+311   Cookie                      COOKIE                  ·     Small baked sweet
+312   Chocolate                   CHOCOLATE               ·     Cocoa sweet
+313   Vegetarian                  VEGETARIAN              ·     No meat diet
+314   Vegan                       VEGAN                   ·     Plant-only diet
+315   Delicious                   DELICIOUS               ·     Tasty
+316   Sweet                       SWEET                   ·     Sugar taste
+317   Sour                        SOUR                    ·     Acid taste
+318   Bitter                      BITTER                  ·     Sharp taste
+319   Spicy                       SPICY                   ·     Hot taste
+320   Fresh                       FRESH                   ·     Not stale
+321   Frozen                      FROZEN                  ·     Very cold
+322   Food                        FOOD                    ·     Nourishment
+
+## Travel & Transport
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+323   Travel                      TRAVEL                  ✓     Journey
+324   Airport                     AIRPORT                 ·     Flight hub
+325   Flight                      FLIGHT                  ·     Air travel
+326   Plane                       PLANE                   ·     Aircraft
+327   Train                       TRAIN                   ✓     Rail transport
+328   Bus                         BUS                     ·     Road transport
+329   Taxi                        TAXI                    ·     Hired car
+330   Car                         CAR                     ·     Automobile
+331   Map                         MAP                     ·     Navigation chart
+332   Hotel                       HOTEL                   ✓     Lodging
+333   Passport                    PASSPORT                ✓     Travel ID
+334   Ticket                      TICKET                  ·     Travel pass
+335   Luggage                     LUGGAGE                 ·     Bags
+336   Station                     STATION                 ·     Transit stop
+337   Road                        ROAD                    ·     Street route
+338   Traffic                     TRAFFIC                 ·     Vehicle flow
+
+## Health & Medical
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+339   Hospital                    HOSPITAL                ·     Medical facility
+340   Medicine                    MEDICINE                ✓     Medication
+341   Pharmacy                    PHARMACY                ·     Drug store
+342   Fever                       FEVER                   ·     High temperature
+343   Headache                    HEADACHE                ·     Head pain
+344   Allergy                     ALLERGY                 ·     Immune reaction
+345   Emergency                   EMERGENCY               ·     Urgent crisis
+346   Ambulance                   AMBULANCE               ·     Emergency vehicle
+347   Appointment                 APPOINTMENT             ·     Scheduled visit
+348   Pain                        PAIN                    ✓     Physical hurt
+
+## School & Work
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+349   School                      SCHOOL                  ·     Education place
+350   Classroom                   CLASSROOM               ·     Learning room
+351   Homework                    HOMEWORK                ·     Home assignment
+352   Exam                        EXAM                    ·     Test
+353   Office                      OFFICE                  ·     Workplace
+354   Meeting                     MEETING                 ·     Work gathering
+355   Project                     PROJECT                 ·     Work task
+356   Work                        WORK                    ✓     Labor / job
+357   Job                         JOB                     ·     Employment
+
+## Shopping & Money
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+358   Shop                        SHOP                    ·     Retail store
+359   Store                       STORE                   ·     Retail place
+360   Market                      MARKET                  ·     Marketplace
+361   Mall                        MALL                    ·     Shopping center
+362   Money                       MONEY                   ·     Currency
+363   Cash                        CASH                    ·     Paper money
+364   Coin                        COIN                    ·     Metal money
+365   Price                       PRICE                   ·     Cost tag
+366   Cost                        COST                    ·     Amount charged
+367   Cheap                       CHEAP                   ·     Low price
+368   Expensive                   EXPENSIVE               ·     High price
+369   Discount                    DISCOUNT                ·     Price reduction
+370   Sale                        SALE                    ·     Reduced prices
+371   Customer                    CUSTOMER                ·     Buyer
+372   Receipt                     RECEIPT                 ·     Purchase proof
+373   Wallet                      WALLET                  ·     Money holder
+374   Credit Card                 CREDIT-CARD             ·     Card payment
+375   Debit Card                  DEBIT-CARD              ·     Bank card
+376   Change                      CHANGE                  ·     Returned money
+377   Payment                     PAYMENT                 ·     Money transfer
+378   Product                     PRODUCT                 ·     Item sold
+379   Item                        ITEM                    ·     Object
+380   Brand                       BRAND                   ·     Maker label
+381   Size                        SIZE                    ·     Dimensions
+382   Try On                      TRY-ON                  ·     Test clothing
+383   Return                      RETURN                  ·     Give back purchase
+384   Exchange                    EXCHANGE                ·     Swap purchase
+385   Grocery                     GROCERY                 ·     Food shopping
+386   Basket                      BASKET                  ·     Carrying container
+387   Cart                        CART                    ·     Shopping trolley
+388   Checkout                    CHECKOUT                ·     Pay counter
+389   Tax                         TAX                     ·     Government fee
+
+## Directions & Locations
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+390   Left                        LEFT                    ·     Direction
+391   Right                       RIGHT                   ·     Direction
+392   Straight                    STRAIGHT                ·     Forward
+393   Turn                        TURN                    ·     Change direction
+394   Here                        HERE                    ·     This place
+395   There                       THERE                   ·     That place
+396   Near                        NEAR                    ·     Close
+397   Far                         FAR                     ·     Distant
+398   Across                      ACROSS                  ·     Opposite side
+399   Behind                      BEHIND                  ·     Back of
+400   Front                       FRONT                   ·     Forward side
+401   Corner                      CORNER                  ·     Intersection angle
+402   Intersection                INTERSECTION            ·     Road cross
+403   Street                      STREET                  ·     Urban road
+404   Highway                     HIGHWAY                 ·     Major road
+405   Bridge                      BRIDGE                  ·     Road over water
+406   Address                     ADDRESS                 ·     Location text
+407   Location                    LOCATION                ·     Place
+408   North                       NORTH                   ·     Compass direction
+409   South                       SOUTH                   ·     Compass direction
+410   East                        EAST                    ·     Compass direction
+411   West                        WEST                    ·     Compass direction
+412   Upstairs                    UPSTAIRS                ·     Upper floor
+413   Downstairs                  DOWNSTAIRS              ·     Lower floor
+414   Entrance                    ENTRANCE                ·     Way in
+415   Exit                        EXIT                    ·     Way out
+416   Parking                     PARKING                 ·     Vehicle area
+417   Building                    BUILDING                ·     Structure
+418   Floor                       FLOOR                   ·     Level
+419   Elevator                    ELEVATOR                ·     Lift
+420   Stairs                      STAIRS                  ·     Steps
+421   Traffic Light               TRAFFIC-LIGHT           ·     Signal
+422   Crosswalk                   CROSSWALK               ·     Pedestrian crossing
+
+## Technology & Communication
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+423   Phone                       PHONE                   ·     Mobile device
+424   Smartphone                  SMARTPHONE              ·     Mobile phone
+425   Computer                    COMPUTER                ·     PC
+426   Laptop                      LAPTOP                  ·     Portable computer
+427   Tablet                      TABLET                  ·     Touch device
+428   Internet                    INTERNET                ·     Online network
+429   Wi-Fi                       WI-FI                   ·     Wireless internet
+430   Website                     WEBSITE                 ·     Web page
+431   Browser                     BROWSER                 ·     Web viewer
+432   Email                       EMAIL                   ·     Electronic mail
+433   Message                     MESSAGE                 ·     Text communication
+434   Chat                        CHAT                    ·     Conversation online
+435   Video Call                  VIDEO-CALL              ·     Live video chat
+436   Camera                      CAMERA                  ·     Image capture
+437   Password                    PASSWORD                ·     Login secret
+438   Login                       LOGIN                   ·     Sign in
+439   Logout                      LOGOUT                  ·     Sign out
+440   Download                    DOWNLOAD                ·     Get file
+441   Upload                      UPLOAD                  ·     Send file
+442   App                         APP                     ·     Application
+443   Software                    SOFTWARE                ·     Programs
+444   Hardware                    HARDWARE                ·     Physical tech
+445   AI                          AI                      ·     Artificial intelligence
+446   Robot                       ROBOT                   ·     Automaton
+447   Cloud                       CLOUD                   ·     Online storage
+448   Server                      SERVER                  ·     Network host
+449   Database                    DATABASE                ·     Data store
+450   Code                        CODE                    ·     Programming text
+451   Program                     PROGRAM                 ·     Software
+452   Network                     NETWORK                 ·     Connected system
+453   Keyboard                    KEYBOARD                ·     Typing input
+454   Mouse                       MOUSE                   ·     Pointer device
+455   Monitor                     MONITOR                 ·     Display screen
+456   Screen                      SCREEN                  ·     Display
+457   Printer                     PRINTER                 ·     Print device
+458   Scanner                     SCANNER                 ·     Scan device
+459   Microphone                  MICROPHONE              ·     Audio input
+460   Speaker                     SPEAKER                 ·     Audio output
+461   Headphones                  HEADPHONES              ·     Ear audio
+462   Charger                     CHARGER                 ·     Power adapter
+463   Battery                     BATTERY                 ·     Power cell
+464   Cable                       CABLE                   ·     Wire connector
+465   USB                         USB                     ·     USB port
+466   Folder                      FOLDER                  ·     File container
+467   File                        FILE                    ·     Document
+468   Document                    DOCUMENT                ·     Text file
+469   Spreadsheet                 SPREADSHEET             ·     Table file
+470   Presentation                PRESENTATION            ·     Slides file
+471   Social Media                SOCIAL-MEDIA            ·     Online platforms
+472   Profile                     PROFILE                 ·     User page
+473   Account                     ACCOUNT                 ·     User record
+474   Username                    USERNAME                ·     Login name
+475   Notification                NOTIFICATION            ·     Alert
+476   Update                      UPDATE                  ·     New version
+477   Security                    SECURITY                ·     Protection
+478   Backup                      BACKUP                  ·     Copy data
+
+## Weather
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+479   Weather                     WEATHER                 ·     Climate conditions
+480   Sunny                       SUNNY                   ·     Clear sky
+481   Cloudy                      CLOUDY                  ·     Overcast
+482   Rain                        RAIN                    ·     Precipitation
+483   Drizzle                     DRIZZLE                 ·     Light rain
+484   Storm                       STORM                   ·     Severe weather
+485   Thunder                     THUNDER                 ·     Loud sky sound
+486   Lightning                   LIGHTNING               ·     Sky electricity
+487   Wind                        WIND                    ·     Moving air
+488   Windy                       WINDY                   ·     Strong wind
+489   Hot                         HOT                     ✓     High temperature
+490   Warm                        WARM                    ·     Mild heat
+491   Cool                        COOL                    ·     Mild cold
+492   Cold                        COLD                    ✓     Low temperature
+493   Snow                        SNOW                    ·     Frozen precipitation
+494   Fog                         FOG                     ·     Low visibility
+495   Humid                       HUMID                   ·     Moist air
+496   Dry                         DRY                     ·     Low moisture
+497   Summer                      SUMMER                  ·     Hot season
+498   Winter                      WINTER                  ·     Cold season
+499   Spring                      SPRING                  ·     Growth season
+500   Autumn                      AUTUMN                  ·     Fall season
+
+## Hobbies & Entertainment
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+501   Hobby                       HOBBY                   ·     Pastime
+502   Sport                       SPORT                   ·     Athletics
+503   Football                    FOOTBALL                ·     Soccer
+504   Cricket                     CRICKET                 ·     Bat-and-ball sport
+505   Basketball                  BASKETBALL              ·     Court sport
+506   Tennis                      TENNIS                  ·     Racket sport
+507   Volleyball                  VOLLEYBALL              ·     Net sport
+508   Swimming                    SWIMMING                ·     Water sport
+509   Running                     RUNNING                 ·     Fast jogging
+510   Walking                     WALKING                 ·     Strolling
+511   Gym                         GYM                     ·     Fitness center
+512   Exercise                    EXERCISE                ·     Physical activity
+513   Music                       MUSIC                   ·     Sound art
+514   Song                        SONG                    ·     Musical piece
+515   Singer                      SINGER                  ·     Vocal performer
+516   Guitar                      GUITAR                  ·     String instrument
+517   Piano                       PIANO                   ·     Keyboard instrument
+518   Dance                       DANCE                   ·     Movement art
+519   Movie                       MOVIE                   ·     Film
+520   Film                        FILM                    ·     Cinema
+521   TV                          TV                      ·     Television
+522   Series                      SERIES                  ·     Show episodes
+523   Book                        BOOK                    ·     Reading material
+524   Magazine                    MAGAZINE                ·     Periodical
+525   Reading                     READING                 ·     Read activity
+526   Writing                     WRITING                 ·     Write activity
+527   Drawing                     DRAWING                 ·     Sketch art
+528   Painting                    PAINTING                ·     Color art
+529   Photography                 PHOTOGRAPHY             ·     Photo art
+530   Camping                     CAMPING                 ·     Outdoor stay
+531   Fishing                     FISHING                 ·     Catch fish
+532   Gardening                   GARDENING               ·     Plant care
+533   Collecting                  COLLECTING              ·     Gather items
+534   Game                        GAME                    ·     Play activity
+
+## Emergencies & Safety
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+535   Danger                      DANGER                  ·     Risk
+536   Safe                        SAFE                    ·     Not dangerous
+537   Unsafe                      UNSAFE                  ·     Dangerous
+538   Accident                    ACCIDENT                ·     Mishap
+539   Injury                      INJURY                  ·     Harm
+540   Fire                        FIRE                    ·     Flame disaster
+541   Smoke                       SMOKE                   ·     Fire vapor
+542   Police                      POLICE                  ·     Law enforcement
+543   Rescue                      RESCUE                  ·     Save from danger
+544   Emergency Number            EMERGENCY-NUMBER        ·     Crisis phone
+545   First Aid                   FIRST-AID               ·     Initial medical care
+546   Warning                     WARNING                 ·     Alert
+547   Alarm                       ALARM                   ·     Alert sound
+548   Escape                      ESCAPE                  ·     Get away
+549   Protect                     PROTECT                 ·     Keep safe
+550   Found                       FOUND                   ·     Located
+551   Theft                       THEFT                   ·     Stealing
+552   Robbery                     ROBBERY                 ·     Violent theft
+553   Emergency Exit              EMERGENCY-EXIT          ·     Escape route
+554   Earthquake                  EARTHQUAKE              ·     Ground shake
+555   Flood                       FLOOD                   ·     Water disaster
+
+## Community & Public Places
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+556   Community                   COMMUNITY               ·     Local group
+557   City                        CITY                    ·     Urban area
+558   Town                        TOWN                    ·     Small urban area
+559   Village                     VILLAGE                 ·     Rural settlement
+560   Neighborhood                NEIGHBORHOOD            ·     Local area
+561   Bank                        BANK                    ·     Financial institution
+562   ATM                         ATM                     ·     Cash machine
+563   Post Office                 POST-OFFICE             ·     Mail service
+564   Library                     LIBRARY                 ·     Book lending
+565   College                     COLLEGE                 ·     Higher education
+566   University                  UNIVERSITY              ·     Higher education
+567   Clinic                      CLINIC                  ·     Small medical office
+568   Park                        PARK                    ·     Public green space
+569   Playground                  PLAYGROUND              ·     Children play area
+570   Museum                      MUSEUM                  ·     Exhibit building
+571   Theater                     THEATER                 ·     Performance venue
+572   Bus Station                 BUS-STATION             ·     Bus hub
+573   Train Station               TRAIN-STATION           ·     Rail hub
+574   Government Office           GOVERNMENT-OFFICE       ·     Public admin
+575   Court                       COURT                   ·     Legal building
+576   Police Station              POLICE-STATION          ·     Police HQ
+577   Temple                      TEMPLE                  ·     Hindu place
+578   Church                      CHURCH                  ·     Christian place
+579   Mosque                      MOSQUE                  ·     Muslim place
+580   Shopping Mall               SHOPPING-MALL           ·     Large retail center
+
+## Daily Conversations & Storytelling
+S.No  English                     ASL Gloss               Video Meaning
+------------------------------------------------------------------------
+581   Story                       STORY                   ·     Narrative
+582   Conversation                CONVERSATION            ·     Dialogue
+583   Discuss                     DISCUSS                 ·     Talk about
+584   Describe                    DESCRIBE                ·     Detail
+585   Think                       THINK                   ·     Consider
+586   Believe                     BELIEVE                 ·     Accept as true
+587   Guess                       GUESS                   ·     Estimate
+588   Opinion                     OPINION                 ·     Viewpoint
+589   Idea                        IDEA                    ·     Thought
+590   Example                     EXAMPLE                 ·     Sample case
+591   Event                       EVENT                   ·     Occurrence
+592   Experience                  EXPERIENCE              ·     Lived event
+593   Beginning                   BEGINNING               ·     Start point
+594   Middle                      MIDDLE                  ·     Center
+595   End                         END                     ·     Finish point
+596   Happened                    HAPPENED                ·     Occurred
+597   More                        MORE                    ✓     Additional

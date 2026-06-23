@@ -1,0 +1,697 @@
+ISL Master Vocabulary — Sign Bridge Curriculum
+Languages: English · Hindi · Tamil · Malayalam
+====================================================================================================
+
+Total entries: 597
+Local ISL video available: 51
+Video still needed: 546
+
+
+## Question Words
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+1   Who                   कौन               யார்              ആർ                WHO           -
+2   What                  क्या              என்ன              എന്ത്             WHAT          Y
+3   Where                 कहाँ              எங்கே             എവിടെ             WHERE         Y
+4   When                  कब                எப்போது           എപ്പോൾ           WHEN          -
+5   Why                   क्यों             ஏன்               എന്തുകൊണ്ട്       WHY           Y
+6   Which                 कौन               எது               ഏത്               WHICH         Y
+7   Whose                 किसका             யாருடைய           ആരുടെ             WHOSE         -
+8   How                   कैसे              எப்படி            എങ്ങനെ            HOW           Y
+9   How Many              कितने             எத்தனை            എത്ര              HOW-MANY      -
+10  How Much              कितना             எவ்வளவு           എത്ര              HOW-MUCH      -
+11  How Long              कितनी देर         எவ்வளவு நேரம்     എത്ര നേരം         HOW-LONG      -
+12  How Often             कितनी बार         எவ்வளவு அடிக்கடி  എത്ര തവണ          HOW-OFTEN     -
+13  How Far               कितनी दूर         எவ்வளவு தூரம்     എത്ര ദൂരം         HOW-FAR       -
+14  How Old               कितने साल का      எத்தனை வயது       എത്ര വയസ്സ്       HOW-OLD       -
+15  What Time             कितने बजे         எத்தனை மணி        എത്ര മണി          WHAT-TIME     -
+16  What Kind             किस तरह का        எந்த வகை          എന്ത് തരം         WHAT-KIND     -
+17  For What              किस लिए           எதற்காக           എന്തിന്           FOR-WHAT      -
+18  Since When            कब से             எப்போதிருந்து     എപ്പോൾ മുതൽ       SINCE-WHEN    -
+19  Until When            कब तक             எப்போது வரை       എപ്പോൾ വരെ        UNTIL-WHEN    -
+20  How Come              कैसे              எப்படி            എങ്ങനെ            HOW-COME      -
+
+## Greetings & Politeness
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+21  Hello                 नमस्ते            வணக்கம்           ഹലോ              HELLO         Y
+22  Hi                    नमस्ते            வணக்கம்           ഹായ്              HI            Y
+23  Hey                   अरे               ஏய்               ഹേയ്              HEY           -
+24  Good Morning          सुप्रभात          காலை வணக்கம்      സുപ്രഭാതം         GOOD-MORNING  -
+25  Good Afternoon        नमस्कार           மதிய வணக்கம்      ഗുഡ് ആഫ്റ്റർനൂൺ   GOOD-AFTERNOON-
+26  Good Evening          शुभ संध्या        மாலை வணக்கம்      ഗുഡ് ഈവനിംഗ്      GOOD-EVENING  -
+27  Welcome               स्वागत            வரவேற்கிறேன்      സ്വാഗതം           WELCOME       -
+28  How Are You?          आप कैसे हैं?      நீங்கள் எப்படி இருக்கிறீர்கள்?സുഖമാണോ?          HOW-YOU       -
+29  Nice To Meet You      आपसे मिलकर खुशी हुईஉங்களை சந்தித்ததில் மகிழ்ச்சிകണ്ടതിൽ സന്തോഷം   NICE-MEET-YOU -
+30  Good To See You       आपको देखकर अच्छा लगाஉங்களை பார்த்ததில் மகிழ்ச்சிകണ്ടതിൽ സന്തോഷം   GOOD-SEE-YOU  -
+31  Goodbye               अलविदा            விடைபெறுகிறேன்    വിട               GOODBYE       -
+32  Bye                   अलविदा            விடைபெறுகிறேன்    വിട               BYE           -
+33  See You Later         फिर मिलेंगे       பிறகு சந்திப்போம் പിന്നീട് കാണാം    SEE-YOU-LATER -
+34  See You Tomorrow      कल मिलते हैं      நாளை சந்திப்போம்  നാളെ കാണാം        SEE-YOU-TOMORROW-
+35  Have A Nice Day       आपका दिन शुभ हो   நல்ல நாள்         ശുഭദിനം           HAVE-NICE-DAY -
+36  Have A Good Weekend   आपका सप्ताहांत अच्छा रहेநல்ல வார இறுதியில் இருக்கட்டும்നല്ലൊരു വാരാന്ത്യം ആശംസിക്കുന്നുHAVE-GOOD-WEEKEND-
+37  Please                कृपया             தயவுசெய்து        ദയവായി            PLEASE        -
+38  Thank You             धन्यवाद           நன்றி             നന്ദി             THANK-YOU     -
+39  Thanks A Lot          बहुत धन्यवाद      மிக்க நன்றி       വളരെ നന്ദി        THANK-YOU     -
+40  You're Welcome        आपका स्वागत है    வரவேற்கிறோம்      സ്വാഗതം           WELCOME       -
+41  Excuse Me             माफ़ कीजिए        மன்னிக்கவும்      ക്ഷമിക്കണം        EXCUSE-ME     -
+42  Sorry                 क्षमा मांगना      மன்னிக்கவும்      ക്ഷമിക്കണം        SORRY         Y
+43  Pardon Me             क्षमा करें        மன்னிக்கவும்      ക്ഷമിക്കണം        EXCUSE-ME     -
+44  No Problem            कोई बात नहीं      பரவாயில்லை        പ്രശ്നമില്ല       NO-PROBLEM    -
+45  Good Luck             शुभकामनाएँ        நல்வாழ்த்துகள்    ആശംസകൾ            GOOD-LUCK     -
+46  Congratulations       बधाई हो           வாழ்த்துக்கள்     അഭിനന്ദനങ്ങൾ      CONGRATULATIONS-
+47  Take Care             अपना ख्याल रखना   பாதுகாப்பாக இருங்கள்ശ്രദ്ധിക്കുക      TAKE-CARE     -
+48  Safe Trip             सुरक्षित यात्रा   பாதுகாப்பான பயணம் സുരക്ഷിതമായ യാത്ര SAFE-TRIP     -
+49  Bless You             भगवान आपका भला करेஆசீர்வாதம்        ആശീർവാദം          BLESS-YOU     -
+50  Happy Birthday        जन्मदिन मुबारक    பிறந்தநாள் வாழ்த்துகள்ജന്മദിനാശംസകൾ     HAPPY-BIRTHDAY-
+
+## People & Pronouns
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+51  I                     मैं               நான்              ഞാൻ               ME            Y
+52  You                   आप                நீ                നിങ്ങൾ            YOU           Y
+53  He                    वह                அவர்              അവൻ               HE            -
+54  She                   वह                அவள்              അവൾ               SHE           -
+55  It                    यह                அது               അത്               IT            -
+56  We                    हम                நாங்கள்           ഞങ്ങൾ             WE            -
+57  They                  वे                அவர்கள்           അവർ               THEY          -
+58  My                    मेरा              என்               എൻ്റെ             MY            -
+59  Your                  आपका              உங்கள்            നിങ്ങളുടെ         YOUR          Y
+60  His                   उसका              அவரது             അവൻ്റെ            HIS           -
+61  Her                   उसकी              அவளை              അവളെ              HER           -
+62  Our                   हमारा             எங்கள்            ഞങ്ങളുടെ          OUR           -
+63  Their                 उनका              அவர்களின்         അവരുടെ            THEIR         -
+64  Person                व्यक्ति           நபர்              വ്യക്തി           PERSON        -
+65  Adult                 वयस्क             வயது வந்தோர்      മുതിർന്നവർ        ADULT         -
+66  Child                 बच्चा             குழந்தை           കുട്ടി            CHILD         -
+67  Teenager              किशोर             இளம்பெண்          കൗമാരക്കാരൻ       TEENAGER      -
+68  Baby                  बच्चा             குழந்தை           കുഞ്ഞ്            BABY          -
+69  Friend                दोस्त             நண்பர்            സുഹൃത്ത്          FRIEND        -
+70  Best Friend           सबसे अच्छा दोस्त  சிறந்த நண்பர்     ഏറ്റവും നല്ല സുഹൃത്ത്BEST-FRIEND   -
+71  Neighbor              पड़ोसी            பக்கத்து வீட்டுக்காரர்അയൽക്കാരൻ         NEIGHBOR      -
+72  Coworker              साथ में कम करने वालाசக பணியாளர்       സഹപ്രവർത്തകൻ      COWORKER      -
+73  Teacher               अध्यापक           ஆசிரியர்          അധ്യാപകൻ          TEACHER       -
+74  Student               विद्यार्थी        மாணவர்            വിദ്യാർത്ഥി       STUDENT       -
+75  Doctor                चिकित्सक          மருத்துவர்        ഡോക്ടർ            DOCTOR        Y
+76  Nurse                 देखभाल करना       செவிலியர்         നഴ്സ്             NURSE         -
+77  Engineer              अभियंता           பொறியாளர்         എഞ്ചിനീയർ         ENGINEER      -
+78  Programmer            प्रोग्रामर        புரோகிராமர்       പ്രോഗ്രാമർ        PROGRAMMER    -
+79  Manager               प्रबंधक           மேலாளர்           മാനേജർ            MANAGER       -
+80  Boss                  मालिक             முதலாளி           മുതലാളി           BOSS          -
+81  Employee              कर्मचारी          பணியாளர்          ജീവനക്കാരൻ        EMPLOYEE      -
+
+## Family
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+82  Family                परिवार            குடும்பம்         കുടുംബം           FAMILY        -
+83  Father                पिता              தந்தை             അച്ഛൻ             FATHER        -
+84  Mother                माँ               தாய்              അമ്മ              MOTHER        -
+85  Parents               अभिभावक           பெற்றோர்கள்       മാതാപിതാക്കൾ      PARENTS       -
+86  Son                   बेटा              மகன்              മകൻ               SON           -
+87  Daughter              बेटी              மகள்              മകൾ               DAUGHTER      -
+88  Brother               भाई               அண்ணன்            സഹോദരൻ            BROTHER       -
+89  Sister                बहन               சகோதரி            സഹോദരി            SISTER        -
+90  Husband               पति               கணவன்             ഭർത്താവ്          HUSBAND       -
+91  Wife                  पत्नी             மனைவி             ഭാര്യ             WIFE          -
+92  Grandfather           दादा              தாத்தா            മുത്തച്ഛൻ         GRANDFATHER   -
+93  Grandmother           दादी              பாட்டி            മുത്തശ്ശി         GRANDMOTHER   -
+94  Uncle                 चाचा              மாமா              അമ്മാവൻ           UNCLE         -
+95  Aunt                  चाची              அத்தை             അമ്മായി           AUNT          -
+96  Cousin                चचेरा             உறவினர்           ബന്ധു             COUSIN        -
+97  Nephew                भतीजा             மருமகன்           മരുമകൻ            NEPHEW        -
+98  Niece                 भतीजी             மருமகள்           മരുമകൾ            NIECE         -
+99  Grandchild            पोता              பேரக்குழந்தை      പേരക്കുട്ടി       GRANDCHILD    -
+100 Relative              रिश्तेदार         உறவினர்           ബന്ധു             RELATIVE      -
+101 In-Law                ससुराल वाले       மாமியார்          ഇൻ ലോ            IN-LAW        -
+
+## Time
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+102 Time                  समय               நேரம்             സമയം              TIME          Y
+103 Now                   अब                இப்போது           ഇപ്പോൾ            NOW           Y
+104 Today                 आज                இன்று             ഇന്ന്             TODAY         Y
+105 Yesterday             कल                நேற்று            ഇന്നലെ            YESTERDAY     -
+106 Tomorrow              कल                நாளை              നാളെ              TOMORROW      -
+107 Morning               सुबह              காலை              രാവിലെ            MORNING       Y
+108 Afternoon             दोपहर             பிற்பகல்          ഉച്ചയ്ക്ക്        AFTERNOON     -
+109 Evening               शाम               மாலை              വൈകുന്നേരം        EVENING       -
+110 Night                 रात               இரவு              രാത്രി            NIGHT         Y
+111 Midnight              मध्यरात्रि        நள்ளிரவு          അർദ്ധരാത്രി       MIDNIGHT      -
+112 Noon                  दोपहर             மதியம்            ഉച്ച              NOON          -
+113 Minute                मिनट              நிமிடம்           മിനിറ്റ്          MINUTE        -
+114 Hour                  घंटा              மணி               മണിക്കൂർ          HOUR          -
+115 Day                   दिन               நாள்              ദിവസം             DAY           -
+116 Week                  सप्ताह            வாரம்             ആഴ്ച              WEEK          -
+117 Month                 महीना             மாதம்             മാസം              MONTH         -
+118 Year                  वर्ष              ஆண்டு             വർഷം              YEAR          -
+119 Decade                दशक               தசாப்தம்          ദശകം              DECADE        -
+120 Century               शतक               நூற்றாண்டு        നൂറ്റാണ്ട്        CENTURY       -
+121 Early                 जल्दी             ஆரம்ப             നേരത്തെ           EARLY         -
+122 Late                  देर               தாமதமாக           വൈകി              LATE          Y
+123 Soon                  जल्द ही           விரைவில்          ഉടൻ               SOON          -
+124 Later                 बाद में           பின்னர்           പിന്നീട്          LATER         -
+125 Before                पहले              முன்              മുമ്പ്            BEFORE        -
+126 After                 बाद               பிறகு             ശേഷം              AFTER         -
+127 Past                  अतीत              கடந்த             കഴിഞ്ഞത്          PAST          -
+128 Future                भविष्य            எதிர்காலம்        ഭാവി              FUTURE        -
+129 Present               उपस्थित           தற்போது           ഹാജർ              PRESENT       -
+130 Always                हमेशा             எப்போதும்         എപ്പോഴും          ALWAYS        -
+131 Never                 कभी नहीं          ஒருபோதும்         ഒരിക്കലും         NEVER         -
+
+## Feelings
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+132 Happy                 खुश               மகிழ்ச்சி         സന്തോഷം           HAPPY         -
+133 Sad                   दुखद              வருத்தம்          ദുഃഖം             SAD           -
+134 Angry                 गुस्सा            கோபம்             ദേഷ്യം            ANGRY         -
+135 Excited               उत्साहित          உற்சாகமாக         ആവേശഭരിതനായി      EXCITED       -
+136 Tired                 थका हुआ           சோர்வாக           തളർന്നു           TIRED         -
+137 Hungry                भूखा              பசி               വിശക്കുന്നു       HUNGRY        -
+138 Thirsty               प्यासा            தாகம்             ദാഹിക്കുന്നു      THIRSTY       -
+139 Good                  अच्छा             நல்லது            നല്ലത്            GOOD          Y
+140 Bad                   खराब              மோசமான            മോശം              BAD           Y
+141 Fine                  अच्छा             நன்றாக            നന്നായി           FINE          -
+142 Okay                  ठीक है            சரி               ശരി               OKAY          -
+
+## Common Verbs
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+143 Go                    जाना              போ                പോകൂ              GO            -
+144 Come                  आना               வாருங்கள்         വരൂ               COME          -
+145 Walk                  टहलना             நடக்க             നടക്കുക           WALK          -
+146 Run                   दौड़ना            ஓடு               ഓടുക              RUN           -
+147 Sit                   बैठना             உட்காருங்கள்      ഇരിക്കുക          SIT           -
+148 Stand                 खड़ा होना         நிற்க             നിൽക്കുക          STAND         -
+149 Eat                   खाओ               சாப்பிடு          തിന്നുക           EAT           Y
+150 Drink                 पीना              குடிக்க           കുടിക്കുക         DRINK         Y
+151 Sleep                 नींद              தூக்கம்           ഉറങ്ങുക           SLEEP         Y
+152 Wake Up               जागो              எழுந்திரு         ഉണരുക             WAKE-UP       -
+153 Study                 अध्ययन            படிப்பு           പഠനം              STUDY         -
+154 Learn                 सीखना             கற்றுக்கொள்       പഠിക്കുക          LEARN         -
+155 Teach                 पढ़ाना            கற்பிக்கின்றன     പഠിപ്പിക്കുക      TEACH         -
+156 Read                  पढ़ना             படித்தேன்         വായിച്ചു          READ          -
+157 Write                 लिखना             எழுது             എഴുതുക            WRITE         -
+158 Talk                  बात करना          பேச               സംസാരിക്കുക       TALK          Y
+159 Listen                सुनना             கேளுங்கள்         കേൾക്കുക          LISTEN        -
+160 Watch                 घड़ी              பார்க்க           വാച്ച്            WATCH         -
+161 See                   देखना             பார்க்க           കാണുക             SEE           -
+162 Look                  देखना             பார்              നോക്കൂ            LOOK          -
+163 Ask                   पूछना             கேட்க             ചോദിക്കുക         ASK           -
+164 Answer                उत्तर             பதில்             ഉത്തരം            ANSWER        -
+165 Tell                  कहना              சொல்லுங்கள்       പറയൂ              TELL          -
+166 Explain               व्याख्या करना     விளக்கவும்        വിശദീകരിക്കുക     EXPLAIN       -
+167 Help                  मदद               உதவி              സഹായം             HELP          Y
+168 Call                  पुकारना           அழைப்பு           വിളിക്കുക         CALL          Y
+169 Understand            समझना             புரியும்          മനസ്സിലാക്കുക     UNDERSTAND    Y
+170 Know                  जानना             தெரியும்          അറിയാം            KNOW          Y
+171 Remember              याद करना          நினைவில் கொள்க    ഓർക്കുക           REMEMBER      -
+172 Forget                भूल जाओ           மறந்துவிடு        മറക്കുക           FORGET        -
+173 Buy                   खरीदना            வாங்க             വാങ്ങുക           BUY           Y
+174 Sell                  बेचना             விற்க             വിൽക്കുക          SELL          -
+175 Pay                   वेतन              செலுத்து          പണം നൽകുക         PAY           Y
+176 Open                  खुला              திறந்த            തുറക്കുക          OPEN          -
+177 Close                 बंद करना          நெருக்கமான        അടുത്ത്           CLOSE         -
+178 Start                 शुरू              தொடங்கு           ആരംഭിക്കുക        START         -
+179 Finish                खत्म करना         முடிக்க           പൂർത്തിയാക്കുക    FINISH        Y
+180 Wait                  इंतज़ार           காத்திருக்கவும்   കാത്തിരിക്കുക     WAIT          Y
+181 Drive                 गाड़ी चलाना       ஓட்டு             ഡ്രൈവ് ചെയ്യുക    DRIVE         -
+182 Ride                  सवारी             சவாரி             സവാരി             RIDE          -
+183 Cook                  पकाना             சமைக்க            പാചകം ചെയ്യുക     COOK          -
+184 Clean                 साफ               சுத்தமான          ശുദ്ധമായ          CLEAN         Y
+185 Wash                  धोना              கழுவு             കഴുകുക            WASH          -
+186 Use                   उपयोग             பயன்படுத்த        ഉപയോഗിക്കുക       USE           -
+187 Need                  ज़रूरत            தேவை              ആവശ്യം            NEED          Y
+188 Want                  चाहना             வேண்டும்          ആഗ്രഹിക്കുന്നു    WANT          Y
+189 Like                  पसंद              போன்ற             പോലെ              LIKE          -
+190 Love                  प्यार             அன்பு             സ്നേഹം            LOVE          -
+191 Hate                  घृणा              வெறுக்கிறேன்      വെറുക്കുന്നു      HATE          -
+192 Choose                चुनना             தேர்வு            തിരഞ്ഞെടുക്കുക    CHOOSE        -
+193 Decide                तय करना           முடிவு செய்யுங்கள்തീരുമാനിക്കുക     DECIDE        -
+194 Build                 निर्माण           கட்ட              പണിയുക            BUILD         -
+195 Create                बनाएं             உருவாக்க          സൃഷ്ടിക്കുക       CREATE        -
+196 Fix                   हल करना           சரி               പരിഹരിക്കുക       FIX           -
+197 Move                  कदम               நகர்த்த           നീക്കുക           MOVE          -
+198 Carry                 ढोना              சுமந்து செல்      കൊണ്ടുപോകുക       CARRY         -
+199 Send                  भेजना             அனுப்பு           അയയ്ക്കുക         SEND          -
+200 Receive               प्राप्त करें      பெறும்            സ്വീകരിക്കുക      RECEIVE       -
+201 Search                खोज               தேடல்             തിരയുക            SEARCH        -
+202 Find                  खोजो              கண்டுபிடிக்க      കണ്ടെത്തുക        FIND          -
+203 Lose                  खोना              இழக்க             നഷ്ടപ്പെടുക       LOSE          -
+
+## Descriptions - Size
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+204 Big                   बड़ा              பெரிய             വലിയ              BIG           -
+205 Small                 छोटा              சிறிய             ചെറിയ             SMALL         -
+206 Large                 बड़ा              பெரிய             വലിയ              LARGE         -
+207 Tiny                  छोटा              சிறிய             ചെറിയ             TINY          -
+208 Huge                  विशाल             மிகப்பெரிய        വലിയ              HUGE          -
+209 Giant                 बहुत बड़ा         மாபெரும்          ഭീമൻ              GIANT         -
+210 Long                  लंबा              நீளமானது          നീണ്ട             LONG          -
+211 Short                 छोटा              குறுகிய           ചെറുത്            SHORT         -
+212 Tall                  लंबा              உயரமான            ഉയരമുള്ള          TALL          -
+213 Wide                  चौड़ा             பரந்த             വിശാലമായ          WIDE          -
+214 Narrow                सँकरा             குறுகிய           ഇടുങ്ങിയ          NARROW        -
+215 Thick                 मोटा              தடித்த            കട്ടിയുള്ള        THICK         -
+216 Thin                  पतला              மெல்லிய           നേർത്ത            THIN          -
+217 Deep                  गहरा              ஆழமான             ആഴമുള്ള           DEEP          -
+218 Shallow               उथला              ஆழமற்ற            ആഴം കുറഞ്ഞ        SHALLOW       -
+219 Heavy                 भारी              கனமான             കനത്ത             HEAVY         Y
+220 Light                 रोशनी             ஒளி               വെളിച്ചം          LIGHT         -
+
+## Descriptions - Quality
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+221 Excellent             उत्कृष्ट          சிறந்த            മികച്ചത്          EXCELLENT     -
+222 Perfect               उत्तम             சரியான            തികഞ്ഞ            PERFECT       -
+223 Amazing               अद्भुत            அற்புதமான         അത്ഭുതകരമായ       AMAZING       -
+224 Wonderful             आश्चर्यजनक        அற்புதமான         അത്ഭുതകരമായ       WONDERFUL     -
+225 Nice                  अच्छा             நல்ல              കൊള്ളാം           NICE          -
+226 Terrible              भयानक             பயங்கரமான         ഭയങ്കരമായ         TERRIBLE      -
+227 Easy                  आसान              எளிதாக            എളുപ്പമാണ്        EASY          -
+228 Difficult             कठिन              கடினமான           ബുദ്ധിമുട്ടുള്ള   DIFFICULT     -
+229 Simple                सरल               எளிய              ലളിതമായ           SIMPLE        -
+230 Complex               जटिल              சிக்கலான          സങ്കീർണ്ണമായ      COMPLEX       -
+231 Fast                  तेज़              வேகமாக            വേഗം              FAST          -
+232 Slow                  धीमा              மெதுவாக           പതുക്കെ           SLOW          -
+233 Beautiful             सुंदर             அழகான             മനോഹരം            BEAUTIFUL     -
+234 Ugly                  कुरूप             அசிங்கமான         വൃത്തികെട്ട       UGLY          -
+235 Dirty                 गंदा              அழுக்கு           വൃത്തികെട്ട       DIRTY         -
+236 Young                 युवा              இளம்              ചെറുപ്പക്കാർ      YOUNG         -
+237 Old                   पुराना            பழைய              പഴയത്             OLD           -
+238 Strong                मज़बूत            வலுவான            ശക്തമായ           STRONG        -
+239 Weak                  कमज़ोर            பலவீனமான          ദുർബലമായ          WEAK          -
+240 Broken                टूटा हुआ          உடைந்தது          തകർന്നു           BROKEN        Y
+241 Lost                  खो गया            இழந்தது           നഷ്ടപ്പെട്ടു      LOST          Y
+
+## Colors
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+242 Red                   लाल               சிவப்பு           ചുവപ്പ്           RED           -
+243 Blue                  नीला              நீலம்             നീല               BLUE          -
+244 Green                 हरा               பச்சை             പച്ച              GREEN         -
+245 Yellow                पीला              மஞ்சள்            മഞ്ഞ              YELLOW        -
+246 Black                 काला              கருப்பு           കറുപ്പ്           BLACK         -
+247 White                 सफ़ेद             வெள்ளை            വെള്ള             WHITE         -
+248 Brown                 भूरा              பழுப்பு           തവിട്ട്           BROWN         -
+249 Orange                नारंगी            ஆரஞ்சு            ഓറഞ്ച്            ORANGE        -
+250 Pink                  गुलाबी            இளஞ்சிவப்பு       പിങ്ക്            PINK          -
+251 Purple                बैंगनी            ஊதா               ധൂമ്രനൂൽ          PURPLE        -
+252 Gray                  स्लेटी            சாம்பல்           ചാരനിറം           GRAY          -
+253 Silver                चाँदी             வெள்ளி            വെള്ളി            SILVER        -
+254 Gold                  सोना              தங்கம்            സ്വർണ്ണം          GOLD          -
+255 Beige                 बेज               பழுப்பு           ബീജ്              BEIGE         -
+256 Maroon                लाल रंग           மெரூன்            മെറൂൺ             MAROON        -
+
+## Home
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+257 Home                  घर                வீடு              വീട്              HOME          Y
+258 House                 घर                வீடு              വീട്              HOUSE         -
+259 Room                  कमरा              அறை               മുറി              ROOM          -
+260 Kitchen               रसोईघर            சமையலறை           അടുക്കള           KITCHEN       -
+261 Bedroom               सोने का कमरा      படுக்கையறை        കിടപ്പുമുറി       BEDROOM       -
+262 Bathroom              स्नानघर           குளியலறை          കുളിമുറി          BATHROOM      -
+263 Bed                   बिस्तर            படுக்கை           കിടക്ക            BED           -
+264 Door                  दरवाजा            கதவு              വാതിൽ             DOOR          -
+265 Key                   चाबी              முக்கிய           താക്കോൽ           KEY           -
+266 Table                 मेज़              அட்டவணை           മേശ               TABLE         -
+267 Chair                 कुर्सी            நாற்காலி          കസേര              CHAIR         -
+
+## Food & Drinks
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+268 Water                 पानी              தண்ணீர்           വെള്ളം            WATER         Y
+269 Coffee                कॉफी              காபி              കോഫി             COFFEE        -
+270 Tea                   चाय               தேநீர்            ചായ               TEA           -
+271 Milk                  दूध               பால்              പാൽ               MILK          -
+272 Juice                 रस                சாறு              ജ്യൂസ്            JUICE         -
+273 Soda                  सोडा              சோடா              സോഡ               SODA          -
+274 Rice                  चावल              அரிசி             അരി               RICE          -
+275 Bread                 रोटी              ரொட்டி            അപ്പം             BREAD         -
+276 Chapati               चपाती             சப்பாத்தி         ചപ്പാത്തി         CHAPATI       -
+277 Idli                  इडली              இட்லி             ഇഡ്ഡലി            IDLI          -
+278 Dosa                  डोसा              தோசை              ദോശ               DOSA          -
+279 Pizza                 पिज़्ज़ा          பீஸ்ஸா            പിസ്സ             PIZZA         -
+280 Burger                बर्गर             பர்கர்            ബർഗർ              BURGER        -
+281 Sandwich              सैंडविच           சாண்ட்விச்        സാൻഡ്വിച്ച്       SANDWICH      -
+282 Chicken               मुर्गा            கோழி              കോഴി             CHICKEN       -
+283 Fish                  मछली              மீன்              മത്സ്യം           FISH          -
+284 Egg                   अंडा              முட்டை            മുട്ട             EGG           -
+285 Fruit                 फल                பழம்              ഫലം               FRUIT         -
+286 Apple                 सेब               ஆப்பிள்           ആപ്പിൾ            APPLE         -
+287 Banana                केला              வாழைப்பழம்        വാഴപ്പഴം          BANANA        -
+288 Mango                 आम                மாம்பழம்          മാമ്പഴം           MANGO         -
+289 Grapes                अंगूर             திராட்சை          മുന്തിരി          GRAPES        -
+290 Vegetable             सब्ज़ी            காய்கறி           പച്ചക്കറി         VEGETABLE     -
+291 Potato                आलू               உருளைக்கிழங்கு    ഉരുളക്കിഴങ്ങ്     POTATO        -
+292 Onion                 प्याज             வெங்காயம்         ഉള്ളി             ONION         -
+293 Tomato                टमाटर             தக்காளி           തക്കാളി           TOMATO        -
+294 Breakfast             नाश्ता            காலை உணவு         പ്രാതൽ            BREAKFAST     -
+295 Lunch                 दिन का खाना       மதிய உணவு         ഉച്ചഭക്ഷണം        LUNCH         -
+296 Dinner                रात का खाना       இரவு உணவு         അത്താഴം           DINNER        -
+297 Snack                 नाश्ता            சிற்றுண்டி        ലഘുഭക്ഷണം         SNACK         -
+298 Restaurant            रेस्टोरेंट        உணவகம்            ഭക്ഷണശാല          RESTAURANT    -
+299 Menu                  मेनू              மெனு              മെനു              MENU          -
+300 Order                 आदेश              உத்தரவு           ഓർഡർ              ORDER         -
+301 Bill                  बिल               மசோதா             ബിൽ               BILL          -
+302 Salt                  नमक               உப்பு             ഉപ്പ്             SALT          -
+303 Sugar                 चीनी              சர்க்கரை          പഞ്ചസാര           SUGAR         -
+304 Pepper                काली मिर्च        மிளகு             കുരുമുളക്         PEPPER        -
+305 Spice                 मसाला             மசாலா             സുഗന്ധവ്യഞ്ജനങ്ങൾ SPICE         -
+306 Soup                  शोरबा             சூப்              സൂപ്പ്            SOUP          -
+307 Salad                 सलाद              சாலட்             സാലഡ്             SALAD         -
+308 Dessert               मिठाई             இனிப்பு           മധുരപലഹാരം        DESSERT       -
+309 Ice Cream             आइसक्रीम          ஐஸ்கிரீம்         ഐസ്ക്രീം          ICE-CREAM     -
+310 Cake                  केक               கேக்              കേക്ക്            CAKE          -
+311 Cookie                कुकी              குக்கீ            കുക്കി            COOKIE        -
+312 Chocolate             चॉकलेट            சாக்லேட்          ചോക്കലേറ്റ്       CHOCOLATE     -
+313 Vegetarian            शाकाहारी          சைவம்             വെജിറ്റേറിയൻ      VEGETARIAN    -
+314 Vegan                 शाकाहारी          சைவ உணவு உண்பவர்  സസ്യാഹാരം         VEGAN         -
+315 Delicious             स्वादिष्ट         சுவையான           രുചികരമായ         DELICIOUS     -
+316 Sweet                 मिठाई             இனிப்பு           മധുരം             SWEET         -
+317 Sour                  खट्टा             புளிப்பு          പുളിച്ച           SOUR          -
+318 Bitter                कड़वा             கசப்பான           കയ്പേറിയ          BITTER        -
+319 Spicy                 मसालेदार          காரமான            മസാലകൾ            SPICY         -
+320 Fresh                 ताजा              புதியது           പുതിയത്           FRESH         -
+321 Frozen                जमा हुआ           உறைந்த            മരവിച്ചു          FROZEN        -
+322 Food                  खाना              உணவு              ഭക്ഷണം            FOOD          Y
+
+## Travel & Transport
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+323 Travel                यात्रा            பயணம்             യാത്ര             TRAVEL        Y
+324 Airport               एयरपोर्ट          விமான நிலையம்     വിമാനത്താവളം      AIRPORT       -
+325 Flight                उड़ान             விமானம்           വിമാനം            FLIGHT        -
+326 Plane                 विमान             விமானம்           വിമാനം            PLANE         -
+327 Train                 रेलगाड़ी          ரயில்             തീവണ്ടി           TRAIN         Y
+328 Bus                   बस                பேருந்து          ബസ്               BUS           -
+329 Taxi                  टैक्सी            டாக்ஸி            ടാക്സി            TAXI          -
+330 Car                   कार               கார்              കാർ               CAR           -
+331 Map                   नक्शा             வரைபடம்           ഭൂപടം             MAP           -
+332 Hotel                 होटल              ஹோட்டல்           ഹോട്ടൽ            HOTEL         -
+333 Passport              पासपोर्ट          கடவுச்சீட்டு      പാസ്പോർട്ട്       PASSPORT      -
+334 Ticket                टिकट              டிக்கெட்          ടിക്കറ്റ്         TICKET        -
+335 Luggage               सामान             சாமான்கள்         ലഗേജ്             LUGGAGE       -
+336 Station               स्टेशन            நிலையம்           സ്റ്റേഷൻ          STATION       -
+337 Road                  सड़क              சாலை              റോഡ്              ROAD          -
+338 Traffic               ट्रैफ़िक          போக்குவரத்து      ഗതാഗതം            TRAFFIC       -
+
+## Health & Medical
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+339 Hospital              अस्पताल           மருத்துவமனை       ആശുപത്രി          HOSPITAL      -
+340 Medicine              दवा               மருந்து           മരുന്ന്           MEDICINE      Y
+341 Pharmacy              फार्मेसी          மருந்தகம்         ഫാർമസി            PHARMACY      -
+342 Fever                 बुखार             காய்ச்சல்         പനി               FEVER         Y
+343 Headache              सिरदर्द           தலைவலி            തലവേദന            HEADACHE      -
+344 Allergy               एलर्जी            ஒவ்வாமை           അലർജി             ALLERGY       -
+345 Emergency             आपातकाल           அவசரநிலை          അടിയന്തരാവസ്ഥ     EMERGENCY     -
+346 Ambulance             एम्बुलेंस         ஆம்புலன்ஸ்        ആംബുലൻസ്          AMBULANCE     -
+347 Appointment           नियुक्ति          நியமனம்           നിയമനം            APPOINTMENT   -
+348 Pain                  दर्द              வலி               വേദന              PAIN          Y
+
+## School & Work
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+349 School                विद्यालय          பள்ளி             സ്കൂൾ             SCHOOL        -
+350 Classroom             कक्षा             வகுப்பறை          ക്ലാസ് മുറി       CLASSROOM     -
+351 Homework              गृहकार्य          வீட்டுப்பாடம்     ഹോം വർക്ക്       HOMEWORK      -
+352 Exam                  परीक्षा           தேர்வு            പരീക്ഷ            EXAM          -
+353 Office                कार्यालय          அலுவலகம்          ഓഫീസ്             OFFICE        -
+354 Meeting               बैठक              சந்திப்பு         യോഗം              MEETING       -
+355 Project               परियोजना          திட்டம்           പദ്ധതി            PROJECT       -
+356 Work                  काम               வேலை              ജോലി              WORK          Y
+357 Job                   काम               வேலை              ജോലി              JOB           -
+
+## Shopping & Money
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+358 Shop                  दुकान             கடை               കട                SHOP          -
+359 Store                 इकट्ठा करना       கடை               സ്റ്റോർ           STORE         -
+360 Market                बाज़ार            சந்தை             വിപണി             MARKET        -
+361 Mall                  मॉल               வணிக வளாகம்       മാൾ               MALL          -
+362 Money                 धन                பணம்              പണം               MONEY         -
+363 Cash                  नकद               பணம்              പണം               CASH          -
+364 Coin                  सिक्का            நாணயம்            നാണയം             COIN          -
+365 Price                 कीमत              விலை              വില               PRICE         -
+366 Cost                  लागत              செலவு             ചെലവ്             COST          -
+367 Cheap                 सस्ता             மலிவான            വിലകുറഞ്ഞ         CHEAP         -
+368 Expensive             महँगा             விலையுயர்ந்த      ചെലവേറിയ          EXPENSIVE     -
+369 Discount              छूट               தள்ளுபடி          കിഴിവ്            DISCOUNT      -
+370 Sale                  बिक्री            விற்பனை           വിൽപ്പന           SALE          -
+371 Customer              ग्राहक            வாடிக்கையாளர்     ഉപഭോക്താവ്        CUSTOMER      -
+372 Receipt               रसीद              ரசீது             രസീത്             RECEIPT       -
+373 Wallet                बटुआ              பணப்பை            വാലറ്റ്           WALLET        -
+374 Credit Card           क्रेडिट कार्ड     கிரெடிட் கார்டு   ക്രെഡിറ്റ് കാർഡ്  CREDIT-CARD   -
+375 Debit Card            डेबिट कार्ड       டெபிட் கார்டு     ഡെബിറ്റ് കാർഡ്    DEBIT-CARD    -
+376 Change                परिवर्तन          மாற்றம்           മാറ്റം            CHANGE        -
+377 Payment               भुगतान            கட்டணம்           പേയ്മെൻ്റ്        PAYMENT       -
+378 Product               उत्पाद            தயாரிப்பு         ഉൽപ്പന്നം         PRODUCT       -
+379 Item                  वस्तु             பொருள்            ഇനം               ITEM          -
+380 Brand                 ब्रांड            பிராண்ட்          ബ്രാൻഡ്           BRAND         -
+381 Size                  आकार              அளவு              വലിപ്പം           SIZE          -
+382 Try On                पहनकर देखना       போட்டுப் பார்     അണിഞ്ഞ് നോക്കുക   TRY-ON        -
+383 Return                वापस करना         திரும்ப           മടങ്ങുക           RETURN        -
+384 Exchange              अदला-बदली         பரிமாற்றம்        കൈമാറ്റം          EXCHANGE      -
+385 Grocery               किराना            மளிகை             പലചരക്ക്          GROCERY       -
+386 Basket                टोकरी             கூடை              കൊട്ട             BASKET        -
+387 Cart                  कार्ट             வண்டி             വണ്ടി             CART          -
+388 Checkout              चेक आउट           செக்அவுட்         ചെക്ക് ഔട്ട്      CHECKOUT      -
+389 Tax                   कर                வரி               നികുതി            TAX           -
+
+## Directions & Locations
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+390 Left                  बाएं              விட்டு            വിട്ടുപോയി        LEFT          -
+391 Right                 सही               சரி               ശരിയാണ്           RIGHT         -
+392 Straight              सीधा              நேராக             ഋജുവായത്          STRAIGHT      -
+393 Turn                  मोड़              திரும்ப           തിരിയുക           TURN          -
+394 Here                  यहाँ              இங்கே             ഇവിടെ             HERE          -
+395 There                 वहाँ              அங்கு             അവിടെ             THERE         -
+396 Near                  पास में           அருகில்           സമീപം             NEAR          -
+397 Far                   दूर               தொலைவில்          ദൂരെ              FAR           -
+398 Across                आर-पार            முழுவதும்         കുറുകെ            ACROSS        -
+399 Behind                पीछे              பின்னால்          പിന്നിൽ           BEHIND        -
+400 Front                 सामने             முன்              മുന്നിൽ           FRONT         -
+401 Corner                कोना              மூலையில்          മൂല               CORNER        -
+402 Intersection          चौराहा            குறுக்குவெட்டு    കവല               INTERSECTION  -
+403 Street                गली               தெரு              തെരുവ്            STREET        -
+404 Highway               राजमार्ग          நெடுஞ்சாலை        ഹൈവേ              HIGHWAY       -
+405 Bridge                पुल               பாலம்             പാലം              BRIDGE        -
+406 Address               पता               முகவரி            വിലാസം            ADDRESS       -
+407 Location              जगह               இடம்              സ്ഥാനം            LOCATION      -
+408 North                 उत्तर             வடக்கு            വടക്ക്            NORTH         -
+409 South                 दक्षिण            தெற்கு            തെക്ക്            SOUTH         -
+410 East                  पूर्व             கிழக்கு           കിഴക്ക്           EAST          -
+411 West                  पश्चिम            மேற்கு            പടിഞ്ഞാറ്         WEST          -
+412 Upstairs              ऊपर               மாடிக்கு          മുകളിലത്തെ നിലയിൽ UPSTAIRS      -
+413 Downstairs            सीढ़ी के नीचे     கீழே              താഴെ              DOWNSTAIRS    -
+414 Entrance              प्रवेश द्वार      நுழைவாயில்        പ്രവേശനം          ENTRANCE      -
+415 Exit                  बाहर निकलना       வெளியேறு          പുറത്ത്           EXIT          -
+416 Parking               पार्किंग          பார்க்கிங்        പാർക്കിംഗ്        PARKING       -
+417 Building              इमारत             கட்டிடம்          കെട്ടിടം          BUILDING      -
+418 Floor                 ज़मीन             தரை               തറ                FLOOR         -
+419 Elevator              लिफ़्ट            உயர்த்தி          എലിവേറ്റർ         ELEVATOR      -
+420 Stairs                सीढ़ियाँ          படிக்கட்டுகள்     പടികൾ             STAIRS        -
+421 Traffic Light         ट्रैफिक लाइट      போக்குவரத்து விளக்குട്രാഫിക് ലൈറ്റ്   TRAFFIC-LIGHT -
+422 Crosswalk             क्रॉसवॉक          குறுக்குவழி       ക്രോസ്വാക്ക്      CROSSWALK     -
+
+## Technology & Communication
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+423 Phone                 फ़ोन              தொலைபேசி          ഫോൺ               PHONE         -
+424 Smartphone            स्मार्टफोन        ஸ்மார்ட்போன்      സ്മാർട്ട്ഫോൺ      SMARTPHONE    -
+425 Computer              कंप्यूटर          கணினி             കമ്പ്യൂട്ടർ       COMPUTER      -
+426 Laptop                लैपटॉप            மடிக்கணினி        ലാപ്ടോപ്പ്        LAPTOP        -
+427 Tablet                गोली              மாத்திரை          ടാബ്ലറ്റ്         TABLET        -
+428 Internet              इंटरनेट           இணையம்            ഇൻ്റർനെറ്റ്       INTERNET      -
+429 Wi-Fi                 वाईफ़ाई           wi-fi             വൈഫൈ              WI-FI         -
+430 Website               वेबसाइट           இணையதளம்          വെബ്സൈറ്റ്        WEBSITE       -
+431 Browser               ब्राउज़र          உலாவி             ബ്രൗസർ            BROWSER       -
+432 Email                 ईमेल              மின்னஞ்சல்        ഇമെയിൽ            EMAIL         -
+433 Message               संदेश             செய்தி            സന്ദേശം           MESSAGE       -
+434 Chat                  बात करना          அரட்டை            ചാറ്റ്            CHAT          -
+435 Video Call            वीडियो कॉल        வீடியோ அழைப்பு    വീഡിയോ കോൾ        VIDEO-CALL    -
+436 Camera                कैमरा             கேமரா             ക്യാമറ            CAMERA        -
+437 Password              पासवर्ड           கடவுச்சொல்        പാസ്വേഡ്          PASSWORD      -
+438 Login                 लॉग इन करें       புகுபதிகை         ലോഗിൻ            LOGIN         -
+439 Logout                लॉग आउट           வெளியேறுதல்       പുറത്തുകടക്കുക    LOGOUT        -
+440 Download              डाउनलोड करना      பதிவிறக்கம்       ഡൗൺലോഡ് ചെയ്യുക   DOWNLOAD      -
+441 Upload                अपलोड करें        பதிவேற்றம்        അപ്ലോഡ്           UPLOAD        -
+442 App                   अनुप्रयोग         பயன்பாடு          അപ്ലിക്കേഷൻ       APP           -
+443 Software              सॉफ़्टवेयर        மென்பொருள்        സോഫ്റ്റ്വെയർ      SOFTWARE      -
+444 Hardware              हार्डवेयर         வன்பொருள்         ഹാർഡ്വെയർ         HARDWARE      -
+445 AI                    ऐ                 ai                ഐ                 AI            -
+446 Robot                 रोबोट             ரோபோ              റോബോട്ട്          ROBOT         -
+447 Cloud                 बादल              மேகம்             മേഘം              CLOUD         -
+448 Server                सर्वर             சர்வர்            സെർവർ             SERVER        -
+449 Database              डेटाबेस           தரவுத்தளம்        ഡാറ്റാബേസ്        DATABASE      -
+450 Code                  कोड               குறியீடு          കോഡ്              CODE          -
+451 Program               कार्यक्रम         திட்டம்           പ്രോഗ്രാം         PROGRAM       -
+452 Network               नेटवर्क           நெட்வொர்க்        നെറ്റ്വർക്ക്      NETWORK       -
+453 Keyboard              कीबोर्ड           விசைப்பலகை        കീബോർഡ്           KEYBOARD      -
+454 Mouse                 चूहा              சுட்டி            മൗസ്              MOUSE         -
+455 Monitor               निगरानी करना      கண்காணிக்க        നിരീക്ഷിക്കുക     MONITOR       -
+456 Screen                स्क्रीन           திரை              സ്ക്രീൻ           SCREEN        -
+457 Printer               मुद्रक            அச்சுப்பொறி       പ്രിൻ്റർ          PRINTER       -
+458 Scanner               स्कैनर            ஸ்கேனர்           സ്കാനർ            SCANNER       -
+459 Microphone            माइक्रोफ़ोन       ஒலிவாங்கி         മൈക്രോഫോൺ         MICROPHONE    -
+460 Speaker               वक्ता             பேச்சாளர்         സ്പീക്കർ          SPEAKER       -
+461 Headphones            हेडफोन            ஹெட்ஃபோன்கள்      ഹെഡ്ഫോണുകൾ        HEADPHONES    -
+462 Charger               अभियोक्ता         சார்ஜர்           ചാർജർ             CHARGER       -
+463 Battery               बैटरी             பேட்டரி           ബാറ്ററി           BATTERY       -
+464 Cable                 केबल              கேபிள்            കേബിൾ             CABLE         -
+465 USB                   USB               usb               USB               USB           -
+466 Folder                फ़ोल्डर           கோப்புறை          ഫോൾഡർ             FOLDER        -
+467 File                  फ़ाइल             கோப்பு            ഫയൽ               FILE          -
+468 Document              दस्तावेज़         ஆவணம்             പ്രമാണം           DOCUMENT      -
+469 Spreadsheet           स्प्रेडशीट        விரிதாள்          സ്പ്രെഡ്ഷീറ്റ്    SPREADSHEET   -
+470 Presentation          प्रस्तुति         விளக்கக்காட்சி    അവതരണം            PRESENTATION  -
+471 Social Media          सोशल मीडिया       சமூக ஊடகம்        സോഷ്യൽ മീഡിയ      SOCIAL-MEDIA  -
+472 Profile               प्रोफ़ाइल         சுயவிவரம்         പ്രൊഫൈൽ           PROFILE       -
+473 Account               खाता              கணக்கு            അക്കൗണ്ട്         ACCOUNT       -
+474 Username              उपयोक्तानाम       பயனர் பெயர்       ഉപയോക്തൃനാമം      USERNAME      -
+475 Notification          अधिसूचना          அறிவிப்பு         അറിയിപ്പ്         NOTIFICATION  -
+476 Update                अद्यतन            மேம்படுத்தல்      അപ്ഡേറ്റ്         UPDATE        -
+477 Security              सुरक्षा           பாதுகாப்பு        സുരക്ഷ            SECURITY      -
+478 Backup                बैकअप             காப்பு            ബാക്കപ്പ്         BACKUP        -
+
+## Weather
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+479 Weather               मौसम              வானிலை            കാലാവസ്ഥ          WEATHER       -
+480 Sunny                 धूप वाला          வெயில்            വെയിൽ             SUNNY         -
+481 Cloudy                बादलों से घिरा    மேகமூட்டம்        മേഘാവൃതമായ        CLOUDY        -
+482 Rain                  बारिश             மழை               മഴ                RAIN          -
+483 Drizzle               बूंदा बांदी       தூறல்             ചാറ്റൽ മഴ         DRIZZLE       -
+484 Storm                 आंधी              புயல்             കൊടുങ്കാറ്റ്      STORM         -
+485 Thunder               गड़गड़ाहट         இடி               ഇടിമുഴക്കം        THUNDER       -
+486 Lightning             बिजली चमकना       மின்னல்           മിന്നൽ            LIGHTNING     -
+487 Wind                  हवा               காற்று            കാറ്റ്            WIND          -
+488 Windy                 तूफ़ानी           காற்று வீசும்     കാറ്റുള്ള         WINDY         -
+489 Hot                   गर्म              சூடான             ചൂട്              HOT           Y
+490 Warm                  गरम               சூடான             ചൂട്              WARM          -
+491 Cool                  ठंडा              குளிர்            തണുത്ത            COOL          -
+492 Cold                  ठंडा              குளிர்            തണുപ്പ്           COLD          Y
+493 Snow                  बर्फ              பனி               മഞ്ഞ്             SNOW          -
+494 Fog                   कोहरा             மூடுபனி           മൂടൽമഞ്ഞ്         FOG           -
+495 Humid                 नमी               ஈரமான             ഈർപ്പമുള്ള        HUMID         -
+496 Dry                   सूखा              உலர்              വരണ്ട             DRY           -
+497 Summer                गर्मी             கோடை              വേനൽക്കാലം        SUMMER        -
+498 Winter                सर्दी             குளிர்காலம்       ശീതകാലം           WINTER        -
+499 Spring                वसंत              வசந்தம்           വസന്തം            SPRING        -
+500 Autumn                शरद ऋतु           இலையுதிர் காலம்   ശരത്കാലം          AUTUMN        -
+
+## Hobbies & Entertainment
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+501 Hobby                 शौक               பொழுதுபோக்கு      ഹോബി              HOBBY         -
+502 Sport                 खेल               விளையாட்டு        കായികം            SPORT         -
+503 Football              फ़ुटबॉल           கால்பந்து         ഫുട്ബോൾ           FOOTBALL      -
+504 Cricket               क्रिकेट           கிரிக்கெட்        ക്രിക്കറ്റ്       CRICKET       -
+505 Basketball            बास्केटबाल        கூடைப்பந்து       ബാസ്ക്കറ്റ്ബോൾ    BASKETBALL    -
+506 Tennis                टेनिस             டென்னிஸ்          ടെന്നീസ്          TENNIS        -
+507 Volleyball            वालीबाल           கைப்பந்து         വോളിബോൾ           VOLLEYBALL    -
+508 Swimming              तैरना             நீச்சல்           നീന്തൽ            SWIMMING      -
+509 Running               दौड़ना            ஓடுகிறது          ഓടുന്നു           RUNNING       -
+510 Walking               चलना              நடைபயிற்சி        നടക്കുന്നു        WALKING       -
+511 Gym                   जिम               உடற்பயிற்சி கூடம் ജിം               GYM           -
+512 Exercise              व्यायाम           உடற்பயிற்சி       വ്യായാമം          EXERCISE      -
+513 Music                 संगीत             இசை               സംഗീതം            MUSIC         -
+514 Song                  गाना              பாடல்             പാട്ട്            SONG          -
+515 Singer                गायक              பாடகர்            ഗായകൻ             SINGER        -
+516 Guitar                गिटार             கிட்டார்          ഗിറ്റാർ           GUITAR        -
+517 Piano                 पियानो            பியானோ            പിയാനോ            PIANO         -
+518 Dance                 नृत्य             நடனம்             നൃത്തം            DANCE         -
+519 Movie                 चलचित्र           திரைப்படம்        സിനിമ             MOVIE         -
+520 Film                  पतली परत          படம்              സിനിമ             FILM          -
+521 TV                    टीवी              தொலைக்காட்சி      ടിവി              TV            -
+522 Series                शृंखला            தொடர்             പരമ്പര            SERIES        -
+523 Book                  किताब             புத்தகம்          പുസ്തകം           BOOK          -
+524 Magazine              पत्रिका           இதழ்              മാസിക             MAGAZINE      -
+525 Reading               पढ़ना             வாசிப்பு          വായന              READING       -
+526 Writing               लिखना             எழுதுவது          എഴുത്ത്           WRITING       -
+527 Drawing               चित्रकला          வரைதல்            ഡ്രോയിംഗ്         DRAWING       -
+528 Painting              चित्रकारी         ஓவியம்            പെയിൻ്റിംഗ്       PAINTING      -
+529 Photography           फोटोग्राफी        புகைப்படம் எடுத்தல்ഫോട്ടോഗ്രാഫി      PHOTOGRAPHY   -
+530 Camping               डेरा डालना        முகாம்            ക്യാമ്പിംഗ്       CAMPING       -
+531 Fishing               मछली पकड़ने       மீன்பிடித்தல்     മത്സ്യബന്ധനം      FISHING       -
+532 Gardening             बागवानी           தோட்டக்கலை        പൂന്തോട്ടപരിപാലനം GARDENING     -
+533 Collecting            एकत्र             சேகரிக்கிறது      ശേഖരിക്കുന്നു     COLLECTING    -
+534 Game                  खेल               விளையாட்டு        കളി               GAME          -
+
+## Emergencies & Safety
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+535 Danger                खतरा              ஆபத்து            അപായം             DANGER        -
+536 Safe                  सुरक्षित          பாதுகாப்பான       സുരക്ഷിതം         SAFE          -
+537 Unsafe                असुरक्षित         பாதுகாப்பற்ற      സുരക്ഷിതമല്ലാത്ത  UNSAFE        -
+538 Accident              दुर्घटना          விபத்து           അപകടം             ACCIDENT      -
+539 Injury                चोट               காயம்             പരിക്ക്           INJURY        -
+540 Fire                  आग                தீ                തീ                FIRE          -
+541 Smoke                 धुआँ              புகை              പുക               SMOKE         -
+542 Police                पुलिस             போலீஸ்            പോലീസ്            POLICE        -
+543 Rescue                बचाव              மீட்பு            രക്ഷാപ്രവർത്തനം   RESCUE        -
+544 Emergency Number      आपातकालीन नंबर    அவசர எண்          അടിയന്തര നമ്പർ    EMERGENCY-NUMBER-
+545 First Aid             प्राथमिक चिकित्सा முதல் உதவி        ആദ്യചികിത്സ       FIRST-AID     -
+546 Warning               चेतावनी           எச்சரிக்கை        മുന്നറിയിപ്പ്     WARNING       -
+547 Alarm                 खतरे की घंटी      எச்சரிக்கை        അലാറം             ALARM         -
+548 Escape                पलायन             தப்பிக்க          രക്ഷപ്പെടുക       ESCAPE        -
+549 Protect               रक्षा करना        பாதுகாக்க         സംരക്ഷിക്കുക      PROTECT       -
+550 Found                 मिला              கண்டுபிடிக்கப்பட்டதுകണ്ടെത്തി         FOUND         -
+551 Theft                 चोरी              திருட்டு          മോഷണം             THEFT         -
+552 Robbery               डकैती             கொள்ளை            കവർച്ച            ROBBERY       -
+553 Emergency Exit        आपातकालीन निकास   அவசர வெளியேற்றம்  അടിയന്തര പുറപ്പെടൽEMERGENCY-EXIT-
+554 Earthquake            भूकंप             நிலநடுக்கம்       ഭൂകമ്പം           EARTHQUAKE    -
+555 Flood                 बाढ़              வெள்ளம்           വെള്ളപ്പൊക്കം     FLOOD         -
+
+## Community & Public Places
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+556 Community             समुदाय            சமூகம்            സമൂഹം             COMMUNITY     -
+557 City                  शहर               நகரம்             നഗരം              CITY          -
+558 Town                  शहर               நகரம்             പട്ടണം            TOWN          -
+559 Village               गाँव              கிராமம்           ഗ്രാമം            VILLAGE       -
+560 Neighborhood          अड़ोस-पड़ोस       அக்கம்            അയൽപ്പക്കം        NEIGHBORHOOD  -
+561 Bank                  किनारा            வங்கி             ബാങ്ക്            BANK          -
+562 ATM                   एटीएम             atm               atm               ATM           -
+563 Post Office           डाकघर             தபால் நிலையம்     തപാൽ കാര്യാലയം    POST-OFFICE   -
+564 Library               पुस्तकालय         நூலகம்            ലൈബ്രറി           LIBRARY       -
+565 College               कॉलेज             கல்லூரி           കോളേജ്            COLLEGE       -
+566 University            विश्वविद्यालय     பல்கலைக்கழகம்     യൂണിവേഴ്സിറ്റി    UNIVERSITY    -
+567 Clinic                क्लिनिक           கிளினிக்          ക്ലിനിക്ക്        CLINIC        -
+568 Park                  पार्क             பூங்கா            പാർക്ക്           PARK          -
+569 Playground            खेल का मैदान      விளையாட்டு மைதானம்കളിസ്ഥലം          PLAYGROUND    -
+570 Museum                संग्रहालय         அருங்காட்சியகம்   മ്യൂസിയം          MUSEUM        -
+571 Theater               थिएटर             தியேட்டர்         തിയേറ്റർ          THEATER       -
+572 Bus Station           बस स्टेशन         பேருந்து நிலையம்  ബസ് സ്റ്റേഷൻ      BUS-STATION   -
+573 Train Station         रेलवे स्टेशन      ரயில் நிலையம்     റെയിൽവേ സ്റ്റേഷൻ  TRAIN-STATION -
+574 Government Office     सरकारी दफ्तर      அரசு அலுவலகம்     സർക്കാർ ഓഫീസ്     GOVERNMENT-OFFICE-
+575 Court                 अदालत             நீதிமன்றம்        കോടതി             COURT         -
+576 Police Station        पुलिस स्टेशन      காவல் நிலையம்     പോലീസ് സ്റ്റേഷൻ   POLICE-STATION-
+577 Temple                मंदिर             கோவில்            ക്ഷേത്രം          TEMPLE        -
+578 Church                गिरजाघर           தேவாலயம்          പള്ളി             CHURCH        -
+579 Mosque                मस्जिद            மசூதி             പള്ളി             MOSQUE        -
+580 Shopping Mall         शॉपिंग मॉल        ஷாப்பிங் மால்     ഷോപ്പിംഗ് മാൾ     SHOPPING-MALL -
+
+## Daily Conversations & Storytelling
+#   English               Hindi             Tamil             Malayalam         ISL           Vid
+----------------------------------------------------------------------------------------------------
+581 Story                 कहानी             கதை               കഥ                STORY         -
+582 Conversation          बातचीत            உரையாடல்          സംഭാഷണം           CONVERSATION  -
+583 Discuss               चर्चा करना        விவாதிக்க         ചർച്ച ചെയ്യുക     DISCUSS       -
+584 Describe              वर्णन करना        விவரிக்க          വിവരിക്കുക        DESCRIBE      -
+585 Think                 सोचना             நினைக்கிறார்கள்   ചിന്തിക്കുക       THINK         -
+586 Believe               विश्वास           நம்பு             വിശ്വസിക്കുന്നു   BELIEVE       -
+587 Guess                 अनुमान            யூகிக்கிறேன்      ഊഹിക്കുക          GUESS         -
+588 Opinion               राय               கருத்து           അഭിപ്രായം         OPINION       -
+589 Idea                  विचार             யோசனை             ആശയം              IDEA          -
+590 Example               उदाहरण            உதாரணம்           ഉദാഹരണം           EXAMPLE       -
+591 Event                 आयोजन             நிகழ்வு           സംഭവം             EVENT         -
+592 Experience            अनुभव             அனுபவம்           അനുഭവം            EXPERIENCE    -
+593 Beginning             शुरुआत            ஆரம்பம்           തുടക്കം           BEGINNING     -
+594 Middle                मध्य              நடுத்தர           മധ്യഭാഗം          MIDDLE        -
+595 End                   अंत               முடிவு            അവസാനിക്കുന്നു    END           Y
+596 Happened              घटित              நடந்தது           സംഭവിച്ചു         HAPPENED      -
+597 More                  अधिक              மேலும்            കൂടുതൽ            MORE          Y

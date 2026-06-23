@@ -92,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _glossRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
+  bool _captionLocked = false;
 
   @override
   void dispose() {
@@ -326,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _stopSignAndAnalyze() async {
+  Future<void> _sendSignRecording() async {
     if (_signPhase != SignFlowPhase.recording) {
       return;
     }
@@ -337,6 +338,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() => _signRecordingActive = false);
+  }
+
+  Future<void> _clearSignResult() async {
+    await widget.phraseSpeechService.stop();
+    ++_signGeneration;
+    ++_signSpeakGeneration;
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _signResult = null;
+      _signPhase = SignFlowPhase.recording;
+      _signRecordingActive = true;
+      _signRecordingStartedAt = DateTime.now();
+    });
+  }
+
+  Future<void> _stopSignAndAnalyze() async {
+    await _sendSignRecording();
   }
 
   Future<void> _analyzeSignVideo(String videoPath) async {
@@ -383,6 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
         videoPath: videoPath,
         languageCode: widget.selectedLanguageCode,
         recordingDuration: recordingDuration,
+        conversationContext: _heardForSignFlow?.fullTranscript,
       );
       if (!mounted || generation != _signGeneration) {
         return;
@@ -511,6 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenResult = null;
       _audioLevel = 0;
       _signPulse = 0;
+      _captionLocked = false;
     });
     _resetLiveGlossState();
 
@@ -538,7 +560,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _audioLevelSubscription = widget.translateService
         .audioLevelUpdates()
         .listen((level) {
-          if (!mounted || generation != _listenGeneration) {
+          if (!mounted ||
+              generation != _listenGeneration ||
+              _captionLocked) {
             return;
           }
           setState(() => _audioLevel = level);
@@ -584,6 +608,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
+      _captionLocked = false;
     });
     _showListenError(message);
   }
@@ -596,6 +621,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onListenUpdate(TalkListenUpdate update, int generation) {
     if (!mounted || generation != _listenGeneration) {
+      return;
+    }
+    if (_captionLocked) {
       return;
     }
 
@@ -614,10 +642,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final caption = _normalizeGlossCaption(update.fullTranscript);
-    if (caption.isNotEmpty && _needsGlossRefresh(caption)) {
-      _scheduleLiveGlossUpdate();
-    }
-
     if (update.isFinal && caption.isEmpty) {
       unawaited(_handleNoSpeechDetected(generation));
     }
@@ -660,6 +684,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
+      _captionLocked = false;
     });
     _showListenError(widget.uiCopy.noSpeechDetectedLabel);
   }
@@ -682,6 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _listenInFlight = false;
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
+      _captionLocked = false;
     });
   }
 
@@ -728,40 +754,95 @@ class _HomeScreenState extends State<HomeScreen> {
       _stopInFlight = false;
       _listenResult = _listenResultForAvatar(result);
       _sessionPhase = TalkSessionPhase.stopped;
+      _captionLocked = false;
     });
     if (result.hasTranscript) {
       _cancelLiveGlossDebounce();
       final caption = _normalizeGlossCaption(result.fullTranscript);
-      if (_needsGlossRefresh(caption)) {
+      if (_needsGlossRefresh(caption) || _accumulatedGlossTokens.isEmpty) {
         unawaited(_refreshLiveGloss());
       }
     }
   }
 
-  void _scheduleLiveGlossUpdate() {
+  bool get _canSendCaption {
+    if (_sessionPhase != TalkSessionPhase.listening ||
+        _cloudGlossInFlight ||
+        _captionLocked) {
+      return false;
+    }
     final result = _listenResult;
     if (result == null || !result.hasTranscript) {
-      return;
+      return false;
     }
     final caption = _normalizeGlossCaption(result.fullTranscript);
-    if (!_needsGlossRefresh(caption)) {
+    return _glossCaptionDelta(caption) != null;
+  }
+
+  Future<void> _sendCaptionForGloss() async {
+    if (!_canSendCaption) {
+      return;
+    }
+    _cancelLiveGlossDebounce();
+    await _pauseListeningForCaption();
+    if (!mounted || _sessionPhase != TalkSessionPhase.listening) {
+      return;
+    }
+    await _refreshLiveGloss();
+  }
+
+  Future<void> _pauseListeningForCaption() async {
+    if (_captionLocked) {
+      return;
+    }
+    _captionLocked = true;
+    _stopAudioLevelSubscription();
+    if (mounted) {
+      setState(() => _audioLevel = 0);
+    }
+    await widget.translateService.pauseListening();
+  }
+
+  Future<void> _clearCaptionAndResume() async {
+    if (!_captionLocked || _sessionPhase != TalkSessionPhase.listening) {
       return;
     }
 
-    final delay = _glossScheduleDelay(caption);
-    _cancelLiveGlossDebounce();
-    _liveGlossDebounceTimer = Timer(delay, () {
-      _liveGlossDebounceTimer = null;
-      unawaited(_refreshLiveGloss());
-    });
-  }
-
-  /// Wait briefly for STT to settle before glossing.
-  Duration _glossScheduleDelay(String caption) {
-    if (_accumulatedGlossTokens.isEmpty && !_cloudGlossInFlight) {
-      return const Duration(milliseconds: 300);
+    final generation = _listenGeneration;
+    final started = await widget.translateService.resumeListening();
+    if (!mounted || generation != _listenGeneration) {
+      return;
     }
-    return const Duration(milliseconds: 500);
+
+    if (!started) {
+      _showListenError(widget.uiCopy.listenStartFailedLabel);
+      return;
+    }
+
+    setState(() {
+      _captionLocked = false;
+      _cloudGlossWord = null;
+      _accumulatedGlossTokens.clear();
+      _lastFetchedGlossCaption = null;
+      _glossInFlightEndCaption = null;
+      _cloudGlossInFlight = false;
+      _listenResult = TalkListenResult.empty(
+        languageCode: widget.selectedLanguageCode,
+        elapsed: Duration.zero,
+      );
+      _audioLevel = 0;
+    });
+
+    _audioLevelSubscription = widget.translateService
+        .audioLevelUpdates()
+        .listen((level) {
+          if (!mounted ||
+              generation != _listenGeneration ||
+              _captionLocked) {
+            return;
+          }
+          setState(() => _audioLevel = level);
+        });
   }
 
   Future<void> _refreshLiveGloss() async {
@@ -896,6 +977,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
       _resetLiveGlossState();
+      _captionLocked = false;
       _signGeneration++;
       _signSpeakGeneration++;
       _signPhase = SignFlowPhase.idle;
@@ -913,6 +995,8 @@ class _HomeScreenState extends State<HomeScreen> {
       TalkSessionPhase.idle || TalkSessionPhase.stopped => false,
     };
   }
+
+  bool get _showListenWaveform => _isRecordingSession && !_captionLocked;
 
   _TalkControlsMode get _controlsMode {
     return switch (_signPhase) {
@@ -936,6 +1020,7 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         heardResult: _heardForSignFlow,
         isRecording: _signRecordingActive,
+        onSendSign: _sendSignRecording,
         onRecordingStopped: _analyzeSignVideo,
         onCameraError: (message) {
           debugPrint('Sign camera error: $message');
@@ -958,6 +1043,7 @@ class _HomeScreenState extends State<HomeScreen> {
         heardResult: _heardForSignFlow,
         signResult: _signResult!,
         onReplay: _replaySpoken,
+        onClearResult: _clearSignResult,
       );
     }
 
@@ -984,6 +1070,10 @@ class _HomeScreenState extends State<HomeScreen> {
         signPulse: _signPulse,
         isRefreshingGloss: _cloudGlossInFlight,
         cloudGlossWord: _cloudGlossWord,
+        canSendCaption: _canSendCaption,
+        captionLocked: _captionLocked,
+        onSendCaption: _sendCaptionForGloss,
+        onClearCaption: _clearCaptionAndResume,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -1078,7 +1168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       children: [
                         Expanded(child: _buildSessionBody()),
-                        if (_isRecordingSession) ...[
+                        if (_showListenWaveform) ...[
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               vertical: AppSpacing.talkSessionWaveformPaddingV,
@@ -1381,12 +1471,15 @@ class _TalkActionButtons extends StatelessWidget {
               onTap: () {},
             ),
           ),
-          _TalkActionButton(
-            key: const Key('talk_translate_button'),
-            backgroundColor: AppColors.talkStopRed,
-            icon: Icons.translate_rounded,
-            label: uiCopy.tapToTranslate,
-            onTap: onTranslateTap,
+          Opacity(
+            opacity: AppSpacing.talkSessionSignMutedOpacity,
+            child: _TalkActionButton(
+              backgroundColor: AppColors.splashBlue,
+              shadowColor: AppColors.talkButtonShadow,
+              icon: Icons.videocam_outlined,
+              label: uiCopy.tapToSign,
+              onTap: () {},
+            ),
           ),
         ],
       );

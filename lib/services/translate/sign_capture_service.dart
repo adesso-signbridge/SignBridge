@@ -11,6 +11,7 @@ abstract class SignCaptureService implements Microservice {
     required String videoPath,
     required String languageCode,
     Duration recordingDuration = Duration.zero,
+    String? conversationContext,
   });
 
   /// Sample payload for simulators and tests.

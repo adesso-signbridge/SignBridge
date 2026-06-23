@@ -91,10 +91,12 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('Recording signs'), findsOneWidget);
-    expect(find.text('Tap to translate'), findsOneWidget);
+    expect(find.byKey(const Key('talk_sign_flip_camera_button')), findsOneWidget);
+    expect(find.byKey(const Key('talk_sign_send_button')), findsOneWidget);
+    expect(find.text('Tap to translate'), findsNothing);
     expect(find.text('Clear history'), findsNothing);
 
-    await tester.tap(find.byKey(const Key('talk_translate_button')));
+    await tester.tap(find.byKey(const Key('talk_sign_send_button')));
     await tester.pump();
 
     expect(find.text('Analyzing your signs…'), findsOneWidget);
@@ -108,8 +110,20 @@ void main() {
     expect(find.text('Clear history'), findsOneWidget);
     expect(find.textContaining('My name is Alex. I am deaf.'), findsOneWidget);
     expect(find.textContaining('Spoken · 01:00'), findsOneWidget);
+    expect(find.byKey(const Key('talk_sign_clear_button')), findsOneWidget);
     expect(mockSignCapture.lastVideoPath, 'mock-sign-capture.mp4');
     expect(mockPhraseSpeech.lastSpokenText, 'My name is Alex. I am deaf.');
+
+    await tester.tap(find.byKey(const Key('talk_sign_clear_button')));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const Key('talk_sign_spoken_content')), findsNothing);
+    expect(find.textContaining('My name is Alex. I am deaf.'), findsNothing);
+    expect(find.byKey(const Key('talk_sign_recording_content')), findsOneWidget);
+    expect(find.textContaining('Recording signs'), findsOneWidget);
+    expect(find.byKey(const Key('talk_sign_flip_camera_button')), findsOneWidget);
+    expect(find.byKey(const Key('talk_sign_send_button')), findsOneWidget);
   });
 
   testWidgets('Phrases tab shows categories and speaks on tap', (
@@ -206,6 +220,41 @@ void main() {
     await tester.pump();
 
     expect(find.text('Clear history'), findsNothing);
+  });
+
+  testWidgets('Tap send locks caption, shows gloss, then clear resumes listen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const SignBridgeApp());
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('talk_listen_button')));
+    await tester.pump();
+
+    await tester.pump(const Duration(seconds: 4));
+
+    expect(find.textContaining('Hello, how are'), findsOneWidget);
+    expect(find.byKey(const Key('talk_caption_send_button')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk_caption_send_button')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byKey(const Key('talk_caption_clear_button')), findsOneWidget);
+    expect(find.byKey(const Key('talk_caption_send_button')), findsNothing);
+    expect(find.byKey(const Key('talk_audio_waveform')), findsNothing);
+    expect(find.textContaining('Signing:'), findsOneWidget);
+    expect(find.textContaining('Hello, how are'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('talk_caption_clear_button')));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const Key('talk_caption_clear_button')), findsNothing);
+    expect(find.text('Listening...'), findsOneWidget);
+    expect(find.byKey(const Key('talk_audio_waveform')), findsOneWidget);
   });
 
   testWidgets('Tap listen then stop shows stopped state with transcript', (

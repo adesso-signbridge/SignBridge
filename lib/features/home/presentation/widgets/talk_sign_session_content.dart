@@ -8,12 +8,13 @@ import '../../../../services/translate/talk_listen_result.dart';
 import 'sign_camera_recorder.dart';
 import 'talk_session_content.dart';
 
-class TalkSignRecordingContent extends StatelessWidget {
+class TalkSignRecordingContent extends StatefulWidget {
   const TalkSignRecordingContent({
     super.key,
     required this.uiCopy,
     this.heardResult,
     required this.isRecording,
+    required this.onSendSign,
     required this.onRecordingStopped,
     required this.onCameraError,
   });
@@ -21,15 +22,46 @@ class TalkSignRecordingContent extends StatelessWidget {
   final HomeUiCopy uiCopy;
   final TalkListenResult? heardResult;
   final bool isRecording;
+  final VoidCallback onSendSign;
   final ValueChanged<String> onRecordingStopped;
   final ValueChanged<String> onCameraError;
+
+  @override
+  State<TalkSignRecordingContent> createState() =>
+      _TalkSignRecordingContentState();
+}
+
+class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
+  final _cameraController = SignCameraRecorderController();
+
+  @override
+  void initState() {
+    super.initState();
+    _cameraController.addListener(_onCameraControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    _cameraController.removeListener(_onCameraControllerChanged);
+    _cameraController.dispose();
+    super.dispose();
+  }
+
+  void _onCameraControllerChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TalkSignHeardSection(heardResult: heardResult, uiCopy: uiCopy),
+        TalkSignHeardSection(
+          heardResult: widget.heardResult,
+          uiCopy: widget.uiCopy,
+        ),
         Align(
           alignment: Alignment.centerRight,
           child: Padding(
@@ -37,7 +69,7 @@ class TalkSignRecordingContent extends StatelessWidget {
               top: AppSpacing.talkSessionStatusBottom,
             ),
             child: TalkSignRecordingStatusBubble(
-              label: uiCopy.recordingSignsLabel,
+              label: widget.uiCopy.recordingSignsLabel,
             ),
           ),
         ),
@@ -54,15 +86,33 @@ class TalkSignRecordingContent extends StatelessWidget {
                 child: SizedBox(
                   height: cameraHeight,
                   child: SignCameraStageFrame(
+                    overlay: widget.isRecording
+                        ? Positioned(
+                            right: 12,
+                            bottom: 12,
+                            child: TalkSignCameraActionBar(
+                              flipSemanticsLabel:
+                                  widget.uiCopy.flipCameraLabel,
+                              sendSemanticsLabel:
+                                  widget.uiCopy.sendCaptionLabel,
+                              canFlip: _cameraController.canFlipCamera,
+                              flipBusy: _cameraController.isFlipping,
+                              sendEnabled: true,
+                              onFlip: () => _cameraController.flipCamera(),
+                              onSend: widget.onSendSign,
+                            ),
+                          )
+                        : null,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
                         SignCameraRecorder(
-                          isRecording: isRecording,
-                          onRecordingStopped: onRecordingStopped,
-                          onError: onCameraError,
+                          controller: _cameraController,
+                          isRecording: widget.isRecording,
+                          onRecordingStopped: widget.onRecordingStopped,
+                          onError: widget.onCameraError,
                         ),
-                        if (isRecording)
+                        if (widget.isRecording)
                           const Align(
                             alignment: Alignment.topCenter,
                             child: Padding(
@@ -124,12 +174,14 @@ class TalkSignSpokenContent extends StatelessWidget {
     this.heardResult,
     required this.signResult,
     required this.onReplay,
+    required this.onClearResult,
   });
 
   final HomeUiCopy uiCopy;
   final TalkListenResult? heardResult;
   final SignCaptureResult signResult;
   final VoidCallback onReplay;
+  final VoidCallback onClearResult;
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +217,15 @@ class TalkSignSpokenContent extends StatelessWidget {
                   '${uiCopy.spokenLabel} · ${signResult.formattedDuration()}',
               replayLabel: uiCopy.replayLabel,
               onReplay: onReplay,
+              clearAction: TalkCaptionActionButton(
+                mode: TalkCaptionActionMode.clear,
+                semanticsLabel: uiCopy.clearCaptionLabel,
+                enabled: true,
+                busy: false,
+                onDarkBackground: true,
+                buttonKey: const Key('talk_sign_clear_button'),
+                onTap: onClearResult,
+              ),
             ),
           ),
         ),
@@ -390,12 +451,14 @@ class TalkSignSpokenMessage extends StatelessWidget {
     required this.metaLabel,
     required this.replayLabel,
     required this.onReplay,
+    this.clearAction,
   });
 
   final String transcript;
   final String metaLabel;
   final String replayLabel;
   final VoidCallback onReplay;
+  final Widget? clearAction;
 
   @override
   Widget build(BuildContext context) {
@@ -406,22 +469,34 @@ class TalkSignSpokenMessage extends StatelessWidget {
         TalkSignRightStatusBubble(
           backgroundColor: AppColors.splashBlue,
           borderColor: Colors.transparent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          child: Stack(
             children: [
-              Text(
-                transcript,
-                style: const TextStyle(
-                  fontFamily: 'Klavika',
-                  fontWeight: FontWeight.w400,
-                  fontSize: AppSpacing.talkSessionTranscriptFont,
-                  height: AppSpacing.talkSessionTranscriptLineHeight,
-                  color: AppColors.white,
+              Padding(
+                padding: EdgeInsets.only(
+                  right: clearAction == null ? 0 : 28,
+                  bottom: 2,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      transcript,
+                      style: const TextStyle(
+                        fontFamily: 'Klavika',
+                        fontWeight: FontWeight.w400,
+                        fontSize: AppSpacing.talkSessionTranscriptFont,
+                        height: AppSpacing.talkSessionTranscriptLineHeight,
+                        color: AppColors.white,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.talkSessionMetaTop),
+                    TalkReplayButton(label: replayLabel, onTap: onReplay),
+                  ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.talkSessionMetaTop),
-              TalkReplayButton(label: replayLabel, onTap: onReplay),
+              if (clearAction != null)
+                Positioned(right: 0, bottom: 0, child: clearAction!),
             ],
           ),
         ),

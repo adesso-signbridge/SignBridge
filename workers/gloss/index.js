@@ -1,15 +1,22 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
- * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini quality chain → Groq → Adesso (see gemini_model_chain.js).
- * Sign video (POST /sign): same Gemini chain via sign_recognition.js.
+ * POST /sign (multipart video) → spoken text via sign_recognition.js.
+ * Gloss (POST /): Groq → Adesso → Gemini fallback.
+ * Sign video (POST /sign): Adesso video→text + Groq gloss → Gemini fallback.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
 import { geminiQualityChain } from "../gemini_model_chain.js";
+import {
+  JSON_HEADERS,
+  captionToGloss as captionToGlossGroqFirst,
+  groqConfigured,
+  adessoConfigured,
+  glossSystemInstruction,
+  glossUserMessage,
+  parseGloss,
+} from "../gloss_providers.js";
 import { handleSignRecognitionRequest } from "../sign_recognition.js";
-
-const JSON_HEADERS = { "Content-Type": "application/json" };
 
 export default {
   async fetch(request, env) {
@@ -74,20 +81,16 @@ function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
 }
 
-function groqApiKey(env) {
-  return env.GROQ_KEY || env.GROQ_API_KEY || "";
-}
-
-function groqConfigured(env) {
-  return Boolean(groqApiKey(env));
-}
-
-function adessoConfigured(env) {
-  return Boolean(env.ADESSO_KEY && env.ADESSO_API_URL);
-}
-
 async function captionToGloss(caption, signLanguage, env) {
   const errors = [];
+
+  if (groqConfigured(env) || adessoConfigured(env)) {
+    try {
+      return await captionToGlossGroqFirst(caption, signLanguage, env);
+    } catch (err) {
+      errors.push(err);
+    }
+  }
 
   if (geminiApiKey(env)) {
     const models = geminiModels(env);
@@ -105,28 +108,6 @@ async function captionToGloss(caption, signLanguage, env) {
       } catch (err) {
         errors.push(err);
       }
-    }
-  }
-
-  if (groqConfigured(env)) {
-    try {
-      return await captionToGlossGroq(caption, signLanguage, env);
-    } catch (err) {
-      errors.push(err);
-    }
-  }
-
-  if (adessoConfigured(env)) {
-    try {
-      const glossSequence = validateGlossSequence(
-        await captionToGlossAdesso(caption, signLanguage, env),
-      );
-      return {
-        glossSequence,
-        modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
-      };
-    } catch (err) {
-      errors.push(err);
     }
   }
 
@@ -153,45 +134,6 @@ function isModelUnavailableStatus(status) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function captionToGlossGroq(caption, signLanguage, env) {
-  const apiKey = groqApiKey(env);
-  const model = (env.GROQ_MODEL || "llama-3.1-8b-instant").trim();
-
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      ...JSON_HEADERS,
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0,
-      max_tokens: 128,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: glossSystemInstruction(signLanguage) },
-        { role: "user", content: glossUserMessage(caption, signLanguage) },
-      ],
-    }),
-  });
-
-  if (!res.ok) {
-    const detail = await res.text();
-    const error = new Error(`Groq ${res.status}: ${detail}`);
-    error.status = res.status;
-    throw error;
-  }
-
-  const data = await res.json();
-  const content = data?.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Groq returned empty gloss response");
-  }
-
-  const glossSequence = validateGlossSequence(parseGloss(content));
-  return { glossSequence, modelUsed: `groq:${model}` };
 }
 
 async function captionToGlossGemini(
@@ -239,46 +181,6 @@ async function captionToGlossGemini(
   }
 
   throw lastError || new Error("Gemini request failed");
-}
-
-function glossSystemInstruction(signLanguage) {
-  const lang = signLanguage.trim().toUpperCase();
-  if (lang.includes("ISL")) {
-    return (
-      `You convert spoken captions into Indian Sign Language (ISL) gloss. ` +
-      `Return JSON only: {"glossSequence":["TOKEN","..."]}. ` +
-      `Use UPPERCASE gloss tokens separated in an array. ` +
-      `Apply ISL grammar, not literal English word order. ` +
-      `Use ME for first person. Drop filler words: a, an, the, is, am, are, of, with. ` +
-      `Keep numbers, food names, and key nouns. Gloss only the caption fragment. ` +
-      `Never return "glossSequence" as a token. ` +
-      `Example: "I want water" → {"glossSequence":["ME","WANT","WATER"]}`
-    );
-  }
-
-  return (
-    `You convert spoken English into American Sign Language (ASL) gloss. ` +
-    `Return JSON only: {"glossSequence":["TOKEN","..."]}. ` +
-    `Use UPPERCASE gloss tokens in an array. ` +
-    `Apply ASL grammar (topic-comment), NOT word-for-word English. ` +
-    `Use ME instead of I. Drop articles (a, an, the) and filler prepositions (of, with) when possible. ` +
-    `Keep numbers and important nouns. WH-questions put the WH word last. ` +
-    `Gloss only the caption fragment. Never return "glossSequence" as a token. ` +
-    `Examples: ` +
-    `"how can I help you" → {"glossSequence":["HELP","YOU","HOW"]} ` +
-    `"I like dogs" → {"glossSequence":["DOG","ME","LIKE"]} ` +
-    `"I want one plate masala dosa with a cup of coffee" → ` +
-    `{"glossSequence":["ME","WANT","ONE","MASALA","DOSA","PLATE","COFFEE","CUP"]}`
-  );
-}
-
-function glossUserMessage(caption, signLanguage) {
-  return (
-    `Sign language: ${signLanguage.trim()}\n` +
-    `Convert this spoken caption into sign gloss using ${signLanguage.trim()} grammar ` +
-    `(not literal English word order):\n` +
-    `${caption}`
-  );
 }
 
 const GLOSS_RESPONSE_SCHEMA = {
@@ -369,120 +271,10 @@ async function requestGeminiGloss(
   return parseGloss(content);
 }
 
-async function captionToGlossAdesso(caption, signLanguage, env) {
-  const res = await fetch(`${env.ADESSO_API_URL}/chat/completions`, {
-    method: "POST",
-    headers: {
-      ...JSON_HEADERS,
-      Authorization: `Bearer ${env.ADESSO_KEY}`,
-    },
-    body: JSON.stringify({
-      model: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
-      temperature: 0.2,
-      messages: [
-        {
-          role: "system",
-          content: glossSystemInstruction(signLanguage),
-        },
-        { role: "user", content: glossUserMessage(caption, signLanguage) },
-      ],
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Adesso ${res.status}: ${await res.text()}`);
-  }
-
-  const data = await res.json();
-  const content = data?.choices?.[0]?.message?.content ?? "[]";
-  return parseGloss(content);
-}
-
-function parseGloss(content) {
-  const text = String(content).trim();
-  const extracted = extractGlossTokens(text);
-  if (extracted && extracted.length > 0) {
-    return normalizeGlossSequence(extracted);
-  }
-
-  throw new Error(`Unable to parse gloss response: ${text.slice(0, 120)}`);
-}
-
-function extractGlossTokens(text) {
-  try {
-    return glossTokensFromParsed(JSON.parse(text));
-  } catch (_) {
-    // fall through
-  }
-
-  const objectMatch = text.match(/\{[\s\S]*"glossSequence"[\s\S]*\}/);
-  if (objectMatch) {
-    try {
-      return glossTokensFromParsed(JSON.parse(objectMatch[0]));
-    } catch (_) {
-      // fall through
-    }
-  }
-
-  const arrayMatch = text.match(/\[[\s\S]*\]/);
-  if (arrayMatch) {
-    try {
-      return glossTokensFromParsed(JSON.parse(arrayMatch[0]));
-    } catch (_) {
-      // fall through
-    }
-  }
-
-  return null;
-}
-
-function glossTokensFromParsed(parsed) {
-  if (Array.isArray(parsed)) {
-    return parsed;
-  }
-  if (!parsed || typeof parsed !== "object") {
-    return null;
-  }
-
-  const sequence = parsed.glossSequence;
-  if (Array.isArray(sequence)) {
-    return sequence;
-  }
-  if (typeof sequence === "string" && sequence.trim()) {
-    return sequence.trim().split(/\s+/);
-  }
-
-  return null;
-}
-
 const JSON_ARTIFACT_TOKENS = new Set(["GLOSSSEQUENCE", "GLOSSEQUENCE"]);
-
-function normalizeGlossSequence(tokens) {
-  const normalized = tokens
-    .map((token) =>
-      String(token)
-        .trim()
-        .toUpperCase()
-        .replace(/[^\w-?]/g, ""),
-    )
-    .filter((token) => token && !JSON_ARTIFACT_TOKENS.has(token));
-
-  if (normalized.length === 0) {
-    throw new Error("Gloss sequence empty after normalization");
-  }
-
-  return normalized;
-}
 
 function isInvalidGlossResponse(tokens) {
   return !tokens || tokens.length === 0 || tokens.every((token) => JSON_ARTIFACT_TOKENS.has(token));
-}
-
-function validateGlossSequence(tokens) {
-  if (isInvalidGlossResponse(tokens)) {
-    throw new Error("Invalid gloss tokens");
-  }
-  return tokens;
 }
 
 function json(obj, status = 200) {

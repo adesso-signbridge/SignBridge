@@ -3,8 +3,11 @@ main = "workers/gloss/index.js"
 compatibility_date = "2026-06-16"
 
 [vars]
+# Gloss caption → ASL/ISL: Groq (llama) primary, Adesso fallback, Gemini last resort
 GROQ_MODEL = "llama-3.1-8b-instant"
-# Gemini failover order (best→least): 3.5 → 3-preview → 2.5 → 3.1-lite → 2.5-lite
+# Sign video → text: Adesso (set ADESSO_VIDEO_MODEL if different from ADESSO_MODEL)
+ADESSO_MODEL = "qwen-3.6-35b-sovereign"
+# Gemini failover for gloss + sign video fallback
 GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 GEMINI_LITE_MODEL = "gemini-3.1-flash-lite"
@@ -12,4 +15,3 @@ GEMINI_LITE_FALLBACK_MODEL = "gemini-2.5-flash-lite"
 GEMINI_PRIMARY_TIMEOUT_MS = "6000"
 SIGN_GEMINI_MODEL = "gemini-3.5-flash"
 SIGN_GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
-ADESSO_MODEL = "qwen-3.6-35b-sovereign"

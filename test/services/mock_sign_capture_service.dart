@@ -22,6 +22,7 @@ final class MockSignCaptureService implements SignCaptureService {
     required String videoPath,
     required String languageCode,
     Duration recordingDuration = Duration.zero,
+    String? conversationContext,
   }) async {
     lastVideoPath = videoPath;
     lastLanguageCode = languageCode;

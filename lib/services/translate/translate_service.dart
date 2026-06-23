@@ -38,6 +38,12 @@ abstract class TranslateService implements Microservice {
   /// Cancels an in-flight listen session.
   Future<void> cancelListening();
 
+  /// Stops microphone capture while keeping the listen session open.
+  Future<void> pauseListening();
+
+  /// Clears the live caption and resumes microphone capture.
+  Future<bool> resumeListening();
+
   /// Returns sample payload for [languageCode] (simulator / empty stop).
   TalkListenResult peekListenResult(String languageCode);
 }

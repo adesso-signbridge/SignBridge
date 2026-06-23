@@ -41,6 +41,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     required String videoPath,
     required String languageCode,
     Duration recordingDuration = Duration.zero,
+    String? conversationContext,
   }) async {
     if (!isConfigured) {
       throw StateError('Cloudflare sign worker URL is not configured');
@@ -51,6 +52,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
       throw StateError('Sign recording not found: $videoPath');
     }
 
+    final context = conversationContext?.trim();
     final urls = _workerUrls();
     Object? lastError;
     for (var index = 0; index < urls.length; index++) {
@@ -61,6 +63,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
           videoPath: videoPath,
           languageCode: languageCode,
           recordingDuration: recordingDuration,
+          conversationContext: context,
         );
       } on Object catch (error) {
         lastError = error;
@@ -109,6 +112,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     required String videoPath,
     required String languageCode,
     required Duration recordingDuration,
+    String? conversationContext,
   }) async {
     final signLanguage =
         SignLanguageSystem.forSpokenLanguage(languageCode).label;
@@ -118,14 +122,17 @@ final class CloudflareSignCaptureService implements SignCaptureService {
       ..fields['jobId'] = jobId
       ..fields['languageCode'] = languageCode
       ..fields['signLanguage'] = signLanguage
-      ..fields['durationMs'] = '${recordingDuration.inMilliseconds}'
-      ..files.add(
-        await http.MultipartFile.fromPath(
-          'video',
-          videoPath,
-          filename: _videoUploadFilename(videoPath),
-        ),
-      );
+      ..fields['durationMs'] = '${recordingDuration.inMilliseconds}';
+    if (conversationContext != null && conversationContext.isNotEmpty) {
+      request.fields['conversationContext'] = conversationContext;
+    }
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'video',
+        videoPath,
+        filename: _videoUploadFilename(videoPath),
+      ),
+    );
 
     if (_sharedKey.isNotEmpty) {
       request.headers['X-SignBridge-Key'] = _sharedKey;

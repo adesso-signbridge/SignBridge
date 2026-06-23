@@ -1,0 +1,598 @@
+sno,category,english,hindi,tamil,malayalam,isl_gloss,meaning,has_local_video
+1,Question Words,Who,कौन,யார்,ആർ,WHO,Person,yes
+2,Question Words,What,क्या,என்ன,എന്ത്,WHAT,Thing / Information,yes
+3,Question Words,Where,कहाँ,எங்கே,എവിടെ,WHERE,Place,yes
+4,Question Words,When,कब,எப்போது,എപ്പോൾ,WHEN,Time,yes
+5,Question Words,Why,क्यों,ஏன்,എന്തുകൊണ്ട്,WHY,Reason,yes
+6,Question Words,Which,कौन,எது,ഏത്,WHICH,Choice,yes
+7,Question Words,Whose,किसका,யாருடைய,ആരുടെ,WHOSE,Ownership,yes
+8,Question Words,How,कैसे,எப்படி,എങ്ങനെ,HOW,Method / Manner,yes
+9,Question Words,How Many,कितने,எத்தனை,എത്ര,HOW-MANY,Countable quantity,yes
+10,Question Words,How Much,कितना,எவ்வளவு,എത്ര,HOW-MUCH,Amount / Price,yes
+11,Question Words,How Long,कितनी देर,எவ்வளவு நேரம்,എത്ര നേരം,HOW-LONG,Duration / Length,yes
+12,Question Words,How Often,कितनी बार,எவ்வளவு அடிக்கடி,എത്ര തവണ,HOW-OFTEN,Frequency,yes
+13,Question Words,How Far,कितनी दूर,எவ்வளவு தூரம்,എത്ര ദൂരം,HOW-FAR,Distance,yes
+14,Question Words,How Old,कितने साल का,எத்தனை வயது,എത്ര വയസ്സ്,HOW-OLD,Age,yes
+15,Question Words,What Time,कितने बजे,எத்தனை மணி,എത്ര മണി,WHAT-TIME,Specific time,yes
+16,Question Words,What Kind,किस तरह का,எந்த வகை,എന്ത് തരം,WHAT-KIND,Type,yes
+17,Question Words,For What,किस लिए,எதற்காக,എന്തിന്,FOR-WHAT,Purpose,yes
+18,Question Words,Since When,कब से,எப்போதிருந்து,എപ്പോൾ മുതൽ,SINCE-WHEN,Starting time,yes
+19,Question Words,Until When,कब तक,எப்போது வரை,എപ്പോൾ വരെ,UNTIL-WHEN,Ending time,yes
+20,Question Words,How Come,कैसे,எப்படி,എങ്ങനെ,HOW-COME,Reason,yes
+21,Greetings & Politeness,Hello,नमस्ते,வணக்கம்,ഹലോ,HELLO,General greeting,yes
+22,Greetings & Politeness,Hi,नमस्ते,வணக்கம்,ഹായ്,HI,Casual greeting,yes
+23,Greetings & Politeness,Hey,अरे,ஏய்,ഹേയ്,HEY,Casual greeting,yes
+24,Greetings & Politeness,Good Morning,सुप्रभात,காலை வணக்கம்,സുപ്രഭാതം,GOOD-MORNING,Morning greeting,yes
+25,Greetings & Politeness,Good Afternoon,नमस्कार,மதிய வணக்கம்,ഗുഡ് ആഫ്റ്റർനൂൺ,GOOD-AFTERNOON,Afternoon greeting,yes
+26,Greetings & Politeness,Good Evening,शुभ संध्या,மாலை வணக்கம்,ഗുഡ് ഈവനിംഗ്,GOOD-EVENING,Evening greeting,yes
+27,Greetings & Politeness,Welcome,स्वागत,வரவேற்கிறேன்,സ്വാഗതം,WELCOME,Greeting someone arriving,yes
+28,Greetings & Politeness,How Are You?,आप कैसे हैं?,நீங்கள் எப்படி இருக்கிறீர்கள்?,സുഖമാണോ?,HOW-YOU,Ask about well-being,yes
+29,Greetings & Politeness,Nice To Meet You,आपसे मिलकर खुशी हुई,உங்களை சந்தித்ததில் மகிழ்ச்சி,കണ്ടതിൽ സന്തോഷം,NICE-MEET-YOU,First introduction,yes
+30,Greetings & Politeness,Good To See You,आपको देखकर अच्छा लगा,உங்களை பார்த்ததில் மகிழ்ச்சி,കണ്ടതിൽ സന്തോഷം,GOOD-SEE-YOU,Friendly greeting,yes
+31,Greetings & Politeness,Goodbye,अलविदा,விடைபெறுகிறேன்,വിട,GOODBYE,Leaving,yes
+32,Greetings & Politeness,Bye,अलविदा,விடைபெறுகிறேன்,വിട,BYE,Casual farewell,yes
+33,Greetings & Politeness,See You Later,फिर मिलेंगे,பிறகு சந்திப்போம்,പിന്നീട് കാണാം,SEE-YOU-LATER,Casual farewell,yes
+34,Greetings & Politeness,See You Tomorrow,कल मिलते हैं,நாளை சந்திப்போம்,നാളെ കാണാം,SEE-YOU-TOMORROW,Farewell,yes
+35,Greetings & Politeness,Have A Nice Day,आपका दिन शुभ हो,நல்ல நாள்,ശുഭദിനം,HAVE-NICE-DAY,Polite farewell,no
+36,Greetings & Politeness,Have A Good Weekend,आपका सप्ताहांत अच्छा रहे,நல்ல வார இறுதியில் இருக்கட்டும்,നല്ലൊരു വാരാന്ത്യം ആശംസിക്കുന്നു,HAVE-GOOD-WEEKEND,Weekend farewell,no
+37,Greetings & Politeness,Please,कृपया,தயவுசெய்து,ദയവായി,PLEASE,Polite request,yes
+38,Greetings & Politeness,Thank You,धन्यवाद,நன்றி,നന്ദി,THANK-YOU,Gratitude,yes
+39,Greetings & Politeness,Thanks A Lot,बहुत धन्यवाद,மிக்க நன்றி,വളരെ നന്ദി,THANK-YOU,Strong gratitude,yes
+40,Greetings & Politeness,You're Welcome,आपका स्वागत है,வரவேற்கிறோம்,സ്വാഗതം,WELCOME,Response to thanks,yes
+41,Greetings & Politeness,Excuse Me,माफ़ कीजिए,மன்னிக்கவும்,ക്ഷമിക്കണം,EXCUSE-ME,Attention / apology,yes
+42,Greetings & Politeness,Sorry,क्षमा मांगना,மன்னிக்கவும்,ക്ഷമിക്കണം,SORRY,Apology,yes
+43,Greetings & Politeness,Pardon Me,क्षमा करें,மன்னிக்கவும்,ക്ഷമിക്കണം,EXCUSE-ME,Polite apology,yes
+44,Greetings & Politeness,No Problem,कोई बात नहीं,பரவாயில்லை,പ്രശ്നമില്ല,NO-PROBLEM,Reassurance,yes
+45,Greetings & Politeness,Good Luck,शुभकामनाएँ,நல்வாழ்த்துகள்,ആശംസകൾ,GOOD-LUCK,Well wishes,yes
+46,Greetings & Politeness,Congratulations,बधाई हो,வாழ்த்துக்கள்,അഭിനന്ദനങ്ങൾ,CONGRATULATIONS,Celebration,yes
+47,Greetings & Politeness,Take Care,अपना ख्याल रखना,பாதுகாப்பாக இருங்கள்,ശ്രദ്ധിക്കുക,TAKE-CARE,Friendly farewell,yes
+48,Greetings & Politeness,Safe Trip,सुरक्षित यात्रा,பாதுகாப்பான பயணம்,സുരക്ഷിതമായ യാത്ര,SAFE-TRIP,Travel farewell,yes
+49,Greetings & Politeness,Bless You,भगवान आपका भला करे,ஆசீர்வாதம்,ആശീർവാദം,BLESS-YOU,After sneeze,yes
+50,Greetings & Politeness,Happy Birthday,जन्मदिन मुबारक,பிறந்தநாள் வாழ்த்துகள்,ജന്മദിനാശംസകൾ,HAPPY-BIRTHDAY,Birthday wish,yes
+51,People & Pronouns,I,मैं,நான்,ഞാൻ,ME,First person,yes
+52,People & Pronouns,You,आप,நீ,നിങ്ങൾ,YOU,Second person,yes
+53,People & Pronouns,He,वह,அவர்,അവൻ,HE,Male third person,yes
+54,People & Pronouns,She,वह,அவள்,അവൾ,SHE,Female third person,yes
+55,People & Pronouns,It,यह,அது,അത്,IT,Object / animal,yes
+56,People & Pronouns,We,हम,நாங்கள்,ഞങ്ങൾ,WE,First person plural,yes
+57,People & Pronouns,They,वे,அவர்கள்,അവർ,THEY,Third person plural,yes
+58,People & Pronouns,My,मेरा,என்,എൻ്റെ,MY,Possessive,yes
+59,People & Pronouns,Your,आपका,உங்கள்,നിങ്ങളുടെ,YOUR,Possessive,yes
+60,People & Pronouns,His,उसका,அவரது,അവൻ്റെ,HIS,Possessive,yes
+61,People & Pronouns,Her,उसकी,அவளை,അവളെ,HER,Possessive,yes
+62,People & Pronouns,Our,हमारा,எங்கள்,ഞങ്ങളുടെ,OUR,Possessive,yes
+63,People & Pronouns,Their,उनका,அவர்களின்,അവരുടെ,THEIR,Possessive,yes
+64,People & Pronouns,Person,व्यक्ति,நபர்,വ്യക്തി,PERSON,Individual,yes
+65,People & Pronouns,Adult,वयस्क,வயது வந்தோர்,മുതിർന്നവർ,ADULT,Grown person,yes
+66,People & Pronouns,Child,बच्चा,குழந்தை,കുട്ടി,CHILD,Young person,yes
+67,People & Pronouns,Teenager,किशोर,இளம்பெண்,കൗമാരക്കാരൻ,TEENAGER,Adolescent,yes
+68,People & Pronouns,Baby,बच्चा,குழந்தை,കുഞ്ഞ്,BABY,Infant,yes
+69,People & Pronouns,Friend,दोस्त,நண்பர்,സുഹൃത്ത്,FRIEND,Companion,yes
+70,People & Pronouns,Best Friend,सबसे अच्छा दोस्त,சிறந்த நண்பர்,ഏറ്റവും നല്ല സുഹൃത്ത്,BEST-FRIEND,Close friend,yes
+71,People & Pronouns,Neighbor,पड़ोसी,பக்கத்து வீட்டுக்காரர்,അയൽക്കാരൻ,NEIGHBOR,Nearby resident,yes
+72,People & Pronouns,Coworker,साथ में कम करने वाला,சக பணியாளர்,സഹപ്രവർത്തകൻ,COWORKER,Work colleague,no
+73,People & Pronouns,Teacher,अध्यापक,ஆசிரியர்,അധ്യാപകൻ,TEACHER,Educator,yes
+74,People & Pronouns,Student,विद्यार्थी,மாணவர்,വിദ്യാർത്ഥി,STUDENT,Learner,yes
+75,People & Pronouns,Doctor,चिकित्सक,மருத்துவர்,ഡോക്ടർ,DOCTOR,Medical professional,yes
+76,People & Pronouns,Nurse,देखभाल करना,செவிலியர்,നഴ്സ്,NURSE,Medical caregiver,yes
+77,People & Pronouns,Engineer,अभियंता,பொறியாளர்,എഞ്ചിനീയർ,ENGINEER,Technical professional,yes
+78,People & Pronouns,Programmer,प्रोग्रामर,புரோகிராமர்,പ്രോഗ്രാമർ,PROGRAMMER,Software developer,yes
+79,People & Pronouns,Manager,प्रबंधक,மேலாளர்,മാനേജർ,MANAGER,Supervisor,yes
+80,People & Pronouns,Boss,मालिक,முதலாளி,മുതലാളി,BOSS,Employer lead,yes
+81,People & Pronouns,Employee,कर्मचारी,பணியாளர்,ജീവനക്കാരൻ,EMPLOYEE,Worker,yes
+82,Family,Family,परिवार,குடும்பம்,കുടുംബം,FAMILY,Relatives,yes
+83,Family,Father,पिता,தந்தை,അച്ഛൻ,FATHER,Male parent,yes
+84,Family,Mother,माँ,தாய்,അമ്മ,MOTHER,Female parent,yes
+85,Family,Parents,अभिभावक,பெற்றோர்கள்,മാതാപിതാക്കൾ,PARENTS,Mother and father,yes
+86,Family,Son,बेटा,மகன்,മകൻ,SON,Male child,yes
+87,Family,Daughter,बेटी,மகள்,മകൾ,DAUGHTER,Female child,yes
+88,Family,Brother,भाई,அண்ணன்,സഹോദരൻ,BROTHER,Male sibling,yes
+89,Family,Sister,बहन,சகோதரி,സഹോദരി,SISTER,Female sibling,yes
+90,Family,Husband,पति,கணவன்,ഭർത്താവ്,HUSBAND,Male spouse,yes
+91,Family,Wife,पत्नी,மனைவி,ഭാര്യ,WIFE,Female spouse,yes
+92,Family,Grandfather,दादा,தாத்தா,മുത്തച്ഛൻ,GRANDFATHER,Father's/mother's father,yes
+93,Family,Grandmother,दादी,பாட்டி,മുത്തശ്ശി,GRANDMOTHER,Father's/mother's mother,yes
+94,Family,Uncle,चाचा,மாமா,അമ്മാവൻ,UNCLE,Parent's brother,yes
+95,Family,Aunt,चाची,அத்தை,അമ്മായി,AUNT,Parent's sister,yes
+96,Family,Cousin,चचेरा,உறவினர்,ബന്ധു,COUSIN,Extended family,yes
+97,Family,Nephew,भतीजा,மருமகன்,മരുമകൻ,NEPHEW,Sibling's son,yes
+98,Family,Niece,भतीजी,மருமகள்,മരുമകൾ,NIECE,Sibling's daughter,yes
+99,Family,Grandchild,पोता,பேரக்குழந்தை,പേരക്കുട്ടി,GRANDCHILD,Child's child,no
+100,Family,Relative,रिश्तेदार,உறவினர்,ബന്ധു,RELATIVE,Family member,yes
+101,Family,In-Law,ससुराल वाले,மாமியார்,ഇൻ ലോ,IN-LAW,Marriage relation,yes
+102,Time,Time,समय,நேரம்,സമയം,TIME,Clock / duration,yes
+103,Time,Now,अब,இப்போது,ഇപ്പോൾ,NOW,Present moment,yes
+104,Time,Today,आज,இன்று,ഇന്ന്,TODAY,This day,yes
+105,Time,Yesterday,कल,நேற்று,ഇന്നലെ,YESTERDAY,Previous day,yes
+106,Time,Tomorrow,कल,நாளை,നാളെ,TOMORROW,Next day,yes
+107,Time,Morning,सुबह,காலை,രാവിലെ,MORNING,AM period,yes
+108,Time,Afternoon,दोपहर,பிற்பகல்,ഉച്ചയ്ക്ക്,AFTERNOON,Midday period,yes
+109,Time,Evening,शाम,மாலை,വൈകുന്നേരം,EVENING,PM period,yes
+110,Time,Night,रात,இரவு,രാത്രി,NIGHT,Nighttime,yes
+111,Time,Midnight,मध्यरात्रि,நள்ளிரவு,അർദ്ധരാത്രി,MIDNIGHT,12 AM,yes
+112,Time,Noon,दोपहर,மதியம்,ഉച്ച,NOON,12 PM,yes
+113,Time,Minute,मिनट,நிமிடம்,മിനിറ്റ്,MINUTE,60 seconds,yes
+114,Time,Hour,घंटा,மணி,മണിക്കൂർ,HOUR,60 minutes,yes
+115,Time,Day,दिन,நாள்,ദിവസം,DAY,24 hours,yes
+116,Time,Week,सप्ताह,வாரம்,ആഴ്ച,WEEK,7 days,yes
+117,Time,Month,महीना,மாதம்,മാസം,MONTH,Calendar month,yes
+118,Time,Year,वर्ष,ஆண்டு,വർഷം,YEAR,12 months,yes
+119,Time,Decade,दशक,தசாப்தம்,ദശകം,DECADE,10 years,yes
+120,Time,Century,शतक,நூற்றாண்டு,നൂറ്റാണ്ട്,CENTURY,100 years,yes
+121,Time,Early,जल्दी,ஆரம்ப,നേരത്തെ,EARLY,Before expected,yes
+122,Time,Late,देर,தாமதமாக,വൈകി,LATE,After expected,yes
+123,Time,Soon,जल्द ही,விரைவில்,ഉടൻ,SOON,Near future,yes
+124,Time,Later,बाद में,பின்னர்,പിന്നീട്,LATER,After now,yes
+125,Time,Before,पहले,முன்,മുമ്പ്,BEFORE,Earlier than,yes
+126,Time,After,बाद,பிறகு,ശേഷം,AFTER,Later than,yes
+127,Time,Past,अतीत,கடந்த,കഴിഞ്ഞത്,PAST,Earlier time,yes
+128,Time,Future,भविष्य,எதிர்காலம்,ഭാവി,FUTURE,Later time,yes
+129,Time,Present,उपस्थित,தற்போது,ഹാജർ,PRESENT,Current time,yes
+130,Time,Always,हमेशा,எப்போதும்,എപ്പോഴും,ALWAYS,Every time,yes
+131,Time,Never,कभी नहीं,ஒருபோதும்,ഒരിക്കലും,NEVER,Not ever,yes
+132,Feelings,Happy,खुश,மகிழ்ச்சி,സന്തോഷം,HAPPY,Positive emotion,yes
+133,Feelings,Sad,दुखद,வருத்தம்,ദുഃഖം,SAD,Sorrow,yes
+134,Feelings,Angry,गुस्सा,கோபம்,ദേഷ്യം,ANGRY,Anger,yes
+135,Feelings,Excited,उत्साहित,உற்சாகமாக,ആവേശഭരിതനായി,EXCITED,Enthusiasm,yes
+136,Feelings,Tired,थका हुआ,சோர்வாக,തളർന്നു,TIRED,Fatigue,yes
+137,Feelings,Hungry,भूखा,பசி,വിശക്കുന്നു,HUNGRY,Need food,yes
+138,Feelings,Thirsty,प्यासा,தாகம்,ദാഹിക്കുന്നു,THIRSTY,Need drink,yes
+139,Feelings,Good,अच्छा,நல்லது,നല്ലത്,GOOD,Positive state,yes
+140,Feelings,Bad,खराब,மோசமான,മോശം,BAD,Negative state,yes
+141,Feelings,Fine,अच्छा,நன்றாக,നന്നായി,FINE,Okay,yes
+142,Feelings,Okay,ठीक है,சரி,ശരി,OKAY,Acceptable,yes
+143,Common Verbs,Go,जाना,போ,പോകൂ,GO,Move away,yes
+144,Common Verbs,Come,आना,வாருங்கள்,വരൂ,COME,Move toward,yes
+145,Common Verbs,Walk,टहलना,நடக்க,നടക്കുക,WALK,Move on foot,yes
+146,Common Verbs,Run,दौड़ना,ஓடு,ഓടുക,RUN,Move fast,yes
+147,Common Verbs,Sit,बैठना,உட்காருங்கள்,ഇരിക്കുക,SIT,Take a seat,yes
+148,Common Verbs,Stand,खड़ा होना,நிற்க,നിൽക്കുക,STAND,Be upright,yes
+149,Common Verbs,Eat,खाओ,சாப்பிடு,തിന്നുക,EAT,Consume food,yes
+150,Common Verbs,Drink,पीना,குடிக்க,കുടിക്കുക,DRINK,Consume liquid,yes
+151,Common Verbs,Sleep,नींद,தூக்கம்,ഉറങ്ങുക,SLEEP,Rest,yes
+152,Common Verbs,Wake Up,जागो,எழுந்திரு,ഉണരുക,WAKE-UP,Stop sleeping,yes
+153,Common Verbs,Study,अध्ययन,படிப்பு,പഠനം,STUDY,Learn academically,yes
+154,Common Verbs,Learn,सीखना,கற்றுக்கொள்,പഠിക്കുക,LEARN,Acquire knowledge,yes
+155,Common Verbs,Teach,पढ़ाना,கற்பிக்கின்றன,പഠിപ്പിക്കുക,TEACH,Instruct,yes
+156,Common Verbs,Read,पढ़ना,படித்தேன்,വായിച്ചു,READ,Read text,yes
+157,Common Verbs,Write,लिखना,எழுது,എഴുതുക,WRITE,Write text,yes
+158,Common Verbs,Talk,बात करना,பேச,സംസാരിക്കുക,TALK,Speak,yes
+159,Common Verbs,Listen,सुनना,கேளுங்கள்,കേൾക്കുക,LISTEN,Hear attentively,yes
+160,Common Verbs,Watch,घड़ी,பார்க்க,വാച്ച്,WATCH,Observe,yes
+161,Common Verbs,See,देखना,பார்க்க,കാണുക,SEE,Perceive visually,yes
+162,Common Verbs,Look,देखना,பார்,നോക്കൂ,LOOK,Direct gaze,yes
+163,Common Verbs,Ask,पूछना,கேட்க,ചോദിക്കുക,ASK,Request information,yes
+164,Common Verbs,Answer,उत्तर,பதில்,ഉത്തരം,ANSWER,Respond,yes
+165,Common Verbs,Tell,कहना,சொல்லுங்கள்,പറയൂ,TELL,Inform,yes
+166,Common Verbs,Explain,व्याख्या करना,விளக்கவும்,വിശദീകരിക്കുക,EXPLAIN,Clarify,yes
+167,Common Verbs,Help,मदद,உதவி,സഹായം,HELP,Assist,yes
+168,Common Verbs,Call,पुकारना,அழைப்பு,വിളിക്കുക,CALL,Phone / summon,yes
+169,Common Verbs,Understand,समझना,புரியும்,മനസ്സിലാക്കുക,UNDERSTAND,Comprehend,yes
+170,Common Verbs,Know,जानना,தெரியும்,അറിയാം,KNOW,Have knowledge,yes
+171,Common Verbs,Remember,याद करना,நினைவில் கொள்க,ഓർക്കുക,REMEMBER,Recall,yes
+172,Common Verbs,Forget,भूल जाओ,மறந்துவிடு,മറക്കുക,FORGET,Fail to recall,yes
+173,Common Verbs,Buy,खरीदना,வாங்க,വാങ്ങുക,BUY,Purchase,yes
+174,Common Verbs,Sell,बेचना,விற்க,വിൽക്കുക,SELL,Offer for sale,yes
+175,Common Verbs,Pay,वेतन,செலுத்து,പണം നൽകുക,PAY,Give money,yes
+176,Common Verbs,Open,खुला,திறந்த,തുറക്കുക,OPEN,Make open,yes
+177,Common Verbs,Close,बंद करना,நெருக்கமான,അടുത്ത്,CLOSE,Shut,yes
+178,Common Verbs,Start,शुरू,தொடங்கு,ആരംഭിക്കുക,START,Begin,yes
+179,Common Verbs,Finish,खत्म करना,முடிக்க,പൂർത്തിയാക്കുക,FINISH,Complete,yes
+180,Common Verbs,Wait,इंतज़ार,காத்திருக்கவும்,കാത്തിരിക്കുക,WAIT,Stay until,yes
+181,Common Verbs,Drive,गाड़ी चलाना,ஓட்டு,ഡ്രൈവ് ചെയ്യുക,DRIVE,Operate vehicle,yes
+182,Common Verbs,Ride,सवारी,சவாரி,സവാരി,RIDE,Travel on,yes
+183,Common Verbs,Cook,पकाना,சமைக்க,പാചകം ചെയ്യുക,COOK,Prepare food,yes
+184,Common Verbs,Clean,साफ,சுத்தமான,ശുദ്ധമായ,CLEAN,Make clean,yes
+185,Common Verbs,Wash,धोना,கழுவு,കഴുകുക,WASH,Clean with water,yes
+186,Common Verbs,Use,उपयोग,பயன்படுத்த,ഉപയോഗിക്കുക,USE,Utilize,yes
+187,Common Verbs,Need,ज़रूरत,தேவை,ആവശ്യം,NEED,Require,yes
+188,Common Verbs,Want,चाहना,வேண்டும்,ആഗ്രഹിക്കുന്നു,WANT,Desire,yes
+189,Common Verbs,Like,पसंद,போன்ற,പോലെ,LIKE,Enjoy,yes
+190,Common Verbs,Love,प्यार,அன்பு,സ്നേഹം,LOVE,Strong affection,yes
+191,Common Verbs,Hate,घृणा,வெறுக்கிறேன்,വെറുക്കുന്നു,HATE,Strong dislike,yes
+192,Common Verbs,Choose,चुनना,தேர்வு,തിരഞ്ഞെടുക്കുക,CHOOSE,Select,yes
+193,Common Verbs,Decide,तय करना,முடிவு செய்யுங்கள்,തീരുമാനിക്കുക,DECIDE,Make decision,yes
+194,Common Verbs,Build,निर्माण,கட்ட,പണിയുക,BUILD,Construct,yes
+195,Common Verbs,Create,बनाएं,உருவாக்க,സൃഷ്ടിക്കുക,CREATE,Make new,yes
+196,Common Verbs,Fix,हल करना,சரி,പരിഹരിക്കുക,FIX,Repair,yes
+197,Common Verbs,Move,कदम,நகர்த்த,നീക്കുക,MOVE,Change position,yes
+198,Common Verbs,Carry,ढोना,சுமந்து செல்,കൊണ്ടുപോകുക,CARRY,Transport,yes
+199,Common Verbs,Send,भेजना,அனுப்பு,അയയ്ക്കുക,SEND,Dispatch,yes
+200,Common Verbs,Receive,प्राप्त करें,பெறும்,സ്വീകരിക്കുക,RECEIVE,Get,yes
+201,Common Verbs,Search,खोज,தேடல்,തിരയുക,SEARCH,Look for,yes
+202,Common Verbs,Find,खोजो,கண்டுபிடிக்க,കണ്ടെത്തുക,FIND,Discover,yes
+203,Common Verbs,Lose,खोना,இழக்க,നഷ്ടപ്പെടുക,LOSE,Misplace,yes
+204,Descriptions - Size,Big,बड़ा,பெரிய,വലിയ,BIG,Large size,yes
+205,Descriptions - Size,Small,छोटा,சிறிய,ചെറിയ,SMALL,Little size,yes
+206,Descriptions - Size,Large,बड़ा,பெரிய,വലിയ,LARGE,Big,yes
+207,Descriptions - Size,Tiny,छोटा,சிறிய,ചെറിയ,TINY,Very small,yes
+208,Descriptions - Size,Huge,विशाल,மிகப்பெரிய,വലിയ,HUGE,Very big,yes
+209,Descriptions - Size,Giant,बहुत बड़ा,மாபெரும்,ഭീമൻ,GIANT,Extremely big,yes
+210,Descriptions - Size,Long,लंबा,நீளமானது,നീണ്ട,LONG,Extended length,yes
+211,Descriptions - Size,Short,छोटा,குறுகிய,ചെറുത്,SHORT,Brief length,yes
+212,Descriptions - Size,Tall,लंबा,உயரமான,ഉയരമുള്ള,TALL,High height,yes
+213,Descriptions - Size,Wide,चौड़ा,பரந்த,വിശാലമായ,WIDE,Broad,yes
+214,Descriptions - Size,Narrow,सँकरा,குறுகிய,ഇടുങ്ങിയ,NARROW,Not wide,yes
+215,Descriptions - Size,Thick,मोटा,தடித்த,കട്ടിയുള്ള,THICK,Dense,yes
+216,Descriptions - Size,Thin,पतला,மெல்லிய,നേർത്ത,THIN,Slim,yes
+217,Descriptions - Size,Deep,गहरा,ஆழமான,ആഴമുള്ള,DEEP,Far down,yes
+218,Descriptions - Size,Shallow,उथला,ஆழமற்ற,ആഴം കുറഞ്ഞ,SHALLOW,Not deep,yes
+219,Descriptions - Size,Heavy,भारी,கனமான,കനത്ത,HEAVY,High weight,yes
+220,Descriptions - Size,Light,रोशनी,ஒளி,വെളിച്ചം,LIGHT,Low weight,yes
+221,Descriptions - Quality,Excellent,उत्कृष्ट,சிறந்த,മികച്ചത്,EXCELLENT,Very good,yes
+222,Descriptions - Quality,Perfect,उत्तम,சரியான,തികഞ്ഞ,PERFECT,Flawless,yes
+223,Descriptions - Quality,Amazing,अद्भुत,அற்புதமான,അത്ഭുതകരമായ,AMAZING,Surprising good,no
+224,Descriptions - Quality,Wonderful,आश्चर्यजनक,அற்புதமான,അത്ഭുതകരമായ,WONDERFUL,Delightful,no
+225,Descriptions - Quality,Nice,अच्छा,நல்ல,കൊള്ളാം,NICE,Pleasant,yes
+226,Descriptions - Quality,Terrible,भयानक,பயங்கரமான,ഭയങ്കരമായ,TERRIBLE,Very bad,no
+227,Descriptions - Quality,Easy,आसान,எளிதாக,എളുപ്പമാണ്,EASY,Not difficult,yes
+228,Descriptions - Quality,Difficult,कठिन,கடினமான,ബുദ്ധിമുട്ടുള്ള,DIFFICULT,Hard,yes
+229,Descriptions - Quality,Simple,सरल,எளிய,ലളിതമായ,SIMPLE,Basic,yes
+230,Descriptions - Quality,Complex,जटिल,சிக்கலான,സങ്കീർണ്ണമായ,COMPLEX,Complicated,yes
+231,Descriptions - Quality,Fast,तेज़,வேகமாக,വേഗം,FAST,Quick,yes
+232,Descriptions - Quality,Slow,धीमा,மெதுவாக,പതുക്കെ,SLOW,Not fast,yes
+233,Descriptions - Quality,Beautiful,सुंदर,அழகான,മനോഹരം,BEAUTIFUL,Attractive,yes
+234,Descriptions - Quality,Ugly,कुरूप,அசிங்கமான,വൃത്തികെട്ട,UGLY,Unattractive,yes
+235,Descriptions - Quality,Dirty,गंदा,அழுக்கு,വൃത്തികെട്ട,DIRTY,Not clean,yes
+236,Descriptions - Quality,Young,युवा,இளம்,ചെറുപ്പക്കാർ,YOUNG,Low age,yes
+237,Descriptions - Quality,Old,पुराना,பழைய,പഴയത്,OLD,High age,yes
+238,Descriptions - Quality,Strong,मज़बूत,வலுவான,ശക്തമായ,STRONG,Powerful,yes
+239,Descriptions - Quality,Weak,कमज़ोर,பலவீனமான,ദുർബലമായ,WEAK,Not strong,yes
+240,Descriptions - Quality,Broken,टूटा हुआ,உடைந்தது,തകർന്നു,BROKEN,Not working,yes
+241,Descriptions - Quality,Lost,खो गया,இழந்தது,നഷ്ടപ്പെട്ടു,LOST,Missing,yes
+242,Colors,Red,लाल,சிவப்பு,ചുവപ്പ്,RED,Color,yes
+243,Colors,Blue,नीला,நீலம்,നീല,BLUE,Color,yes
+244,Colors,Green,हरा,பச்சை,പച്ച,GREEN,Color,yes
+245,Colors,Yellow,पीला,மஞ்சள்,മഞ്ഞ,YELLOW,Color,yes
+246,Colors,Black,काला,கருப்பு,കറുപ്പ്,BLACK,Color,yes
+247,Colors,White,सफ़ेद,வெள்ளை,വെള്ള,WHITE,Color,yes
+248,Colors,Brown,भूरा,பழுப்பு,തവിട്ട്,BROWN,Color,yes
+249,Colors,Orange,नारंगी,ஆரஞ்சு,ഓറഞ്ച്,ORANGE,Color,yes
+250,Colors,Pink,गुलाबी,இளஞ்சிவப்பு,പിങ്ക്,PINK,Color,yes
+251,Colors,Purple,बैंगनी,ஊதா,ധൂമ്രനൂൽ,PURPLE,Color,yes
+252,Colors,Gray,स्लेटी,சாம்பல்,ചാരനിറം,GRAY,Color,yes
+253,Colors,Silver,चाँदी,வெள்ளி,വെള്ളി,SILVER,Color,yes
+254,Colors,Gold,सोना,தங்கம்,സ്വർണ്ണം,GOLD,Color,yes
+255,Colors,Beige,बेज,பழுப்பு,ബീജ്,BEIGE,Color,no
+256,Colors,Maroon,लाल रंग,மெரூன்,മെറൂൺ,MAROON,Color,no
+257,Home,Home,घर,வீடு,വീട്,HOME,Residence,yes
+258,Home,House,घर,வீடு,വീട്,HOUSE,Building,yes
+259,Home,Room,कमरा,அறை,മുറി,ROOM,Interior space,yes
+260,Home,Kitchen,रसोईघर,சமையலறை,അടുക്കള,KITCHEN,Cooking area,yes
+261,Home,Bedroom,सोने का कमरा,படுக்கையறை,കിടപ്പുമുറി,BEDROOM,Sleeping room,yes
+262,Home,Bathroom,स्नानघर,குளியலறை,കുളിമുറി,BATHROOM,Washroom,yes
+263,Home,Bed,बिस्तर,படுக்கை,കിടക്ക,BED,Sleep furniture,yes
+264,Home,Door,दरवाजा,கதவு,വാതിൽ,DOOR,Entry,yes
+265,Home,Key,चाबी,முக்கிய,താക്കോൽ,KEY,Lock opener,yes
+266,Home,Table,मेज़,அட்டவணை,മേശ,TABLE,Furniture,yes
+267,Home,Chair,कुर्सी,நாற்காலி,കസേര,CHAIR,Seat,yes
+268,Food & Drinks,Water,पानी,தண்ணீர்,വെള്ളം,WATER,Drink,yes
+269,Food & Drinks,Coffee,कॉफी,காபி,കോഫി,COFFEE,Hot drink,yes
+270,Food & Drinks,Tea,चाय,தேநீர்,ചായ,TEA,Hot drink,yes
+271,Food & Drinks,Milk,दूध,பால்,പാൽ,MILK,Dairy drink,yes
+272,Food & Drinks,Juice,रस,சாறு,ജ്യൂസ്,JUICE,Fruit drink,yes
+273,Food & Drinks,Soda,सोडा,சோடா,സോഡ,SODA,Soft drink,yes
+274,Food & Drinks,Rice,चावल,அரிசி,അരി,RICE,Grain food,yes
+275,Food & Drinks,Bread,रोटी,ரொட்டி,അപ്പം,BREAD,Baked food,yes
+276,Food & Drinks,Chapati,चपाती,சப்பாத்தி,ചപ്പാത്തി,CHAPATI,Flatbread,yes
+277,Food & Drinks,Idli,इडली,இட்லி,ഇഡ്ഡലി,IDLI,South Indian food,no
+278,Food & Drinks,Dosa,डोसा,தோசை,ദോശ,DOSA,South Indian food,yes
+279,Food & Drinks,Pizza,पिज़्ज़ा,பீஸ்ஸா,പിസ്സ,PIZZA,Italian food,yes
+280,Food & Drinks,Burger,बर्गर,பர்கர்,ബർഗർ,BURGER,Fast food,yes
+281,Food & Drinks,Sandwich,सैंडविच,சாண்ட்விச்,സാൻഡ്വിച്ച്,SANDWICH,Filled bread,yes
+282,Food & Drinks,Chicken,मुर्गा,கோழி,കോഴി,CHICKEN,Poultry,yes
+283,Food & Drinks,Fish,मछली,மீன்,മത്സ്യം,FISH,Seafood,yes
+284,Food & Drinks,Egg,अंडा,முட்டை,മുട്ട,EGG,Protein,yes
+285,Food & Drinks,Fruit,फल,பழம்,ഫലം,FRUIT,Produce,yes
+286,Food & Drinks,Apple,सेब,ஆப்பிள்,ആപ്പിൾ,APPLE,Fruit,yes
+287,Food & Drinks,Banana,केला,வாழைப்பழம்,വാഴപ്പഴം,BANANA,Fruit,yes
+288,Food & Drinks,Mango,आम,மாம்பழம்,മാമ്പഴം,MANGO,Fruit,yes
+289,Food & Drinks,Grapes,अंगूर,திராட்சை,മുന്തിരി,GRAPES,Fruit,yes
+290,Food & Drinks,Vegetable,सब्ज़ी,காய்கறி,പച്ചക്കറി,VEGETABLE,Produce,yes
+291,Food & Drinks,Potato,आलू,உருளைக்கிழங்கு,ഉരുളക്കിഴങ്ങ്,POTATO,Vegetable,yes
+292,Food & Drinks,Onion,प्याज,வெங்காயம்,ഉള്ളി,ONION,Vegetable,yes
+293,Food & Drinks,Tomato,टमाटर,தக்காளி,തക്കാളി,TOMATO,Vegetable,yes
+294,Food & Drinks,Breakfast,नाश्ता,காலை உணவு,പ്രാതൽ,BREAKFAST,Morning meal,yes
+295,Food & Drinks,Lunch,दिन का खाना,மதிய உணவு,ഉച്ചഭക്ഷണം,LUNCH,Midday meal,yes
+296,Food & Drinks,Dinner,रात का खाना,இரவு உணவு,അത്താഴം,DINNER,Evening meal,yes
+297,Food & Drinks,Snack,नाश्ता,சிற்றுண்டி,ലഘുഭക്ഷണം,SNACK,Light food,no
+298,Food & Drinks,Restaurant,रेस्टोरेंट,உணவகம்,ഭക്ഷണശാല,RESTAURANT,Eatery,yes
+299,Food & Drinks,Menu,मेनू,மெனு,മെനു,MENU,Food list,yes
+300,Food & Drinks,Order,आदेश,உத்தரவு,ഓർഡർ,ORDER,Request food,yes
+301,Food & Drinks,Bill,बिल,மசோதா,ബിൽ,BILL,Check / invoice,yes
+302,Food & Drinks,Salt,नमक,உப்பு,ഉപ്പ്,SALT,Seasoning,yes
+303,Food & Drinks,Sugar,चीनी,சர்க்கரை,പഞ്ചസാര,SUGAR,Sweetener,yes
+304,Food & Drinks,Pepper,काली मिर्च,மிளகு,കുരുമുളക്,PEPPER,Spice,yes
+305,Food & Drinks,Spice,मसाला,மசாலா,സുഗന്ധവ്യഞ്ജനങ്ങൾ,SPICE,Flavoring,yes
+306,Food & Drinks,Soup,शोरबा,சூப்,സൂപ്പ്,SOUP,Liquid dish,yes
+307,Food & Drinks,Salad,सलाद,சாலட்,സാലഡ്,SALAD,Mixed greens,yes
+308,Food & Drinks,Dessert,मिठाई,இனிப்பு,മധുരപലഹാരം,DESSERT,Sweet course,yes
+309,Food & Drinks,Ice Cream,आइसक्रीम,ஐஸ்கிரீம்,ഐസ്ക്രീം,ICE-CREAM,Frozen dessert,yes
+310,Food & Drinks,Cake,केक,கேக்,കേക്ക്,CAKE,Baked dessert,yes
+311,Food & Drinks,Cookie,कुकी,குக்கீ,കുക്കി,COOKIE,Small baked sweet,yes
+312,Food & Drinks,Chocolate,चॉकलेट,சாக்லேட்,ചോക്കലേറ്റ്,CHOCOLATE,Cocoa sweet,yes
+313,Food & Drinks,Vegetarian,शाकाहारी,சைவம்,വെജിറ്റേറിയൻ,VEGETARIAN,No meat diet,yes
+314,Food & Drinks,Vegan,शाकाहारी,சைவ உணவு உண்பவர்,സസ്യാഹാരം,VEGAN,Plant-only diet,yes
+315,Food & Drinks,Delicious,स्वादिष्ट,சுவையான,രുചികരമായ,DELICIOUS,Tasty,yes
+316,Food & Drinks,Sweet,मिठाई,இனிப்பு,മധുരം,SWEET,Sugar taste,yes
+317,Food & Drinks,Sour,खट्टा,புளிப்பு,പുളിച്ച,SOUR,Acid taste,yes
+318,Food & Drinks,Bitter,कड़वा,கசப்பான,കയ്പേറിയ,BITTER,Sharp taste,yes
+319,Food & Drinks,Spicy,मसालेदार,காரமான,മസാലകൾ,SPICY,Hot taste,yes
+320,Food & Drinks,Fresh,ताजा,புதியது,പുതിയത്,FRESH,Not stale,yes
+321,Food & Drinks,Frozen,जमा हुआ,உறைந்த,മരവിച്ചു,FROZEN,Very cold,no
+322,Food & Drinks,Food,खाना,உணவு,ഭക്ഷണം,FOOD,Nourishment,yes
+323,Travel & Transport,Travel,यात्रा,பயணம்,യാത്ര,TRAVEL,Journey,yes
+324,Travel & Transport,Airport,एयरपोर्ट,விமான நிலையம்,വിമാനത്താവളം,AIRPORT,Flight hub,yes
+325,Travel & Transport,Flight,उड़ान,விமானம்,വിമാനം,FLIGHT,Air travel,yes
+326,Travel & Transport,Plane,विमान,விமானம்,വിമാനം,PLANE,Aircraft,yes
+327,Travel & Transport,Train,रेलगाड़ी,ரயில்,തീവണ്ടി,TRAIN,Rail transport,yes
+328,Travel & Transport,Bus,बस,பேருந்து,ബസ്,BUS,Road transport,yes
+329,Travel & Transport,Taxi,टैक्सी,டாக்ஸி,ടാക്സി,TAXI,Hired car,yes
+330,Travel & Transport,Car,कार,கார்,കാർ,CAR,Automobile,yes
+331,Travel & Transport,Map,नक्शा,வரைபடம்,ഭൂപടം,MAP,Navigation chart,yes
+332,Travel & Transport,Hotel,होटल,ஹோட்டல்,ഹോട്ടൽ,HOTEL,Lodging,yes
+333,Travel & Transport,Passport,पासपोर्ट,கடவுச்சீட்டு,പാസ്പോർട്ട്,PASSPORT,Travel ID,yes
+334,Travel & Transport,Ticket,टिकट,டிக்கெட்,ടിക്കറ്റ്,TICKET,Travel pass,yes
+335,Travel & Transport,Luggage,सामान,சாமான்கள்,ലഗേജ്,LUGGAGE,Bags,yes
+336,Travel & Transport,Station,स्टेशन,நிலையம்,സ്റ്റേഷൻ,STATION,Transit stop,yes
+337,Travel & Transport,Road,सड़क,சாலை,റോഡ്,ROAD,Street route,yes
+338,Travel & Transport,Traffic,ट्रैफ़िक,போக்குவரத்து,ഗതാഗതം,TRAFFIC,Vehicle flow,yes
+339,Health & Medical,Hospital,अस्पताल,மருத்துவமனை,ആശുപത്രി,HOSPITAL,Medical facility,yes
+340,Health & Medical,Medicine,दवा,மருந்து,മരുന്ന്,MEDICINE,Medication,yes
+341,Health & Medical,Pharmacy,फार्मेसी,மருந்தகம்,ഫാർമസി,PHARMACY,Drug store,yes
+342,Health & Medical,Fever,बुखार,காய்ச்சல்,പനി,FEVER,High temperature,yes
+343,Health & Medical,Headache,सिरदर्द,தலைவலி,തലവേദന,HEADACHE,Head pain,yes
+344,Health & Medical,Allergy,एलर्जी,ஒவ்வாமை,അലർജി,ALLERGY,Immune reaction,yes
+345,Health & Medical,Emergency,आपातकाल,அவசரநிலை,അടിയന്തരാവസ്ഥ,EMERGENCY,Urgent crisis,yes
+346,Health & Medical,Ambulance,एम्बुलेंस,ஆம்புலன்ஸ்,ആംബുലൻസ്,AMBULANCE,Emergency vehicle,yes
+347,Health & Medical,Appointment,नियुक्ति,நியமனம்,നിയമനം,APPOINTMENT,Scheduled visit,yes
+348,Health & Medical,Pain,दर्द,வலி,വേദന,PAIN,Physical hurt,yes
+349,School & Work,School,विद्यालय,பள்ளி,സ്കൂൾ,SCHOOL,Education place,yes
+350,School & Work,Classroom,कक्षा,வகுப்பறை,ക്ലാസ് മുറി,CLASSROOM,Learning room,yes
+351,School & Work,Homework,गृहकार्य,வீட்டுப்பாடம்,ഹോം വർക്ക്,HOMEWORK,Home assignment,yes
+352,School & Work,Exam,परीक्षा,தேர்வு,പരീക്ഷ,EXAM,Test,yes
+353,School & Work,Office,कार्यालय,அலுவலகம்,ഓഫീസ്,OFFICE,Workplace,yes
+354,School & Work,Meeting,बैठक,சந்திப்பு,യോഗം,MEETING,Work gathering,yes
+355,School & Work,Project,परियोजना,திட்டம்,പദ്ധതി,PROJECT,Work task,yes
+356,School & Work,Work,काम,வேலை,ജോലി,WORK,Labor / job,yes
+357,School & Work,Job,काम,வேலை,ജോലി,JOB,Employment,yes
+358,Shopping & Money,Shop,दुकान,கடை,കട,SHOP,Retail store,yes
+359,Shopping & Money,Store,इकट्ठा करना,கடை,സ്റ്റോർ,STORE,Retail place,yes
+360,Shopping & Money,Market,बाज़ार,சந்தை,വിപണി,MARKET,Marketplace,yes
+361,Shopping & Money,Mall,मॉल,வணிக வளாகம்,മാൾ,MALL,Shopping center,yes
+362,Shopping & Money,Money,धन,பணம்,പണം,MONEY,Currency,yes
+363,Shopping & Money,Cash,नकद,பணம்,പണം,CASH,Paper money,yes
+364,Shopping & Money,Coin,सिक्का,நாணயம்,നാണയം,COIN,Metal money,yes
+365,Shopping & Money,Price,कीमत,விலை,വില,PRICE,Cost tag,yes
+366,Shopping & Money,Cost,लागत,செலவு,ചെലവ്,COST,Amount charged,yes
+367,Shopping & Money,Cheap,सस्ता,மலிவான,വിലകുറഞ്ഞ,CHEAP,Low price,yes
+368,Shopping & Money,Expensive,महँगा,விலையுயர்ந்த,ചെലവേറിയ,EXPENSIVE,High price,yes
+369,Shopping & Money,Discount,छूट,தள்ளுபடி,കിഴിവ്,DISCOUNT,Price reduction,yes
+370,Shopping & Money,Sale,बिक्री,விற்பனை,വിൽപ്പന,SALE,Reduced prices,yes
+371,Shopping & Money,Customer,ग्राहक,வாடிக்கையாளர்,ഉപഭോക്താവ്,CUSTOMER,Buyer,yes
+372,Shopping & Money,Receipt,रसीद,ரசீது,രസീത്,RECEIPT,Purchase proof,yes
+373,Shopping & Money,Wallet,बटुआ,பணப்பை,വാലറ്റ്,WALLET,Money holder,yes
+374,Shopping & Money,Credit Card,क्रेडिट कार्ड,கிரெடிட் கார்டு,ക്രെഡിറ്റ് കാർഡ്,CREDIT-CARD,Card payment,yes
+375,Shopping & Money,Debit Card,डेबिट कार्ड,டெபிட் கார்டு,ഡെബിറ്റ് കാർഡ്,DEBIT-CARD,Bank card,yes
+376,Shopping & Money,Change,परिवर्तन,மாற்றம்,മാറ്റം,CHANGE,Returned money,yes
+377,Shopping & Money,Payment,भुगतान,கட்டணம்,പേയ്മെൻ്റ്,PAYMENT,Money transfer,yes
+378,Shopping & Money,Product,उत्पाद,தயாரிப்பு,ഉൽപ്പന്നം,PRODUCT,Item sold,yes
+379,Shopping & Money,Item,वस्तु,பொருள்,ഇനം,ITEM,Object,yes
+380,Shopping & Money,Brand,ब्रांड,பிராண்ட்,ബ്രാൻഡ്,BRAND,Maker label,yes
+381,Shopping & Money,Size,आकार,அளவு,വലിപ്പം,SIZE,Dimensions,yes
+382,Shopping & Money,Try On,पहनकर देखना,போட்டுப் பார்,അണിഞ്ഞ് നോക്കുക,TRY-ON,Test clothing,yes
+383,Shopping & Money,Return,वापस करना,திரும்ப,മടങ്ങുക,RETURN,Give back purchase,yes
+384,Shopping & Money,Exchange,अदला-बदली,பரிமாற்றம்,കൈമാറ്റം,EXCHANGE,Swap purchase,yes
+385,Shopping & Money,Grocery,किराना,மளிகை,പലചരക്ക്,GROCERY,Food shopping,yes
+386,Shopping & Money,Basket,टोकरी,கூடை,കൊട്ട,BASKET,Carrying container,yes
+387,Shopping & Money,Cart,कार्ट,வண்டி,വണ്ടി,CART,Shopping trolley,yes
+388,Shopping & Money,Checkout,चेक आउट,செக்அவுட்,ചെക്ക് ഔട്ട്,CHECKOUT,Pay counter,no
+389,Shopping & Money,Tax,कर,வரி,നികുതി,TAX,Government fee,yes
+390,Directions & Locations,Left,बाएं,விட்டு,വിട്ടുപോയി,LEFT,Direction,yes
+391,Directions & Locations,Right,सही,சரி,ശരിയാണ്,RIGHT,Direction,yes
+392,Directions & Locations,Straight,सीधा,நேராக,ഋജുവായത്,STRAIGHT,Forward,yes
+393,Directions & Locations,Turn,मोड़,திரும்ப,തിരിയുക,TURN,Change direction,yes
+394,Directions & Locations,Here,यहाँ,இங்கே,ഇവിടെ,HERE,This place,yes
+395,Directions & Locations,There,वहाँ,அங்கு,അവിടെ,THERE,That place,yes
+396,Directions & Locations,Near,पास में,அருகில்,സമീപം,NEAR,Close,yes
+397,Directions & Locations,Far,दूर,தொலைவில்,ദൂരെ,FAR,Distant,yes
+398,Directions & Locations,Across,आर-पार,முழுவதும்,കുറുകെ,ACROSS,Opposite side,yes
+399,Directions & Locations,Behind,पीछे,பின்னால்,പിന്നിൽ,BEHIND,Back of,yes
+400,Directions & Locations,Front,सामने,முன்,മുന്നിൽ,FRONT,Forward side,yes
+401,Directions & Locations,Corner,कोना,மூலையில்,മൂല,CORNER,Intersection angle,yes
+402,Directions & Locations,Intersection,चौराहा,குறுக்குவெட்டு,കവല,INTERSECTION,Road cross,yes
+403,Directions & Locations,Street,गली,தெரு,തെരുവ്,STREET,Urban road,yes
+404,Directions & Locations,Highway,राजमार्ग,நெடுஞ்சாலை,ഹൈവേ,HIGHWAY,Major road,yes
+405,Directions & Locations,Bridge,पुल,பாலம்,പാലം,BRIDGE,Road over water,yes
+406,Directions & Locations,Address,पता,முகவரி,വിലാസം,ADDRESS,Location text,yes
+407,Directions & Locations,Location,जगह,இடம்,സ്ഥാനം,LOCATION,Place,yes
+408,Directions & Locations,North,उत्तर,வடக்கு,വടക്ക്,NORTH,Compass direction,yes
+409,Directions & Locations,South,दक्षिण,தெற்கு,തെക്ക്,SOUTH,Compass direction,yes
+410,Directions & Locations,East,पूर्व,கிழக்கு,കിഴക്ക്,EAST,Compass direction,yes
+411,Directions & Locations,West,पश्चिम,மேற்கு,പടിഞ്ഞാറ്,WEST,Compass direction,yes
+412,Directions & Locations,Upstairs,ऊपर,மாடிக்கு,മുകളിലത്തെ നിലയിൽ,UPSTAIRS,Upper floor,no
+413,Directions & Locations,Downstairs,सीढ़ी के नीचे,கீழே,താഴെ,DOWNSTAIRS,Lower floor,no
+414,Directions & Locations,Entrance,प्रवेश द्वार,நுழைவாயில்,പ്രവേശനം,ENTRANCE,Way in,no
+415,Directions & Locations,Exit,बाहर निकलना,வெளியேறு,പുറത്ത്,EXIT,Way out,yes
+416,Directions & Locations,Parking,पार्किंग,பார்க்கிங்,പാർക്കിംഗ്,PARKING,Vehicle area,yes
+417,Directions & Locations,Building,इमारत,கட்டிடம்,കെട്ടിടം,BUILDING,Structure,yes
+418,Directions & Locations,Floor,ज़मीन,தரை,തറ,FLOOR,Level,yes
+419,Directions & Locations,Elevator,लिफ़्ट,உயர்த்தி,എലിവേറ്റർ,ELEVATOR,Lift,yes
+420,Directions & Locations,Stairs,सीढ़ियाँ,படிக்கட்டுகள்,പടികൾ,STAIRS,Steps,yes
+421,Directions & Locations,Traffic Light,ट्रैफिक लाइट,போக்குவரத்து விளக்கு,ട്രാഫിക് ലൈറ്റ്,TRAFFIC-LIGHT,Signal,yes
+422,Directions & Locations,Crosswalk,क्रॉसवॉक,குறுக்குவழி,ക്രോസ്വാക്ക്,CROSSWALK,Pedestrian crossing,no
+423,Technology & Communication,Phone,फ़ोन,தொலைபேசி,ഫോൺ,PHONE,Mobile device,yes
+424,Technology & Communication,Smartphone,स्मार्टफोन,ஸ்மார்ட்போன்,സ്മാർട്ട്ഫോൺ,SMARTPHONE,Mobile phone,no
+425,Technology & Communication,Computer,कंप्यूटर,கணினி,കമ്പ്യൂട്ടർ,COMPUTER,PC,yes
+426,Technology & Communication,Laptop,लैपटॉप,மடிக்கணினி,ലാപ്ടോപ്പ്,LAPTOP,Portable computer,yes
+427,Technology & Communication,Tablet,गोली,மாத்திரை,ടാബ്ലറ്റ്,TABLET,Touch device,yes
+428,Technology & Communication,Internet,इंटरनेट,இணையம்,ഇൻ്റർനെറ്റ്,INTERNET,Online network,yes
+429,Technology & Communication,Wi-Fi,वाईफ़ाई,wi-fi,വൈഫൈ,WI-FI,Wireless internet,no
+430,Technology & Communication,Website,वेबसाइट,இணையதளம்,വെബ്സൈറ്റ്,WEBSITE,Web page,yes
+431,Technology & Communication,Browser,ब्राउज़र,உலாவி,ബ്രൗസർ,BROWSER,Web viewer,yes
+432,Technology & Communication,Email,ईमेल,மின்னஞ்சல்,ഇമെയിൽ,EMAIL,Electronic mail,yes
+433,Technology & Communication,Message,संदेश,செய்தி,സന്ദേശം,MESSAGE,Text communication,yes
+434,Technology & Communication,Chat,बात करना,அரட்டை,ചാറ്റ്,CHAT,Conversation online,yes
+435,Technology & Communication,Video Call,वीडियो कॉल,வீடியோ அழைப்பு,വീഡിയോ കോൾ,VIDEO-CALL,Live video chat,yes
+436,Technology & Communication,Camera,कैमरा,கேமரா,ക്യാമറ,CAMERA,Image capture,yes
+437,Technology & Communication,Password,पासवर्ड,கடவுச்சொல்,പാസ്വേഡ്,PASSWORD,Login secret,yes
+438,Technology & Communication,Login,लॉग इन करें,புகுபதிகை,ലോഗിൻ,LOGIN,Sign in,yes
+439,Technology & Communication,Logout,लॉग आउट,வெளியேறுதல்,പുറത്തുകടക്കുക,LOGOUT,Sign out,no
+440,Technology & Communication,Download,डाउनलोड करना,பதிவிறக்கம்,ഡൗൺലോഡ് ചെയ്യുക,DOWNLOAD,Get file,yes
+441,Technology & Communication,Upload,अपलोड करें,பதிவேற்றம்,അപ്ലോഡ്,UPLOAD,Send file,no
+442,Technology & Communication,App,अनुप्रयोग,பயன்பாடு,അപ്ലിക്കേഷൻ,APP,Application,yes
+443,Technology & Communication,Software,सॉफ़्टवेयर,மென்பொருள்,സോഫ്റ്റ്വെയർ,SOFTWARE,Programs,yes
+444,Technology & Communication,Hardware,हार्डवेयर,வன்பொருள்,ഹാർഡ്വെയർ,HARDWARE,Physical tech,yes
+445,Technology & Communication,AI,ऐ,ai,ഐ,AI,Artificial intelligence,yes
+446,Technology & Communication,Robot,रोबोट,ரோபோ,റോബോട്ട്,ROBOT,Automaton,yes
+447,Technology & Communication,Cloud,बादल,மேகம்,മേഘം,CLOUD,Online storage,yes
+448,Technology & Communication,Server,सर्वर,சர்வர்,സെർവർ,SERVER,Network host,yes
+449,Technology & Communication,Database,डेटाबेस,தரவுத்தளம்,ഡാറ്റാബേസ്,DATABASE,Data store,yes
+450,Technology & Communication,Code,कोड,குறியீடு,കോഡ്,CODE,Programming text,yes
+451,Technology & Communication,Program,कार्यक्रम,திட்டம்,പ്രോഗ്രാം,PROGRAM,Software,yes
+452,Technology & Communication,Network,नेटवर्क,நெட்வொர்க்,നെറ്റ്വർക്ക്,NETWORK,Connected system,yes
+453,Technology & Communication,Keyboard,कीबोर्ड,விசைப்பலகை,കീബോർഡ്,KEYBOARD,Typing input,yes
+454,Technology & Communication,Mouse,चूहा,சுட்டி,മൗസ്,MOUSE,Pointer device,yes
+455,Technology & Communication,Monitor,निगरानी करना,கண்காணிக்க,നിരീക്ഷിക്കുക,MONITOR,Display screen,yes
+456,Technology & Communication,Screen,स्क्रीन,திரை,സ്ക്രീൻ,SCREEN,Display,yes
+457,Technology & Communication,Printer,मुद्रक,அச்சுப்பொறி,പ്രിൻ്റർ,PRINTER,Print device,yes
+458,Technology & Communication,Scanner,स्कैनर,ஸ்கேனர்,സ്കാനർ,SCANNER,Scan device,no
+459,Technology & Communication,Microphone,माइक्रोफ़ोन,ஒலிவாங்கி,മൈക്രോഫോൺ,MICROPHONE,Audio input,yes
+460,Technology & Communication,Speaker,वक्ता,பேச்சாளர்,സ്പീക്കർ,SPEAKER,Audio output,yes
+461,Technology & Communication,Headphones,हेडफोन,ஹெட்ஃபோன்கள்,ഹെഡ്ഫോണുകൾ,HEADPHONES,Ear audio,yes
+462,Technology & Communication,Charger,अभियोक्ता,சார்ஜர்,ചാർജർ,CHARGER,Power adapter,yes
+463,Technology & Communication,Battery,बैटरी,பேட்டரி,ബാറ്ററി,BATTERY,Power cell,yes
+464,Technology & Communication,Cable,केबल,கேபிள்,കേബിൾ,CABLE,Wire connector,yes
+465,Technology & Communication,USB,USB,usb,USB,USB,USB port,yes
+466,Technology & Communication,Folder,फ़ोल्डर,கோப்புறை,ഫോൾഡർ,FOLDER,File container,yes
+467,Technology & Communication,File,फ़ाइल,கோப்பு,ഫയൽ,FILE,Document,yes
+468,Technology & Communication,Document,दस्तावेज़,ஆவணம்,പ്രമാണം,DOCUMENT,Text file,yes
+469,Technology & Communication,Spreadsheet,स्प्रेडशीट,விரிதாள்,സ്പ്രെഡ്ഷീറ്റ്,SPREADSHEET,Table file,no
+470,Technology & Communication,Presentation,प्रस्तुति,விளக்கக்காட்சி,അവതരണം,PRESENTATION,Slides file,yes
+471,Technology & Communication,Social Media,सोशल मीडिया,சமூக ஊடகம்,സോഷ്യൽ മീഡിയ,SOCIAL-MEDIA,Online platforms,yes
+472,Technology & Communication,Profile,प्रोफ़ाइल,சுயவிவரம்,പ്രൊഫൈൽ,PROFILE,User page,yes
+473,Technology & Communication,Account,खाता,கணக்கு,അക്കൗണ്ട്,ACCOUNT,User record,yes
+474,Technology & Communication,Username,उपयोक्तानाम,பயனர் பெயர்,ഉപയോക്തൃനാമം,USERNAME,Login name,no
+475,Technology & Communication,Notification,अधिसूचना,அறிவிப்பு,അറിയിപ്പ്,NOTIFICATION,Alert,yes
+476,Technology & Communication,Update,अद्यतन,மேம்படுத்தல்,അപ്ഡേറ്റ്,UPDATE,New version,yes
+477,Technology & Communication,Security,सुरक्षा,பாதுகாப்பு,സുരക്ഷ,SECURITY,Protection,yes
+478,Technology & Communication,Backup,बैकअप,காப்பு,ബാക്കപ്പ്,BACKUP,Copy data,yes
+479,Weather,Weather,मौसम,வானிலை,കാലാവസ്ഥ,WEATHER,Climate conditions,yes
+480,Weather,Sunny,धूप वाला,வெயில்,വെയിൽ,SUNNY,Clear sky,yes
+481,Weather,Cloudy,बादलों से घिरा,மேகமூட்டம்,മേഘാവൃതമായ,CLOUDY,Overcast,yes
+482,Weather,Rain,बारिश,மழை,മഴ,RAIN,Precipitation,yes
+483,Weather,Drizzle,बूंदा बांदी,தூறல்,ചാറ്റൽ മഴ,DRIZZLE,Light rain,yes
+484,Weather,Storm,आंधी,புயல்,കൊടുങ്കാറ്റ്,STORM,Severe weather,yes
+485,Weather,Thunder,गड़गड़ाहट,இடி,ഇടിമുഴക്കം,THUNDER,Loud sky sound,yes
+486,Weather,Lightning,बिजली चमकना,மின்னல்,മിന്നൽ,LIGHTNING,Sky electricity,yes
+487,Weather,Wind,हवा,காற்று,കാറ്റ്,WIND,Moving air,yes
+488,Weather,Windy,तूफ़ानी,காற்று வீசும்,കാറ്റുള്ള,WINDY,Strong wind,no
+489,Weather,Hot,गर्म,சூடான,ചൂട്,HOT,High temperature,yes
+490,Weather,Warm,गरम,சூடான,ചൂട്,WARM,Mild heat,yes
+491,Weather,Cool,ठंडा,குளிர்,തണുത്ത,COOL,Mild cold,yes
+492,Weather,Cold,ठंडा,குளிர்,തണുപ്പ്,COLD,Low temperature,yes
+493,Weather,Snow,बर्फ,பனி,മഞ്ഞ്,SNOW,Frozen precipitation,yes
+494,Weather,Fog,कोहरा,மூடுபனி,മൂടൽമഞ്ഞ്,FOG,Low visibility,yes
+495,Weather,Humid,नमी,ஈரமான,ഈർപ്പമുള്ള,HUMID,Moist air,yes
+496,Weather,Dry,सूखा,உலர்,വരണ്ട,DRY,Low moisture,yes
+497,Weather,Summer,गर्मी,கோடை,വേനൽക്കാലം,SUMMER,Hot season,yes
+498,Weather,Winter,सर्दी,குளிர்காலம்,ശീതകാലം,WINTER,Cold season,yes
+499,Weather,Spring,वसंत,வசந்தம்,വസന്തം,SPRING,Growth season,yes
+500,Weather,Autumn,शरद ऋतु,இலையுதிர் காலம்,ശരത്കാലം,AUTUMN,Fall season,yes
+501,Hobbies & Entertainment,Hobby,शौक,பொழுதுபோக்கு,ഹോബി,HOBBY,Pastime,yes
+502,Hobbies & Entertainment,Sport,खेल,விளையாட்டு,കായികം,SPORT,Athletics,yes
+503,Hobbies & Entertainment,Football,फ़ुटबॉल,கால்பந்து,ഫുട്ബോൾ,FOOTBALL,Soccer,yes
+504,Hobbies & Entertainment,Cricket,क्रिकेट,கிரிக்கெட்,ക്രിക്കറ്റ്,CRICKET,Bat-and-ball sport,yes
+505,Hobbies & Entertainment,Basketball,बास्केटबाल,கூடைப்பந்து,ബാസ്ക്കറ്റ്ബോൾ,BASKETBALL,Court sport,yes
+506,Hobbies & Entertainment,Tennis,टेनिस,டென்னிஸ்,ടെന്നീസ്,TENNIS,Racket sport,yes
+507,Hobbies & Entertainment,Volleyball,वालीबाल,கைப்பந்து,വോളിബോൾ,VOLLEYBALL,Net sport,yes
+508,Hobbies & Entertainment,Swimming,तैरना,நீச்சல்,നീന്തൽ,SWIMMING,Water sport,yes
+509,Hobbies & Entertainment,Running,दौड़ना,ஓடுகிறது,ഓടുന്നു,RUNNING,Fast jogging,yes
+510,Hobbies & Entertainment,Walking,चलना,நடைபயிற்சி,നടക്കുന്നു,WALKING,Strolling,yes
+511,Hobbies & Entertainment,Gym,जिम,உடற்பயிற்சி கூடம்,ജിം,GYM,Fitness center,yes
+512,Hobbies & Entertainment,Exercise,व्यायाम,உடற்பயிற்சி,വ്യായാമം,EXERCISE,Physical activity,yes
+513,Hobbies & Entertainment,Music,संगीत,இசை,സംഗീതം,MUSIC,Sound art,yes
+514,Hobbies & Entertainment,Song,गाना,பாடல்,പാട്ട്,SONG,Musical piece,no
+515,Hobbies & Entertainment,Singer,गायक,பாடகர்,ഗായകൻ,SINGER,Vocal performer,yes
+516,Hobbies & Entertainment,Guitar,गिटार,கிட்டார்,ഗിറ്റാർ,GUITAR,String instrument,yes
+517,Hobbies & Entertainment,Piano,पियानो,பியானோ,പിയാനോ,PIANO,Keyboard instrument,yes
+518,Hobbies & Entertainment,Dance,नृत्य,நடனம்,നൃത്തം,DANCE,Movement art,yes
+519,Hobbies & Entertainment,Movie,चलचित्र,திரைப்படம்,സിനിമ,MOVIE,Film,yes
+520,Hobbies & Entertainment,Film,पतली परत,படம்,സിനിമ,FILM,Cinema,yes
+521,Hobbies & Entertainment,TV,टीवी,தொலைக்காட்சி,ടിവി,TV,Television,no
+522,Hobbies & Entertainment,Series,शृंखला,தொடர்,പരമ്പര,SERIES,Show episodes,yes
+523,Hobbies & Entertainment,Book,किताब,புத்தகம்,പുസ്തകം,BOOK,Reading material,yes
+524,Hobbies & Entertainment,Magazine,पत्रिका,இதழ்,മാസിക,MAGAZINE,Periodical,no
+525,Hobbies & Entertainment,Reading,पढ़ना,வாசிப்பு,വായന,READING,Read activity,yes
+526,Hobbies & Entertainment,Writing,लिखना,எழுதுவது,എഴുത്ത്,WRITING,Write activity,yes
+527,Hobbies & Entertainment,Drawing,चित्रकला,வரைதல்,ഡ്രോയിംഗ്,DRAWING,Sketch art,yes
+528,Hobbies & Entertainment,Painting,चित्रकारी,ஓவியம்,പെയിൻ്റിംഗ്,PAINTING,Color art,yes
+529,Hobbies & Entertainment,Photography,फोटोग्राफी,புகைப்படம் எடுத்தல்,ഫോട്ടോഗ്രാഫി,PHOTOGRAPHY,Photo art,yes
+530,Hobbies & Entertainment,Camping,डेरा डालना,முகாம்,ക്യാമ്പിംഗ്,CAMPING,Outdoor stay,no
+531,Hobbies & Entertainment,Fishing,मछली पकड़ने,மீன்பிடித்தல்,മത്സ്യബന്ധനം,FISHING,Catch fish,yes
+532,Hobbies & Entertainment,Gardening,बागवानी,தோட்டக்கலை,പൂന്തോട്ടപരിപാലനം,GARDENING,Plant care,yes
+533,Hobbies & Entertainment,Collecting,एकत्र,சேகரிக்கிறது,ശേഖരിക്കുന്നു,COLLECTING,Gather items,yes
+534,Hobbies & Entertainment,Game,खेल,விளையாட்டு,കളി,GAME,Play activity,yes
+535,Emergencies & Safety,Danger,खतरा,ஆபத்து,അപായം,DANGER,Risk,yes
+536,Emergencies & Safety,Safe,सुरक्षित,பாதுகாப்பான,സുരക്ഷിതം,SAFE,Not dangerous,yes
+537,Emergencies & Safety,Unsafe,असुरक्षित,பாதுகாப்பற்ற,സുരക്ഷിതമല്ലാത്ത,UNSAFE,Dangerous,no
+538,Emergencies & Safety,Accident,दुर्घटना,விபத்து,അപകടം,ACCIDENT,Mishap,yes
+539,Emergencies & Safety,Injury,चोट,காயம்,പരിക്ക്,INJURY,Harm,yes
+540,Emergencies & Safety,Fire,आग,தீ,തീ,FIRE,Flame disaster,yes
+541,Emergencies & Safety,Smoke,धुआँ,புகை,പുക,SMOKE,Fire vapor,yes
+542,Emergencies & Safety,Police,पुलिस,போலீஸ்,പോലീസ്,POLICE,Law enforcement,yes
+543,Emergencies & Safety,Rescue,बचाव,மீட்பு,രക്ഷാപ്രവർത്തനം,RESCUE,Save from danger,no
+544,Emergencies & Safety,Emergency Number,आपातकालीन नंबर,அவசர எண்,അടിയന്തര നമ്പർ,EMERGENCY-NUMBER,Crisis phone,yes
+545,Emergencies & Safety,First Aid,प्राथमिक चिकित्सा,முதல் உதவி,ആദ്യചികിത്സ,FIRST-AID,Initial medical care,yes
+546,Emergencies & Safety,Warning,चेतावनी,எச்சரிக்கை,മുന്നറിയിപ്പ്,WARNING,Alert,yes
+547,Emergencies & Safety,Alarm,खतरे की घंटी,எச்சரிக்கை,അലാറം,ALARM,Alert sound,yes
+548,Emergencies & Safety,Escape,पलायन,தப்பிக்க,രക്ഷപ്പെടുക,ESCAPE,Get away,yes
+549,Emergencies & Safety,Protect,रक्षा करना,பாதுகாக்க,സംരക്ഷിക്കുക,PROTECT,Keep safe,yes
+550,Emergencies & Safety,Found,मिला,கண்டுபிடிக்கப்பட்டது,കണ്ടെത്തി,FOUND,Located,yes
+551,Emergencies & Safety,Theft,चोरी,திருட்டு,മോഷണം,THEFT,Stealing,yes
+552,Emergencies & Safety,Robbery,डकैती,கொள்ளை,കവർച്ച,ROBBERY,Violent theft,yes
+553,Emergencies & Safety,Emergency Exit,आपातकालीन निकास,அவசர வெளியேற்றம்,അടിയന്തര പുറപ്പെടൽ,EMERGENCY-EXIT,Escape route,yes
+554,Emergencies & Safety,Earthquake,भूकंप,நிலநடுக்கம்,ഭൂകമ്പം,EARTHQUAKE,Ground shake,yes
+555,Emergencies & Safety,Flood,बाढ़,வெள்ளம்,വെള്ളപ്പൊക്കം,FLOOD,Water disaster,yes
+556,Community & Public Places,Community,समुदाय,சமூகம்,സമൂഹം,COMMUNITY,Local group,yes
+557,Community & Public Places,City,शहर,நகரம்,നഗരം,CITY,Urban area,yes
+558,Community & Public Places,Town,शहर,நகரம்,പട്ടണം,TOWN,Small urban area,yes
+559,Community & Public Places,Village,गाँव,கிராமம்,ഗ്രാമം,VILLAGE,Rural settlement,yes
+560,Community & Public Places,Neighborhood,अड़ोस-पड़ोस,அக்கம்,അയൽപ്പക്കം,NEIGHBORHOOD,Local area,no
+561,Community & Public Places,Bank,किनारा,வங்கி,ബാങ്ക്,BANK,Financial institution,yes
+562,Community & Public Places,ATM,एटीएम,atm,atm,ATM,Cash machine,yes
+563,Community & Public Places,Post Office,डाकघर,தபால் நிலையம்,തപാൽ കാര്യാലയം,POST-OFFICE,Mail service,yes
+564,Community & Public Places,Library,पुस्तकालय,நூலகம்,ലൈബ്രറി,LIBRARY,Book lending,yes
+565,Community & Public Places,College,कॉलेज,கல்லூரி,കോളേജ്,COLLEGE,Higher education,yes
+566,Community & Public Places,University,विश्वविद्यालय,பல்கலைக்கழகம்,യൂണിവേഴ്സിറ്റി,UNIVERSITY,Higher education,yes
+567,Community & Public Places,Clinic,क्लिनिक,கிளினிக்,ക്ലിനിക്ക്,CLINIC,Small medical office,yes
+568,Community & Public Places,Park,पार्क,பூங்கா,പാർക്ക്,PARK,Public green space,yes
+569,Community & Public Places,Playground,खेल का मैदान,விளையாட்டு மைதானம்,കളിസ്ഥലം,PLAYGROUND,Children play area,no
+570,Community & Public Places,Museum,संग्रहालय,அருங்காட்சியகம்,മ്യൂസിയം,MUSEUM,Exhibit building,yes
+571,Community & Public Places,Theater,थिएटर,தியேட்டர்,തിയേറ്റർ,THEATER,Performance venue,yes
+572,Community & Public Places,Bus Station,बस स्टेशन,பேருந்து நிலையம்,ബസ് സ്റ്റേഷൻ,BUS-STATION,Bus hub,yes
+573,Community & Public Places,Train Station,रेलवे स्टेशन,ரயில் நிலையம்,റെയിൽവേ സ്റ്റേഷൻ,TRAIN-STATION,Rail hub,yes
+574,Community & Public Places,Government Office,सरकारी दफ्तर,அரசு அலுவலகம்,സർക്കാർ ഓഫീസ്,GOVERNMENT-OFFICE,Public admin,yes
+575,Community & Public Places,Court,अदालत,நீதிமன்றம்,കോടതി,COURT,Legal building,yes
+576,Community & Public Places,Police Station,पुलिस स्टेशन,காவல் நிலையம்,പോലീസ് സ്റ്റേഷൻ,POLICE-STATION,Police HQ,yes
+577,Community & Public Places,Temple,मंदिर,கோவில்,ക്ഷേത്രം,TEMPLE,Hindu place,yes
+578,Community & Public Places,Church,गिरजाघर,தேவாலயம்,പള്ളി,CHURCH,Christian place,yes
+579,Community & Public Places,Mosque,मस्जिद,மசூதி,പള്ളി,MOSQUE,Muslim place,yes
+580,Community & Public Places,Shopping Mall,शॉपिंग मॉल,ஷாப்பிங் மால்,ഷോപ്പിംഗ് മാൾ,SHOPPING-MALL,Large retail center,yes
+581,Daily Conversations & Storytelling,Story,कहानी,கதை,കഥ,STORY,Narrative,yes
+582,Daily Conversations & Storytelling,Conversation,बातचीत,உரையாடல்,സംഭാഷണം,CONVERSATION,Dialogue,no
+583,Daily Conversations & Storytelling,Discuss,चर्चा करना,விவாதிக்க,ചർച്ച ചെയ്യുക,DISCUSS,Talk about,yes
+584,Daily Conversations & Storytelling,Describe,वर्णन करना,விவரிக்க,വിവരിക്കുക,DESCRIBE,Detail,no
+585,Daily Conversations & Storytelling,Think,सोचना,நினைக்கிறார்கள்,ചിന്തിക്കുക,THINK,Consider,yes
+586,Daily Conversations & Storytelling,Believe,विश्वास,நம்பு,വിശ്വസിക്കുന്നു,BELIEVE,Accept as true,yes
+587,Daily Conversations & Storytelling,Guess,अनुमान,யூகிக்கிறேன்,ഊഹിക്കുക,GUESS,Estimate,yes
+588,Daily Conversations & Storytelling,Opinion,राय,கருத்து,അഭിപ്രായം,OPINION,Viewpoint,yes
+589,Daily Conversations & Storytelling,Idea,विचार,யோசனை,ആശയം,IDEA,Thought,yes
+590,Daily Conversations & Storytelling,Example,उदाहरण,உதாரணம்,ഉദാഹരണം,EXAMPLE,Sample case,yes
+591,Daily Conversations & Storytelling,Event,आयोजन,நிகழ்வு,സംഭവം,EVENT,Occurrence,yes
+592,Daily Conversations & Storytelling,Experience,अनुभव,அனுபவம்,അനുഭവം,EXPERIENCE,Lived event,yes
+593,Daily Conversations & Storytelling,Beginning,शुरुआत,ஆரம்பம்,തുടക്കം,BEGINNING,Start point,yes
+594,Daily Conversations & Storytelling,Middle,मध्य,நடுத்தர,മധ്യഭാഗം,MIDDLE,Center,yes
+595,Daily Conversations & Storytelling,End,अंत,முடிவு,അവസാനിക്കുന്നു,END,Finish point,yes
+596,Daily Conversations & Storytelling,Happened,घटित,நடந்தது,സംഭവിച്ചു,HAPPENED,Occurred,yes
+597,Daily Conversations & Storytelling,More,अधिक,மேலும்,കൂടുതൽ,MORE,Additional,yes
