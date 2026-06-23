@@ -4,7 +4,7 @@ compatibility_date = "2026-06-16"
 
 [vars]
 GROQ_MODEL = "llama-3.1-8b-instant"
-# Gemini failover order (best→least): 3.5 → 3 → 2.5 → 3.1-lite → 2.5-lite
+# Gemini failover order (best→least): 3.5 → 3-preview → 2.5 → 3.1-lite → 2.5-lite
 GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 GEMINI_LITE_MODEL = "gemini-3.1-flash-lite"

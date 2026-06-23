@@ -2,7 +2,7 @@
  * Gemini model failover ordered best quality → lowest.
  *
  * 1. Primary (GEMINI_MODEL / SIGN_GEMINI_MODEL, default gemini-3.5-flash)
- * 2. gemini-3-flash
+ * 2. gemini-3-flash-preview (API id for Gemini 3 Flash)
  * 3. GEMINI_FALLBACK_MODEL / SIGN_GEMINI_FALLBACK_MODEL (default gemini-2.5-flash)
  * 4. GEMINI_LITE_MODEL (default gemini-3.1-flash-lite)
  * 5. GEMINI_LITE_FALLBACK_MODEL (default gemini-2.5-flash-lite)
@@ -41,7 +41,7 @@ export function geminiQualityChain(env, { primaryVar = "GEMINI_MODEL" } = {}) {
 
   return uniqueGeminiModels([
     primary,
-    "gemini-3-flash",
+    "gemini-3-flash-preview",
     flash25,
     lite31,
     lite25,
