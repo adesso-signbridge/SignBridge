@@ -113,6 +113,10 @@ function geminiPrimaryModel(env) {
   return (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
+function geminiLiteModel(env) {
+  return (env.GEMINI_LITE_MODEL || "gemini-3.1-flash-lite").trim();
+}
+
 function geminiFallbackModel(env) {
   return (env.SIGN_GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
 }
@@ -121,22 +125,39 @@ function geminiTextModel(env) {
   return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
-function geminiModels(env) {
-  const configured = [
-    geminiPrimaryModel(env),
-    geminiFallbackModel(env),
-    "gemini-3-flash",
-  ];
+function geminiTextFallbackModel(env) {
+  return (env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
+}
+
+function uniqueGeminiModels(models) {
   const seen = new Set();
-  const models = [];
-  for (const model of configured) {
-    if (!model || seen.has(model)) {
+  const resolved = [];
+  for (const model of models) {
+    const trimmed = (model || "").trim();
+    if (!trimmed || seen.has(trimmed)) {
       continue;
     }
-    seen.add(model);
-    models.push(model);
+    seen.add(trimmed);
+    resolved.push(trimmed);
   }
-  return models;
+  return resolved;
+}
+
+function geminiModels(env) {
+  return uniqueGeminiModels([
+    geminiPrimaryModel(env),
+    geminiLiteModel(env),
+    geminiFallbackModel(env),
+    "gemini-3-flash",
+  ]);
+}
+
+function geminiTextModels(env) {
+  return uniqueGeminiModels([
+    geminiTextModel(env),
+    geminiLiteModel(env),
+    geminiTextFallbackModel(env),
+  ]);
 }
 
 function isRetryableGeminiStatus(status) {
@@ -454,36 +475,46 @@ async function glossSequenceToSpokenText(
   apiKey,
   env,
 ) {
-  const model = geminiTextModel(env);
-  let lastError = null;
+  const errors = [];
+  for (const model of geminiTextModels(env)) {
+    let lastError = null;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const text = await callGeminiGlossToText(
-        model,
-        glossSequence,
-        languageCode,
-        signLanguage,
-        apiKey,
-      );
-      if (!text.trim()) {
-        throw new Error("Gemini returned empty sign text");
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const text = await callGeminiGlossToText(
+          model,
+          glossSequence,
+          languageCode,
+          signLanguage,
+          apiKey,
+        );
+        if (!text.trim()) {
+          throw new Error("Gemini returned empty sign text");
+        }
+        return { text: text.trim(), textModel: model };
+      } catch (err) {
+        lastError = err;
+        const status = err.status || 0;
+        if (isModelUnavailableStatus(status) || status === 429) {
+          break;
+        }
+        if (!isRetryableGeminiStatus(status) || attempt === 2) {
+          break;
+        }
+        await sleep(400 * (attempt + 1));
       }
-      return { text: text.trim(), textModel: model };
-    } catch (err) {
-      lastError = err;
-      const status = err.status || 0;
-      if (isModelUnavailableStatus(status) || status === 429) {
-        break;
+    }
+
+    if (lastError) {
+      errors.push(lastError);
+      if (shouldFailOverSignModel(lastError)) {
+        continue;
       }
-      if (!isRetryableGeminiStatus(status) || attempt === 2) {
-        break;
-      }
-      await sleep(400 * (attempt + 1));
     }
   }
 
-  throw lastError || new Error("Gloss to text failed");
+  const detail = errors.map((err) => String(err).slice(0, 80)).join(" | ");
+  throw new Error(detail || "Gloss to text failed");
 }
 
 async function callGeminiGlossToText(

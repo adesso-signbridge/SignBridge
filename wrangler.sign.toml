@@ -4,6 +4,7 @@ compatibility_date = "2026-06-16"
 
 [vars]
 GEMINI_MODEL = "gemini-3.5-flash"
+GEMINI_LITE_MODEL = "gemini-3.1-flash-lite"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 SIGN_GEMINI_MODEL = "gemini-3.5-flash"
 SIGN_GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"

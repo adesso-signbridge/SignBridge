@@ -1,8 +1,8 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini 3.5 Flash → Gemini 2.5 Flash → Groq → Adesso (local fallback in app).
- * Sign video (POST /sign): Gemini 3.5 Flash → fallbacks via sign_recognition.js.
+ * Gloss (POST /): Gemini 3.5 Flash → 3.1 Flash-Lite → 2.5 Flash → Groq → Adesso.
+ * Sign video (POST /sign): Gemini 3.5 Flash → 3.1 Flash-Lite → fallbacks via sign_recognition.js.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
@@ -137,6 +137,10 @@ function geminiPrimaryModel(env) {
   return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
 }
 
+function geminiLiteModel(env) {
+  return (env.GEMINI_LITE_MODEL || "gemini-3.1-flash-lite").trim();
+}
+
 function geminiFallbackModel(env) {
   return (env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
 }
@@ -146,10 +150,26 @@ function geminiPrimaryTimeoutMs(env) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 6000;
 }
 
+function uniqueGeminiModels(models) {
+  const seen = new Set();
+  const resolved = [];
+  for (const model of models) {
+    const trimmed = (model || "").trim();
+    if (!trimmed || seen.has(trimmed)) {
+      continue;
+    }
+    seen.add(trimmed);
+    resolved.push(trimmed);
+  }
+  return resolved;
+}
+
 function geminiModels(env) {
-  const primary = geminiPrimaryModel(env);
-  const fallback = geminiFallbackModel(env);
-  return fallback === primary ? [primary] : [primary, fallback];
+  return uniqueGeminiModels([
+    geminiPrimaryModel(env),
+    geminiLiteModel(env),
+    geminiFallbackModel(env),
+  ]);
 }
 
 function isRetryableGeminiStatus(status) {
