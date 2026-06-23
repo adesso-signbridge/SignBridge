@@ -3,7 +3,12 @@
  *
  * Stage 1: video → glossSequence[] (one token per sign, in order)
  * Stage 2: glossSequence → natural spoken text
+ *
+ * Gemini failover (best → least): 3.5 Flash → 3 Flash → 2.5 Flash →
+ * 3.1 Flash Lite → 2.5 Flash Lite (see gemini_model_chain.js).
  */
+
+import { geminiQualityChain } from "./gemini_model_chain.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
@@ -109,55 +114,12 @@ function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
 }
 
-function geminiPrimaryModel(env) {
-  return (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
-}
-
-function geminiLiteModel(env) {
-  return (env.GEMINI_LITE_MODEL || "gemini-3.1-flash-lite").trim();
-}
-
-function geminiFallbackModel(env) {
-  return (env.SIGN_GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
-}
-
-function geminiTextModel(env) {
-  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
-}
-
-function geminiTextFallbackModel(env) {
-  return (env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
-}
-
-function uniqueGeminiModels(models) {
-  const seen = new Set();
-  const resolved = [];
-  for (const model of models) {
-    const trimmed = (model || "").trim();
-    if (!trimmed || seen.has(trimmed)) {
-      continue;
-    }
-    seen.add(trimmed);
-    resolved.push(trimmed);
-  }
-  return resolved;
-}
-
 function geminiModels(env) {
-  return uniqueGeminiModels([
-    geminiPrimaryModel(env),
-    geminiLiteModel(env),
-    geminiFallbackModel(env),
-    "gemini-3-flash",
-  ]);
+  return geminiQualityChain(env, { primaryVar: "SIGN_GEMINI_MODEL" });
 }
 
 function geminiTextModels(env) {
-  return uniqueGeminiModels([
-    geminiTextModel(env),
-    geminiLiteModel(env),
-    geminiTextFallbackModel(env),
-  ]);
+  return geminiQualityChain(env, { primaryVar: "GEMINI_MODEL" });
 }
 
 function isRetryableGeminiStatus(status) {

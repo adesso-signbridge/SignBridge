@@ -1,11 +1,12 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini 3.5 Flash → 3.1 Flash-Lite → 2.5 Flash → Groq → Adesso.
- * Sign video (POST /sign): Gemini 3.5 Flash → 3.1 Flash-Lite → fallbacks via sign_recognition.js.
+ * Gloss (POST /): Gemini quality chain → Groq → Adesso (see gemini_model_chain.js).
+ * Sign video (POST /sign): same Gemini chain via sign_recognition.js.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
+import { geminiQualityChain } from "../gemini_model_chain.js";
 import { handleSignRecognitionRequest } from "../sign_recognition.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
@@ -133,43 +134,13 @@ async function captionToGloss(caption, signLanguage, env) {
   throw new Error(detail || "No gloss provider configured");
 }
 
-function geminiPrimaryModel(env) {
-  return (env.GEMINI_MODEL || "gemini-3.5-flash").trim();
-}
-
-function geminiLiteModel(env) {
-  return (env.GEMINI_LITE_MODEL || "gemini-3.1-flash-lite").trim();
-}
-
-function geminiFallbackModel(env) {
-  return (env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
-}
-
 function geminiPrimaryTimeoutMs(env) {
   const parsed = Number(env.GEMINI_PRIMARY_TIMEOUT_MS);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 6000;
 }
 
-function uniqueGeminiModels(models) {
-  const seen = new Set();
-  const resolved = [];
-  for (const model of models) {
-    const trimmed = (model || "").trim();
-    if (!trimmed || seen.has(trimmed)) {
-      continue;
-    }
-    seen.add(trimmed);
-    resolved.push(trimmed);
-  }
-  return resolved;
-}
-
 function geminiModels(env) {
-  return uniqueGeminiModels([
-    geminiPrimaryModel(env),
-    geminiLiteModel(env),
-    geminiFallbackModel(env),
-  ]);
+  return geminiQualityChain(env, { primaryVar: "GEMINI_MODEL" });
 }
 
 function isRetryableGeminiStatus(status) {
@@ -235,7 +206,7 @@ async function captionToGlossGemini(
     throw new Error("GEMINI_KEY not configured");
   }
 
-  const resolvedModel = (model || geminiPrimaryModel(env)).trim();
+  const resolvedModel = (model || env.GEMINI_MODEL || "gemini-3.5-flash").trim();
   let lastError = null;
 
   for (let attempt = 0; attempt < 3; attempt++) {
