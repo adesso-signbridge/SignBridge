@@ -142,6 +142,9 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
 
     _isFlipping = true;
     widget.controller?._setFlipping(true);
+    if (mounted) {
+      setState(() {});
+    }
     try {
       await controller.setDescription(nextCamera);
     } on Object catch (error) {
@@ -154,6 +157,27 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
         setState(() {});
       }
     }
+  }
+
+  bool get _mirrorFrontPreview {
+    final controller = _controller;
+    if (controller == null) {
+      return false;
+    }
+    // Selfie preview should look like a mirror. On many Android devices
+    // (Samsung + Impeller) the plugin omits this until we flip in UI.
+    return controller.description.lensDirection == CameraLensDirection.front;
+  }
+
+  Widget _buildCameraPreview(CameraController controller) {
+    Widget preview = CameraPreview(controller);
+    if (_mirrorFrontPreview) {
+      preview = Transform.flip(
+        flipX: true,
+        child: preview,
+      );
+    }
+    return preview;
   }
 
   void _publishCameraControls() {
@@ -298,14 +322,32 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       );
     }
 
+    if (_isFlipping) {
+      return const ColoredBox(
+        color: AppColors.talkSignCameraBackground,
+        child: Center(
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    final previewSize = controller.value.previewSize;
+    final width = previewSize?.height ?? 1;
+    final height = previewSize?.width ?? 1;
+
     return ColoredBox(
       color: AppColors.talkSignCameraBackground,
       child: FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
-          width: controller.value.previewSize?.height ?? 1,
-          height: controller.value.previewSize?.width ?? 1,
-          child: CameraPreview(controller),
+          key: ValueKey(controller.description.name),
+          width: width,
+          height: height,
+          child: _buildCameraPreview(controller),
         ),
       ),
     );
