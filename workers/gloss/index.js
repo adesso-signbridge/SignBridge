@@ -1,12 +1,12 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini quality chain → Groq → Adesso (see gemini_model_chain.js).
- * Sign video (POST /sign): same Gemini chain via sign_recognition.js.
+ * Gloss (POST /): gemini-3-flash-preview only → Groq → Adesso.
+ * Sign video (POST /sign): gemini-3.5-flash only via sign_recognition.js.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
-import { geminiQualityChain } from "../gemini_model_chain.js";
+import { geminiTalkGlossOnlyChain } from "../gemini_model_chain.js";
 import { handleSignRecognitionRequest } from "../sign_recognition.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
@@ -140,7 +140,7 @@ function geminiPrimaryTimeoutMs(env) {
 }
 
 function geminiModels(env) {
-  return geminiQualityChain(env, { primaryVar: "GEMINI_MODEL" });
+  return geminiTalkGlossOnlyChain(env);
 }
 
 function isRetryableGeminiStatus(status) {

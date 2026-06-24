@@ -22,6 +22,24 @@ export function uniqueGeminiModels(models) {
   return resolved;
 }
 
+/**
+ * Talk/listen gloss (POST /) uses Gemini 3 Flash only to conserve quota.
+ * Override with GEMINI_MODEL (default gemini-3-flash-preview).
+ */
+export function geminiTalkGlossOnlyChain(env) {
+  const model = (env.GEMINI_MODEL || "gemini-3-flash-preview").trim();
+  return model ? [model] : [];
+}
+
+/**
+ * Sign video (POST /sign) uses one model only to stay within free-tier RPM/RPD.
+ * Override with SIGN_GEMINI_MODEL (default gemini-3.5-flash).
+ */
+export function geminiSignVideoOnlyChain(env) {
+  const model = (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
+  return model ? [model] : [];
+}
+
 export function geminiQualityChain(env, { primaryVar = "GEMINI_MODEL" } = {}) {
   const primary = (
     env[primaryVar] ||

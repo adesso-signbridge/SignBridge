@@ -4,11 +4,10 @@
  * Stage 1: video → glossSequence[] (one token per sign, in order)
  * Stage 2: glossSequence → natural spoken text
  *
- * Gemini failover (best → least): 3.5 Flash → 3 Flash → 2.5 Flash →
- * 3.1 Flash Lite → 2.5 Flash Lite (see gemini_model_chain.js).
+ * Gemini: gemini-3.5-flash only for both stages (see geminiSignVideoOnlyChain).
  */
 
-import { geminiQualityChain } from "./gemini_model_chain.js";
+import { geminiSignVideoOnlyChain } from "./gemini_model_chain.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
@@ -115,11 +114,11 @@ function geminiApiKey(env) {
 }
 
 function geminiModels(env) {
-  return geminiQualityChain(env, { primaryVar: "SIGN_GEMINI_MODEL" });
+  return geminiSignVideoOnlyChain(env);
 }
 
 function geminiTextModels(env) {
-  return geminiQualityChain(env, { primaryVar: "GEMINI_MODEL" });
+  return geminiSignVideoOnlyChain(env);
 }
 
 function isRetryableGeminiStatus(status) {
