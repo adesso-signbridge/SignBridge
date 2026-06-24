@@ -14,7 +14,6 @@ class TalkSignRecordingContent extends StatefulWidget {
     required this.uiCopy,
     this.heardResult,
     required this.isRecording,
-    required this.onSendSign,
     required this.onRecordingStopped,
     required this.onCameraError,
   });
@@ -22,7 +21,6 @@ class TalkSignRecordingContent extends StatefulWidget {
   final HomeUiCopy uiCopy;
   final TalkListenResult? heardResult;
   final bool isRecording;
-  final VoidCallback onSendSign;
   final ValueChanged<String> onRecordingStopped;
   final ValueChanged<String> onCameraError;
 
@@ -93,13 +91,9 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
                             child: TalkSignCameraActionBar(
                               flipSemanticsLabel:
                                   widget.uiCopy.flipCameraLabel,
-                              sendSemanticsLabel:
-                                  widget.uiCopy.sendCaptionLabel,
                               canFlip: _cameraController.canFlipCamera,
                               flipBusy: _cameraController.isFlipping,
-                              sendEnabled: true,
                               onFlip: () => _cameraController.flipCamera(),
-                              onSend: widget.onSendSign,
                             ),
                           )
                         : null,
@@ -174,14 +168,12 @@ class TalkSignSpokenContent extends StatelessWidget {
     this.heardResult,
     required this.signResult,
     required this.onReplay,
-    required this.onClearResult,
   });
 
   final HomeUiCopy uiCopy;
   final TalkListenResult? heardResult;
   final SignCaptureResult signResult;
   final VoidCallback onReplay;
-  final VoidCallback onClearResult;
 
   @override
   Widget build(BuildContext context) {
@@ -217,15 +209,6 @@ class TalkSignSpokenContent extends StatelessWidget {
                   '${uiCopy.spokenLabel} · ${signResult.formattedDuration()}',
               replayLabel: uiCopy.replayLabel,
               onReplay: onReplay,
-              clearAction: TalkCaptionActionButton(
-                mode: TalkCaptionActionMode.clear,
-                semanticsLabel: uiCopy.clearCaptionLabel,
-                enabled: true,
-                busy: false,
-                onDarkBackground: true,
-                buttonKey: const Key('talk_sign_clear_button'),
-                onTap: onClearResult,
-              ),
             ),
           ),
         ),
@@ -451,14 +434,12 @@ class TalkSignSpokenMessage extends StatelessWidget {
     required this.metaLabel,
     required this.replayLabel,
     required this.onReplay,
-    this.clearAction,
   });
 
   final String transcript;
   final String metaLabel;
   final String replayLabel;
   final VoidCallback onReplay;
-  final Widget? clearAction;
 
   @override
   Widget build(BuildContext context) {
@@ -469,34 +450,22 @@ class TalkSignSpokenMessage extends StatelessWidget {
         TalkSignRightStatusBubble(
           backgroundColor: AppColors.splashBlue,
           borderColor: Colors.transparent,
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  right: clearAction == null ? 0 : 28,
-                  bottom: 2,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      transcript,
-                      style: const TextStyle(
-                        fontFamily: 'Klavika',
-                        fontWeight: FontWeight.w400,
-                        fontSize: AppSpacing.talkSessionTranscriptFont,
-                        height: AppSpacing.talkSessionTranscriptLineHeight,
-                        color: AppColors.white,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.talkSessionMetaTop),
-                    TalkReplayButton(label: replayLabel, onTap: onReplay),
-                  ],
+              Text(
+                transcript,
+                style: const TextStyle(
+                  fontFamily: 'Klavika',
+                  fontWeight: FontWeight.w400,
+                  fontSize: AppSpacing.talkSessionTranscriptFont,
+                  height: AppSpacing.talkSessionTranscriptLineHeight,
+                  color: AppColors.white,
                 ),
               ),
-              if (clearAction != null)
-                Positioned(right: 0, bottom: 0, child: clearAction!),
+              const SizedBox(height: AppSpacing.talkSessionMetaTop),
+              TalkReplayButton(label: replayLabel, onTap: onReplay),
             ],
           ),
         ),

@@ -518,26 +518,20 @@ class _RecDot extends StatelessWidget {
   }
 }
 
-/// Flip + send controls overlaid on the sign camera preview.
+/// Flip control overlaid on the sign camera preview.
 class TalkSignCameraActionBar extends StatelessWidget {
   const TalkSignCameraActionBar({
     super.key,
     required this.flipSemanticsLabel,
-    required this.sendSemanticsLabel,
     required this.canFlip,
     required this.flipBusy,
-    required this.sendEnabled,
     required this.onFlip,
-    required this.onSend,
   });
 
   final String flipSemanticsLabel;
-  final String sendSemanticsLabel;
   final bool canFlip;
   final bool flipBusy;
-  final bool sendEnabled;
   final VoidCallback onFlip;
-  final VoidCallback onSend;
 
   static const double _tapSize = 48;
 
@@ -568,21 +562,6 @@ class TalkSignCameraActionBar extends StatelessWidget {
               busy: flipBusy,
               onTap: onFlip,
             ),
-            if (sendEnabled) ...[
-              Container(
-                width: 1,
-                height: 28,
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                color: AppColors.white.withValues(alpha: 0.35),
-              ),
-              _TalkSignCameraAction(
-                buttonKey: const Key('talk_sign_send_button'),
-                icon: Icons.send_rounded,
-                semanticsLabel: sendSemanticsLabel,
-                enabled: true,
-                onTap: onSend,
-              ),
-            ],
           ],
         ),
       ),

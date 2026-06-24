@@ -17,10 +17,6 @@ class TalkListeningContent extends StatelessWidget {
     this.signPulse = 0,
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
-    this.canSendCaption = false,
-    this.captionLocked = false,
-    this.onSendCaption,
-    this.onClearCaption,
   });
 
   final HomeUiCopy uiCopy;
@@ -28,10 +24,6 @@ class TalkListeningContent extends StatelessWidget {
   final int signPulse;
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
-  final bool canSendCaption;
-  final bool captionLocked;
-  final VoidCallback? onSendCaption;
-  final VoidCallback? onClearCaption;
 
   bool get _hasCaption => liveResult?.fullTranscript.isNotEmpty ?? false;
 
@@ -39,7 +31,7 @@ class TalkListeningContent extends StatelessWidget {
     if (cloudGlossWord != null && cloudGlossWord!.trim().isNotEmpty) {
       return cloudGlossWord;
     }
-    if (isRefreshingGloss) {
+    if (isRefreshingGloss || _hasCaption) {
       return uiCopy.signingListeningWord;
     }
     return null;
@@ -57,7 +49,7 @@ class TalkListeningContent extends StatelessWidget {
 
   String get _avatarSigningWord {
     if (!_hasCloudGloss) {
-      return '';
+      return _hasCaption ? uiCopy.signingListeningWord : '';
     }
     return cloudGlossWord!;
   }
@@ -85,21 +77,7 @@ class TalkListeningContent extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: _hasCaption
-                ? _LiveCaptionBubble(
-                    transcript: liveResult!.fullTranscript,
-                    showCursor: !captionLocked,
-                    action: TalkCaptionActionButton(
-                      mode: captionLocked
-                          ? TalkCaptionActionMode.clear
-                          : TalkCaptionActionMode.send,
-                      semanticsLabel: captionLocked
-                          ? uiCopy.clearCaptionLabel
-                          : uiCopy.sendCaptionLabel,
-                      enabled: captionLocked || canSendCaption,
-                      busy: isRefreshingGloss,
-                      onTap: captionLocked ? onClearCaption : onSendCaption,
-                    ),
-                  )
+                ? _TranscriptBubble(transcript: liveResult!.fullTranscript)
                 : _SessionStatusBubble(label: uiCopy.listeningLabel),
           ),
         ),
@@ -116,111 +94,6 @@ class TalkListeningContent extends StatelessWidget {
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? liveResult?.signSystem.label : null,
-        ),
-      ),
-    );
-  }
-}
-
-/// Live caption bubble with send/clear action inside the bubble.
-class _LiveCaptionBubble extends StatelessWidget {
-  const _LiveCaptionBubble({
-    required this.transcript,
-    required this.showCursor,
-    required this.action,
-  });
-
-  final String transcript;
-  final bool showCursor;
-  final Widget action;
-
-  @override
-  Widget build(BuildContext context) {
-    return _TalkBubbleContainer(
-      borderColor: AppColors.splashBlue,
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 28, bottom: 2),
-            child: _CaptionBubbleBody(
-              transcript: transcript,
-              maxHeight: AppSpacing.talkSessionCaptionMaxHeight,
-              trailing: showCursor
-                  ? Container(
-                      width: AppSpacing.talkSessionCursorWidth,
-                      height: AppSpacing.talkSessionCursorHeight,
-                      color: AppColors.splashBlue.withValues(alpha: 0.71),
-                    )
-                  : null,
-            ),
-          ),
-          Positioned(right: 0, bottom: 0, child: action),
-        ],
-      ),
-    );
-  }
-}
-
-/// Send / clear icon inside the live caption bubble.
-enum TalkCaptionActionMode { send, clear }
-
-class TalkCaptionActionButton extends StatelessWidget {
-  const TalkCaptionActionButton({
-    super.key,
-    required this.mode,
-    required this.semanticsLabel,
-    required this.enabled,
-    required this.busy,
-    required this.onTap,
-    this.onDarkBackground = false,
-    this.buttonKey,
-  });
-
-  final TalkCaptionActionMode mode;
-  final String semanticsLabel;
-  final bool enabled;
-  final bool busy;
-  final VoidCallback? onTap;
-  final bool onDarkBackground;
-  final Key? buttonKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final active = enabled && !busy && onTap != null;
-    final isClear = mode == TalkCaptionActionMode.clear;
-    final iconColor = onDarkBackground
-        ? (active ? AppColors.white : AppColors.white.withValues(alpha: 0.45))
-        : (active
-              ? (isClear ? AppColors.talkStopRed : AppColors.splashBlue)
-              : AppColors.splashBlue.withValues(alpha: 0.35));
-    final defaultKey = isClear
-        ? 'talk_caption_clear_button'
-        : 'talk_caption_send_button';
-
-    return Semantics(
-      button: true,
-      enabled: active,
-      label: semanticsLabel,
-      child: InkWell(
-        key: buttonKey ?? Key(defaultKey),
-        onTap: active ? onTap : null,
-        borderRadius: BorderRadius.circular(4),
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: busy
-              ? SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: iconColor,
-                  ),
-                )
-              : Icon(
-                  isClear ? Icons.close_rounded : Icons.send_rounded,
-                  size: 18,
-                  color: iconColor,
-                ),
         ),
       ),
     );
