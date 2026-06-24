@@ -174,7 +174,12 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     await _disposeController();
 
     final clip = _clips[index];
-    final controller = VideoPlayerController.asset(clip.assetPath);
+    final VideoPlayerController controller;
+    if (clip.isRemote) {
+      controller = VideoPlayerController.networkUrl(Uri.parse(clip.playbackUri));
+    } else {
+      controller = VideoPlayerController.asset(clip.playbackUri);
+    }
     _controller = controller;
 
     try {
@@ -190,7 +195,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       await controller.play();
     } on Object catch (error) {
       debugPrint(
-        '[SignBridge/SignVideo] failed ${clip.assetPath} ($error); skipping',
+        '[SignBridge/SignVideo] failed ${clip.playbackUri} ($error); skipping',
       );
       await controller.dispose();
       if (_controller == controller) {

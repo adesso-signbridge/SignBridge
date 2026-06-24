@@ -94,6 +94,7 @@ class TalkListeningContent extends StatelessWidget {
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? liveResult?.signSystem.label : null,
+          showLoader: isRefreshingGloss,
         ),
       ),
     );
@@ -244,6 +245,7 @@ class TalkStoppedContent extends StatelessWidget {
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? result.signSystem.label : null,
+          showLoader: isRefreshingGloss,
         ),
       ),
     );
@@ -764,11 +766,13 @@ class _OverlaySigningChip extends StatelessWidget {
     required this.prefix,
     required this.word,
     this.systemLabel,
+    this.showLoader = false,
   });
 
   final String prefix;
   final String? word;
   final String? systemLabel;
+  final bool showLoader;
 
   @override
   Widget build(BuildContext context) {
@@ -805,22 +809,36 @@ class _OverlaySigningChip extends StatelessWidget {
                   horizontal: 16,
                   vertical: 8,
                 ),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$prefix ',
-                        style: const TextStyle(
-                          fontFamily: 'Klavika',
-                          fontWeight: FontWeight.w400,
-                          fontSize: AppSpacing.talkSessionSigningChipFont,
-                          height: 16 / 12,
-                          leadingDistribution: TextLeadingDistribution.even,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$prefix ',
+                      style: const TextStyle(
+                        fontFamily: 'Klavika',
+                        fontWeight: FontWeight.w400,
+                        fontSize: AppSpacing.talkSessionSigningChipFont,
+                        height: 16 / 12,
+                        leadingDistribution: TextLeadingDistribution.even,
+                        color: AppColors.splashBlue,
+                      ),
+                    ),
+                    if (showLoader) ...[
+                      const SizedBox(
+                        key: Key('talk_signing_gloss_loader'),
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
                           color: AppColors.splashBlue,
                         ),
                       ),
-                      TextSpan(
-                        text: '$word$systemSuffix',
+                      const SizedBox(width: 6),
+                    ],
+                    Flexible(
+                      child: Text(
+                        '$word$systemSuffix',
                         style: const TextStyle(
                           fontFamily: 'Klavika',
                           fontWeight: FontWeight.w700,
@@ -829,11 +847,11 @@ class _OverlaySigningChip extends StatelessWidget {
                           leadingDistribution: TextLeadingDistribution.even,
                           color: AppColors.splashBlue,
                         ),
+                        softWrap: true,
+                        textAlign: TextAlign.center,
                       ),
-                    ],
-                  ),
-                  softWrap: true,
-                  textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),

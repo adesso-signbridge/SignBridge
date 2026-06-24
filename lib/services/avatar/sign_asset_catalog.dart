@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../translate/sign_language_system.dart';
 import '../translate/sign_token.dart';
+import 'sign_asset_remote_config.dart';
 import 'sign_gloss_normalizer.dart';
 import 'sign_playback_clip.dart';
 
@@ -116,7 +117,13 @@ abstract final class SignAssetCatalog {
       if (path == null) {
         continue;
       }
-      clips.add(SignPlaybackClip(token: token, assetPath: path));
+      clips.add(
+        SignPlaybackClip(
+          token: token,
+          assetPath: path,
+          playbackUri: playbackUriForAssetPath(path),
+        ),
+      );
     }
     return clips;
   }
@@ -128,6 +135,26 @@ abstract final class SignAssetCatalog {
     return playbackClipsForSequence(sequence, system)
         .map((clip) => clip.assetPath)
         .toList(growable: false);
+  }
+
+  /// Resolves a bundled manifest path to a remote worker URL when configured.
+  static String playbackUriForAssetPath(String assetPath) {
+    if (assetPath.startsWith('http://') || assetPath.startsWith('https://')) {
+      return assetPath;
+    }
+
+    final base = SignAssetRemoteConfig.baseUrl;
+    if (base.isEmpty) {
+      return assetPath;
+    }
+
+    const bundledPrefix = 'assets/signs/';
+    if (assetPath.startsWith(bundledPrefix)) {
+      return '$base/${assetPath.substring(bundledPrefix.length)}';
+    }
+
+    final trimmed = assetPath.replaceFirst(RegExp(r'^/+'), '');
+    return '$base/$trimmed';
   }
 
   static Future<void> _loadManifest() async {
