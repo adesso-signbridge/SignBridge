@@ -121,10 +121,6 @@ function geminiTextModels(env) {
   return geminiSignVideoOnlyChain(env);
 }
 
-function isRetryableGeminiStatus(status) {
-  return status === 429 || status === 500 || status === 503 || status === 504;
-}
-
 function isModelUnavailableStatus(status) {
   return status === 404 || status === 400;
 }
@@ -132,10 +128,6 @@ function isModelUnavailableStatus(status) {
 function shouldFailOverSignModel(err) {
   const status = err.status || 0;
   return isModelUnavailableStatus(status) || status === 429;
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function spokenLanguageName(languageCode) {
@@ -337,36 +329,18 @@ async function requestGeminiSignGloss(
   durationMs,
   apiKey,
 ) {
-  let lastError = null;
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const glossSequence = await callGeminiSignGloss(
-        model,
-        bytes,
-        mimeType,
-        signLanguage,
-        durationMs,
-        apiKey,
-      );
-      if (!glossSequence.length) {
-        throw new Error("No signs detected in video");
-      }
-      return glossSequence;
-    } catch (err) {
-      lastError = err;
-      const status = err.status || 0;
-      if (isModelUnavailableStatus(status) || status === 429) {
-        break;
-      }
-      if (!isRetryableGeminiStatus(status) || attempt === 2) {
-        break;
-      }
-      await sleep(500 * (attempt + 1));
-    }
+  const glossSequence = await callGeminiSignGloss(
+    model,
+    bytes,
+    mimeType,
+    signLanguage,
+    durationMs,
+    apiKey,
+  );
+  if (!glossSequence.length) {
+    throw new Error("No signs detected in video");
   }
-
-  throw lastError || new Error("Gemini sign gloss request failed");
+  return glossSequence;
 }
 
 async function callGeminiSignGloss(
@@ -438,37 +412,21 @@ async function glossSequenceToSpokenText(
 ) {
   const errors = [];
   for (const model of geminiTextModels(env)) {
-    let lastError = null;
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const text = await callGeminiGlossToText(
-          model,
-          glossSequence,
-          languageCode,
-          signLanguage,
-          apiKey,
-        );
-        if (!text.trim()) {
-          throw new Error("Gemini returned empty sign text");
-        }
-        return { text: text.trim(), textModel: model };
-      } catch (err) {
-        lastError = err;
-        const status = err.status || 0;
-        if (isModelUnavailableStatus(status) || status === 429) {
-          break;
-        }
-        if (!isRetryableGeminiStatus(status) || attempt === 2) {
-          break;
-        }
-        await sleep(400 * (attempt + 1));
+    try {
+      const text = await callGeminiGlossToText(
+        model,
+        glossSequence,
+        languageCode,
+        signLanguage,
+        apiKey,
+      );
+      if (!text.trim()) {
+        throw new Error("Gemini returned empty sign text");
       }
-    }
-
-    if (lastError) {
-      errors.push(lastError);
-      if (shouldFailOverSignModel(lastError)) {
+      return { text: text.trim(), textModel: model };
+    } catch (err) {
+      errors.push(err);
+      if (shouldFailOverSignModel(err)) {
         continue;
       }
     }
