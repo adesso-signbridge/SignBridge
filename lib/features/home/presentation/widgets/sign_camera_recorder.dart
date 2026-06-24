@@ -159,27 +159,6 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     }
   }
 
-  bool get _mirrorFrontPreview {
-    final controller = _controller;
-    if (controller == null) {
-      return false;
-    }
-    // Selfie preview should look like a mirror. On many Android devices
-    // (Samsung + Impeller) the plugin omits this until we flip in UI.
-    return controller.description.lensDirection == CameraLensDirection.front;
-  }
-
-  Widget _buildCameraPreview(CameraController controller) {
-    Widget preview = CameraPreview(controller);
-    if (_mirrorFrontPreview) {
-      preview = Transform.flip(
-        flipX: true,
-        child: preview,
-      );
-    }
-    return preview;
-  }
-
   void _publishCameraControls() {
     widget.controller?._setCanFlipCamera(_canFlipCamera);
     widget.controller?._setFlipping(_isFlipping);
@@ -347,7 +326,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
           key: ValueKey(controller.description.name),
           width: width,
           height: height,
-          child: _buildCameraPreview(controller),
+          child: CameraPreview(controller),
         ),
       ),
     );
