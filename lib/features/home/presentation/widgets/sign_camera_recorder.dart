@@ -88,6 +88,9 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
   bool _isFlipping = false;
 
   bool get _canFlipCamera {
+    if (widget.isRecording || _isRecordingVideo || _stopPending) {
+      return false;
+    }
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) {
       return false;
@@ -174,8 +177,10 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       );
       final controller = CameraController(
         camera,
-        ResolutionPreset.high,
+        ResolutionPreset.low,
         enableAudio: false,
+        // Keep sign clips small for worker upload and Gemini file processing.
+        videoBitrate: 2_000_000,
         // JPEG stream format breaks video reconfigure on some Samsung devices.
         imageFormatGroup:
             Platform.isAndroid ? null : ImageFormatGroup.bgra8888,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -45,14 +46,35 @@ abstract final class SignCaptureErrorMapper {
       return copy.signCaptureUnauthorizedLabel;
     }
 
+    if (error is TimeoutException ||
+        _matches(haystack, ['timeoutexception', 'future not completed'])) {
+      return copy.signCaptureUploadTimeoutLabel;
+    }
+
+    if (_matches(haystack, [
+      '1102',
+      'cpu time limit',
+      'exceeded cpu',
+    ])) {
+      return copy.signCaptureWorkerOverloadLabel;
+    }
+
+    if (_matches(haystack, [
+      '413',
+      'payload too large',
+      'too large',
+      'max 10 mb',
+      'max 8 mb',
+    ])) {
+      return copy.signRecordingTooLargeLabel;
+    }
+
     if (_matches(haystack, [
       '502',
       '503',
       '504',
-      '1102',
       'sign recognition failed',
       'worker',
-      'timeout',
       'timed out',
     ])) {
       return copy.signCaptureServiceUnavailableLabel;
@@ -64,6 +86,10 @@ abstract final class SignCaptureErrorMapper {
   static Duration snackbarDuration(Object error) {
     final haystack = _errorHaystack(error);
     if (_matches(haystack, ['429', 'rate limit', 'you exceeded', 'quota'])) {
+      return const Duration(seconds: 6);
+    }
+    if (error is TimeoutException ||
+        _matches(haystack, ['1102', 'timeoutexception'])) {
       return const Duration(seconds: 6);
     }
     return const Duration(seconds: 4);

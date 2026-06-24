@@ -84,19 +84,7 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
                 child: SizedBox(
                   height: cameraHeight,
                   child: SignCameraStageFrame(
-                    overlay: widget.isRecording
-                        ? Positioned(
-                            right: 12,
-                            bottom: 12,
-                            child: TalkSignCameraActionBar(
-                              flipSemanticsLabel:
-                                  widget.uiCopy.flipCameraLabel,
-                              canFlip: _cameraController.canFlipCamera,
-                              flipBusy: _cameraController.isFlipping,
-                              onFlip: () => _cameraController.flipCamera(),
-                            ),
-                          )
-                        : null,
+                    overlay: null,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [

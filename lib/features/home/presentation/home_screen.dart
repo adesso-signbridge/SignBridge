@@ -89,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _cloudGlossWord;
   final List<String> _accumulatedGlossTokens = [];
   Timer? _liveGlossDebounceTimer;
+  Timer? _maxSignRecordingTimer;
   int _glossRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
@@ -198,6 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _cancelSessionTimers() {
     _cancelLiveGlossDebounce();
+    _maxSignRecordingTimer?.cancel();
+    _maxSignRecordingTimer = null;
   }
 
   void _cancelLiveGlossDebounce() {
@@ -324,12 +327,26 @@ class _HomeScreenState extends State<HomeScreen> {
       _signRecordingActive = true;
       _signRecordingStartedAt = DateTime.now();
     });
+    debugPrint(
+      '[SignBridge/SignCapture] recording started '
+      '(auto-stop ${SignCaptureConfig.maxRecordingDuration.inSeconds}s, '
+      'max upload ${SignCaptureConfig.maxUploadBytes ~/ (1024 * 1024)} MB)',
+    );
+    _maxSignRecordingTimer?.cancel();
+    _maxSignRecordingTimer = Timer(SignCaptureConfig.maxRecordingDuration, () {
+      if (!mounted || _signPhase != SignFlowPhase.recording) {
+        return;
+      }
+      unawaited(_stopSignAndAnalyze());
+    });
   }
 
   Future<void> _sendSignRecording() async {
     if (_signPhase != SignFlowPhase.recording) {
       return;
     }
+    _maxSignRecordingTimer?.cancel();
+    _maxSignRecordingTimer = null;
 
     if (signCameraTestModeEnabled) {
       await _analyzeSignVideo('mock-sign-capture.mp4');
@@ -360,6 +377,18 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    if (!signCameraTestModeEnabled &&
+        recordingDuration >
+            SignCaptureConfig.maxRecordingDuration +
+                const Duration(milliseconds: 500)) {
+      if (!mounted || generation != _signGeneration) {
+        return;
+      }
+      setState(() => _signPhase = SignFlowPhase.idle);
+      _showSignMessage(widget.uiCopy.signRecordingTooLargeLabel);
+      return;
+    }
+
     if (!signCameraTestModeEnabled) {
       final videoFile = File(videoPath);
       if (!await videoFile.exists()) {
@@ -371,12 +400,24 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       final videoBytes = await videoFile.length();
+      debugPrint(
+        '[SignBridge/SignCapture] clip ${recordingDuration.inMilliseconds}ms, '
+        '${(videoBytes / (1024 * 1024)).toStringAsFixed(2)} MB → worker',
+      );
       if (videoBytes < 1024) {
         if (!mounted || generation != _signGeneration) {
           return;
         }
         setState(() => _signPhase = SignFlowPhase.idle);
         _showSignMessage(widget.uiCopy.signRecordingEmptyLabel);
+        return;
+      }
+      if (videoBytes > SignCaptureConfig.maxUploadBytes) {
+        if (!mounted || generation != _signGeneration) {
+          return;
+        }
+        setState(() => _signPhase = SignFlowPhase.idle);
+        _showSignMessage(widget.uiCopy.signRecordingTooLargeLabel);
         return;
       }
     }

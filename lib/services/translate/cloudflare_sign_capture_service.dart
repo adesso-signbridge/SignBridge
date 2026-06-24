@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'cloudflare_sign_config.dart';
+import 'sign_capture_config.dart';
 import 'sign_capture_service.dart';
 import 'sign_language_system.dart';
 
@@ -50,6 +51,13 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     final file = File(videoPath);
     if (!await file.exists()) {
       throw StateError('Sign recording not found: $videoPath');
+    }
+
+    final fileSize = await file.length();
+    if (fileSize > SignCaptureConfig.maxUploadBytes) {
+      throw HttpException(
+        'Video too large (max ${SignCaptureConfig.maxUploadBytes ~/ (1024 * 1024)} MB)',
+      );
     }
 
     final context = conversationContext?.trim();
@@ -139,7 +147,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     }
 
     final streamed = await _client.send(request).timeout(
-      const Duration(seconds: 90),
+      const Duration(seconds: 120),
     );
     final response = await http.Response.fromStream(streamed);
 

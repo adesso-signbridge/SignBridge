@@ -10,7 +10,9 @@
 import { geminiSignVideoOnlyChain } from "./gemini_model_chain.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
-const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 10 * 1024 * 1024;
+const GEMINI_FILE_POLL_MS = 2000;
+const GEMINI_FILE_ACTIVE_TIMEOUT_MS = 120_000;
 
 const JSON_ARTIFACT_TOKENS = new Set(["GLOSSSEQUENCE", "GLOSSEQUENCE"]);
 
@@ -52,7 +54,7 @@ export async function handleSignRecognitionRequest(request, env) {
     return signJson({ error: "Empty video upload" }, 400);
   }
   if (bytes.byteLength > MAX_VIDEO_BYTES) {
-    return signJson({ error: "Video too large (max 20 MB)" }, 413);
+    return signJson({ error: "Video too large (max 10 MB)" }, 413);
   }
 
   const mimeType = resolveVideoMimeType(video);
@@ -351,56 +353,153 @@ async function callGeminiSignGloss(
   durationMs,
   apiKey,
 ) {
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}` +
-    `:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const uploaded = await uploadGeminiFile(bytes, mimeType, apiKey);
+  const fileName = uploaded?.name;
+  if (!fileName) {
+    throw new Error("Gemini file upload returned no file name");
+  }
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: signGlossSystemInstruction(signLanguage, durationMs) }],
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              inlineData: {
-                mimeType,
-                data: bytesToBase64(bytes),
-              },
-            },
-            { text: signGlossUserPrompt(signLanguage, durationMs) },
-          ],
+  try {
+    const activeFile = await waitForGeminiFileActive(fileName, apiKey);
+    const fileUri = activeFile?.uri;
+    if (!fileUri) {
+      throw new Error("Gemini file is active but missing uri");
+    }
+
+    const url =
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}` +
+      `:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{ text: signGlossSystemInstruction(signLanguage, durationMs) }],
         },
-      ],
-      generationConfig: {
-        temperature: 0.0,
-        topP: 0.1,
-        topK: 1,
-        maxOutputTokens: 256,
-        responseMimeType: "application/json",
-        responseSchema: SIGN_GLOSS_RESPONSE_SCHEMA,
-      },
-    }),
-  });
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                fileData: {
+                  mimeType,
+                  fileUri,
+                },
+              },
+              { text: signGlossUserPrompt(signLanguage, durationMs) },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.0,
+          topP: 0.1,
+          topK: 1,
+          maxOutputTokens: 256,
+          responseMimeType: "application/json",
+          responseSchema: SIGN_GLOSS_RESPONSE_SCHEMA,
+        },
+      }),
+    });
 
+    if (!res.ok) {
+      const detail = await res.text();
+      const error = new Error(`Gemini ${res.status}: ${detail}`);
+      error.status = res.status;
+      throw error;
+    }
+
+    const data = await res.json();
+    const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!content) {
+      throw new Error("Gemini returned empty sign gloss response");
+    }
+
+    return parseGlossSequence(content);
+  } finally {
+    await deleteGeminiFile(fileName, apiKey);
+  }
+}
+
+async function uploadGeminiFile(bytes, mimeType, apiKey) {
+  const form = new FormData();
+  form.append(
+    "metadata",
+    new Blob(
+      [JSON.stringify({ file: { display_name: "sign_bridge_clip" } })],
+      { type: "application/json" },
+    ),
+  );
+  form.append("file", new Blob([bytes], { type: mimeType }));
+
+  const url =
+    `https://generativelanguage.googleapis.com/upload/v1beta/files` +
+    `?uploadType=multipart&key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(url, { method: "POST", body: form });
   if (!res.ok) {
     const detail = await res.text();
-    const error = new Error(`Gemini ${res.status}: ${detail}`);
+    const error = new Error(`Gemini file upload ${res.status}: ${detail}`);
     error.status = res.status;
     throw error;
   }
 
   const data = await res.json();
-  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!content) {
-    throw new Error("Gemini returned empty sign gloss response");
+  const file = data?.file;
+  if (!file?.name) {
+    throw new Error("Gemini file upload returned no file metadata");
+  }
+  return file;
+}
+
+async function waitForGeminiFileActive(fileName, apiKey) {
+  const deadline = Date.now() + GEMINI_FILE_ACTIVE_TIMEOUT_MS;
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/${fileName}` +
+    `?key=${encodeURIComponent(apiKey)}`;
+
+  while (Date.now() < deadline) {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const detail = await res.text();
+      const error = new Error(`Gemini file status ${res.status}: ${detail}`);
+      error.status = res.status;
+      throw error;
+    }
+
+    const file = await res.json();
+    const state = String(file?.state || "").toUpperCase();
+    if (state === "ACTIVE") {
+      return file;
+    }
+    if (state === "FAILED") {
+      throw new Error(
+        `Gemini file processing failed: ${file?.error?.message || "unknown"}`,
+      );
+    }
+
+    await sleep(GEMINI_FILE_POLL_MS);
   }
 
-  return parseGlossSequence(content);
+  throw new Error("Gemini file processing timed out");
+}
+
+async function deleteGeminiFile(fileName, apiKey) {
+  if (!fileName) {
+    return;
+  }
+  try {
+    const url =
+      `https://generativelanguage.googleapis.com/v1beta/${fileName}` +
+      `?key=${encodeURIComponent(apiKey)}`;
+    await fetch(url, { method: "DELETE" });
+  } catch (_) {
+    // Best-effort cleanup.
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function glossSequenceToSpokenText(
@@ -581,17 +680,6 @@ function parseSignText(content) {
   }
 
   throw new Error(`Unable to parse sign response: ${text.slice(0, 120)}`);
-}
-
-function bytesToBase64(bytes) {
-  const chunkSize = 0x8000;
-  const uint8 = new Uint8Array(bytes);
-  let binary = "";
-  for (let i = 0; i < uint8.length; i += chunkSize) {
-    const chunk = uint8.subarray(i, i + chunkSize);
-    binary += String.fromCharCode.apply(null, chunk);
-  }
-  return btoa(binary);
 }
 
 function signJson(obj, status = 200) {

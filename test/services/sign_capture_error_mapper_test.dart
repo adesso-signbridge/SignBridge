@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +25,8 @@ void main() {
     signCaptureRateLimitedLabel: 'rate-limited',
     signCaptureModelUnavailableLabel: 'model-unavailable',
     signCaptureServiceUnavailableLabel: 'service-unavailable',
+    signCaptureWorkerOverloadLabel: 'worker-overload',
+    signCaptureUploadTimeoutLabel: 'upload-timeout',
     signCaptureNotConfiguredLabel: 'not-configured',
     signCaptureUnauthorizedLabel: 'unauthorized',
     listeningLabel: '',
@@ -52,6 +55,7 @@ void main() {
     sosCountdownCancelLabel: '',
     emergencyPhonePermissionRequiredLabel: '',
     signRecordingTooShortLabel: '',
+    signRecordingTooLargeLabel: 'too-large',
     signRecordingEmptyLabel: '',
     signNoSignsDetectedLabel: 'no-signs',
     aboutSection: '',
@@ -110,5 +114,29 @@ void main() {
       copy,
     );
     expect(message, 'rate-limited');
+  });
+
+  test('maps worker 503 error code 1102 to worker overload message', () {
+    final message = SignCaptureErrorMapper.userMessage(
+      HttpException('Sign worker 503: error code: 1102'),
+      copy,
+    );
+    expect(message, 'worker-overload');
+  });
+
+  test('maps TimeoutException to upload timeout message', () {
+    final message = SignCaptureErrorMapper.userMessage(
+      TimeoutException('Future not completed'),
+      copy,
+    );
+    expect(message, 'upload-timeout');
+  });
+
+  test('maps 413 payload too large to recording too large message', () {
+    final message = SignCaptureErrorMapper.userMessage(
+      HttpException('Sign worker 413: Video too large (max 10 MB)'),
+      copy,
+    );
+    expect(message, 'too-large');
   });
 }

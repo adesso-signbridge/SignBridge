@@ -19,6 +19,8 @@ class HomeUiCopy {
     required this.signCaptureRateLimitedLabel,
     required this.signCaptureModelUnavailableLabel,
     required this.signCaptureServiceUnavailableLabel,
+    required this.signCaptureWorkerOverloadLabel,
+    required this.signCaptureUploadTimeoutLabel,
     required this.signCaptureNotConfiguredLabel,
     required this.signCaptureUnauthorizedLabel,
     required this.listeningLabel,
@@ -47,6 +49,7 @@ class HomeUiCopy {
     required this.sosCountdownCancelLabel,
     required this.emergencyPhonePermissionRequiredLabel,
     required this.signRecordingTooShortLabel,
+    required this.signRecordingTooLargeLabel,
     required this.signRecordingEmptyLabel,
     required this.signNoSignsDetectedLabel,
     required this.aboutSection,
@@ -80,6 +83,8 @@ class HomeUiCopy {
   final String signCaptureRateLimitedLabel;
   final String signCaptureModelUnavailableLabel;
   final String signCaptureServiceUnavailableLabel;
+  final String signCaptureWorkerOverloadLabel;
+  final String signCaptureUploadTimeoutLabel;
   final String signCaptureNotConfiguredLabel;
   final String signCaptureUnauthorizedLabel;
   final String listeningLabel;
@@ -108,6 +113,7 @@ class HomeUiCopy {
   final String sosCountdownCancelLabel;
   final String emergencyPhonePermissionRequiredLabel;
   final String signRecordingTooShortLabel;
+  final String signRecordingTooLargeLabel;
   final String signRecordingEmptyLabel;
   final String signNoSignsDetectedLabel;
   final String aboutSection;
@@ -140,7 +146,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     flipCameraLabel: 'Flip camera',
     clearCaptionLabel: 'Clear text',
     recordingSignsLabel:
-        'Recording signs… sign each word clearly, one after another',
+        'Recording signs… sign clearly for 2–5 seconds, then release',
     analyzingSignsLabel: 'Analyzing your signs…',
     spokenLabel: 'Spoken',
     signsCapturedLabel: 'Signs captured',
@@ -154,6 +160,10 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'Sign analysis is temporarily unavailable. Please try again later.',
     signCaptureServiceUnavailableLabel:
         'Sign analysis server is unavailable. Please try again shortly.',
+    signCaptureWorkerOverloadLabel:
+        'Sign analysis timed out on the server. Record 2–5 seconds and try again.',
+    signCaptureUploadTimeoutLabel:
+        'Sign analysis took too long. Try a shorter 2–3 second clip.',
     signCaptureNotConfiguredLabel:
         'Sign analysis is not configured yet. Please try again later.',
     signCaptureUnauthorizedLabel:
@@ -189,6 +199,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'Phone permission is required to auto-call emergency services.',
     signRecordingTooShortLabel:
         'Hold record for at least 2 seconds while signing your full phrase.',
+    signRecordingTooLargeLabel:
+        'Recording is too large. Sign for 2–5 seconds and try again.',
     signRecordingEmptyLabel:
         'Recording was empty. Try signing clearly for 2–3 seconds.',
     signNoSignsDetectedLabel:
@@ -235,6 +247,10 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'സൈൻ വിശകലനം താൽക്കാലികമായി ലഭ്യമല്ല. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
     signCaptureServiceUnavailableLabel:
         'സൈൻ വിശകലന സർവർ ലഭ്യമല്ല. കുറച്ച് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureWorkerOverloadLabel:
+        'സൈൻ വിശകലനം സർവറിൽ സമയം കഴിഞ്ഞു. 2–5 സെക്കന്റ് റെക്കോർഡ് ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.',
+    signCaptureUploadTimeoutLabel:
+        'സൈൻ വിശകലനം വളരെ സമയമെടുത്തു. 2–3 സെക്കന്റ് ക്ലിപ്പ് ഉപയോഗിച്ച് ശ്രമിക്കുക.',
     signCaptureNotConfiguredLabel:
         'സൈൻ വിശകലനം ഇതുവരെ ക്രമീകരിച്ചിട്ടില്ല. പിന്നീട് വീണ്ടും ശ്രമിക്കുക.',
     signCaptureUnauthorizedLabel:
@@ -270,6 +286,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'അടിയന്തര കോൾ ചെയ്യാൻ ഫോൺ അനുമതി ആവശ്യമാണ്.',
     signRecordingTooShortLabel:
         'സൈൻ ചെയ്യുമ്പോൾ റെക്കോർഡ് ബട്ടൺ കുറഞ്ഞത് 2 സെക്കന്റ് hold ചെയ്യുക.',
+    signRecordingTooLargeLabel:
+        'റെക്കോർഡിംഗ് വളരെ വലുതാണ്. 2–5 സെക്കന്റ് സൈൻ ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.',
     signRecordingEmptyLabel:
         'റെക്കോർഡിംഗ് empty ആയിരുന്നു. 2–3 സെക്കന്റ് clearly സൈൻ ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.',
     signNoSignsDetectedLabel:
@@ -316,6 +334,10 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'साइन विश्लेषण अस्थायी रूप से उपलब्ध नहीं है। बाद में पुनः प्रयास करें।',
     signCaptureServiceUnavailableLabel:
         'साइन विश्लेषण सर्वर उपलब्ध नहीं है। थोड़ी देर बाद पुनः प्रयास करें।',
+    signCaptureWorkerOverloadLabel:
+        'साइन विश्लेषण सर्वर पर समय समाप्त हो गया। 2–5 सेकंड रिकॉर्ड करके पुनः प्रयास करें।',
+    signCaptureUploadTimeoutLabel:
+        'साइन विश्लेषण में बहुत समय लगा। 2–3 सेकंड का छोटा क्लिप आज़माएँ।',
     signCaptureNotConfiguredLabel:
         'साइन विश्लेषण अभी कॉन्फ़िगर नहीं है। बाद में पुनः प्रयास करें।',
     signCaptureUnauthorizedLabel:
@@ -350,6 +372,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'स्वचालित आपातकालीन कॉल के लिए फ़ोन अनुमति आवश्यक है।',
     signRecordingTooShortLabel:
         'पूरा वाक्य साइन करते हुए रिकॉर्ड कम से कम 2 सेकंड दबाए रखें।',
+    signRecordingTooLargeLabel:
+        'रिकॉर्डिंग बहुत बड़ी है। 2–5 सेकंड साइन करके फिर कोशिश करें।',
     signRecordingEmptyLabel:
         'रिकॉर्डिंग खाली थी। 2–3 सेकंड स्पष्ट साइन करके फिर कोशिश करें।',
     signNoSignsDetectedLabel:
@@ -395,6 +419,10 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'சைகை பகுப்பாய்வு தற்காலிகமாக கிடைக்கவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்.',
     signCaptureServiceUnavailableLabel:
         'சைகை பகுப்பாய்வு சேவையகம் கிடைக்கவில்லை. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.',
+    signCaptureWorkerOverloadLabel:
+        'சைகை பகுப்பாய்வு சேவையகத்தில் நேரம் முடிந்தது. 2–5 வினாடிகள் பதிவு செய்து மீண்டும் முயற்சிக்கவும்.',
+    signCaptureUploadTimeoutLabel:
+        'சைகை பகுப்பாய்வு நீண்ட நேரம் எடுத்தது. 2–3 வினாடி குறுகிய கிளிப்பை முயற்சிக்கவும்.',
     signCaptureNotConfiguredLabel:
         'சைகை பகுப்பாய்வு இன்னும் அமைக்கப்படவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்.',
     signCaptureUnauthorizedLabel:
@@ -431,6 +459,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
         'தானியங்கி அவசர அழைப்புக்கு தொலைபேசி அனுமதி தேவை.',
     signRecordingTooShortLabel:
         'முழு வாக்கியம் சைகை செய்து கொண்டே ரெக்கார்டை குறைந்தது 2 வினாடிகள் அழுத்தி வைத்திருங்கள்.',
+    signRecordingTooLargeLabel:
+        'பதிவு மிகப் பெரியது. 2–5 வினாடிகள் சைகை செய்து மீண்டும் முயற்சிக்கவும்.',
     signRecordingEmptyLabel:
         'பதிவு காலியாக இருந்தது. 2–3 வினாடிகள் தெளிவாக சைகை செய்து மீண்டும் முயற்சிக்கவும்.',
     signNoSignsDetectedLabel:
