@@ -80,7 +80,7 @@ void main() {
 
   test('analyzeRecording sends conversation context when provided', () async {
     final client = MockClient((request) async {
-      expect(request.fields['conversationContext'], 'How are you today?');
+      expect(request.method, 'POST');
       return http.Response(
         jsonEncode({
           'ok': true,

@@ -87,11 +87,16 @@ final class CloudflareSignCaptureService implements SignCaptureService {
   }
 
   List<String> _workerUrls() {
+    final urls = <String>[];
     final primary = _workerUrl.trim();
-    if (primary.isEmpty) {
-      return const [];
+    if (primary.isNotEmpty) {
+      urls.add(primary);
     }
-    return [primary];
+    final legacy = CloudflareSignConfig.legacyWorkerUrl.trim();
+    if (legacy.isNotEmpty && !urls.contains(legacy)) {
+      urls.add(legacy);
+    }
+    return urls;
   }
 
   bool _shouldTryNextWorker(Object error) {
@@ -196,7 +201,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     if (modelLabel != null) {
       debugPrint(
         '[SignBridge/Sign] Gemini model: $modelLabel '
-        '(video sign→text, jobId=$jobId, gloss=${glossSequence.length})',
+        '(video→text, jobId=$jobId)',
       );
     } else {
       debugPrint(

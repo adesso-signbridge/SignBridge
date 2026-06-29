@@ -83,6 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
   SignCaptureResult? _signResult;
   bool _signRecordingActive = false;
   DateTime? _signRecordingStartedAt;
+  String? _pendingSignVideoPath;
+  bool _signSendRequested = false;
+  Duration? _signClipDuration;
   int _signGeneration = 0;
   int _signSpeakGeneration = 0;
   bool _cloudGlossInFlight = false;
@@ -90,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<String> _accumulatedGlossTokens = [];
   Timer? _liveGlossDebounceTimer;
   Timer? _maxSignRecordingTimer;
+  Timer? _signAutoRecordTimer;
   int _glossRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
@@ -157,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _signPhase = SignFlowPhase.idle;
         _signRecordingActive = false;
-        _signRecordingStartedAt = null;
+        _resetSignCaptureState();
       });
     }
   }
@@ -201,6 +205,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _cancelLiveGlossDebounce();
     _maxSignRecordingTimer?.cancel();
     _maxSignRecordingTimer = null;
+    _signAutoRecordTimer?.cancel();
+    _signAutoRecordTimer = null;
+  }
+
+  void _resetSignCaptureState() {
+    _pendingSignVideoPath = null;
+    _signSendRequested = false;
+    _signRecordingStartedAt = null;
+    _signClipDuration = null;
   }
 
   void _cancelLiveGlossDebounce() {
@@ -283,6 +296,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool get _isSignFlowActive => _signPhase != SignFlowPhase.idle;
 
+  String? get _signRecordingStatusLabel {
+    if (_signRecordingActive) {
+      return widget.uiCopy.recordingSignsLabel;
+    }
+    if (_pendingSignVideoPath != null) {
+      return widget.uiCopy.tapToTranslate;
+    }
+    return widget.uiCopy.flipCameraLabel;
+  }
+
+  void _beginSignClipRecording() {
+    if (_signPhase != SignFlowPhase.recording ||
+        _signRecordingActive ||
+        _pendingSignVideoPath != null) {
+      return;
+    }
+    _signAutoRecordTimer?.cancel();
+    _signAutoRecordTimer = null;
+    setState(() => _signRecordingActive = true);
+    _armMaxSignRecordingTimer();
+    debugPrint('[SignBridge/SignCapture] clip recording started');
+  }
+
+  void _scheduleAutoClipRecording(int generation) {
+    _signAutoRecordTimer?.cancel();
+    _signAutoRecordTimer = Timer(const Duration(milliseconds: 2500), () {
+      if (!mounted ||
+          generation != _signGeneration ||
+          _signPhase != SignFlowPhase.recording ||
+          _signRecordingActive ||
+          _pendingSignVideoPath != null) {
+        return;
+      }
+      _beginSignClipRecording();
+    });
+  }
+
   /// Clear history after listen stops or sign translation finishes — never
   /// while sign recording or analysis is in progress.
   bool get _showClearHistory {
@@ -299,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final generation = ++_signGeneration;
+    _resetSignCaptureState();
 
     if (signCameraTestModeEnabled) {
       if (!mounted || generation != _signGeneration) {
@@ -324,51 +375,100 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     setState(() {
       _signPhase = SignFlowPhase.recording;
-      _signRecordingActive = true;
-      _signRecordingStartedAt = DateTime.now();
+      _signRecordingActive = false;
     });
+    _scheduleAutoClipRecording(generation);
     debugPrint(
-      '[SignBridge/SignCapture] recording started '
-      '(auto-stop ${SignCaptureConfig.maxRecordingDuration.inSeconds}s, '
-      'max upload ${SignCaptureConfig.maxUploadBytes ~/ (1024 * 1024)} MB)',
+      '[SignBridge/SignCapture] camera preview '
+      '(recording auto-starts in ~2.5s, max clip '
+      '${SignCaptureConfig.maxRecordingDuration.inSeconds}s)',
     );
+  }
+
+  void _armMaxSignRecordingTimer() {
     _maxSignRecordingTimer?.cancel();
     _maxSignRecordingTimer = Timer(SignCaptureConfig.maxRecordingDuration, () {
       if (!mounted || _signPhase != SignFlowPhase.recording) {
         return;
       }
-      unawaited(_stopSignAndAnalyze());
+      if (!_signRecordingActive) {
+        return;
+      }
+      debugPrint(
+        '[SignBridge/SignCapture] max duration reached; stopping clip '
+        '(tap Translate to send)',
+      );
+      setState(() => _signRecordingActive = false);
     });
   }
 
-  Future<void> _sendSignRecording() async {
+  Future<void> _onTranslateTap() async {
     if (_signPhase != SignFlowPhase.recording) {
       return;
     }
     _maxSignRecordingTimer?.cancel();
     _maxSignRecordingTimer = null;
+    _signAutoRecordTimer?.cancel();
+    _signAutoRecordTimer = null;
 
     if (signCameraTestModeEnabled) {
       await _analyzeSignVideo('mock-sign-capture.mp4');
       return;
     }
 
+    final pendingPath = _pendingSignVideoPath;
+    if (pendingPath != null) {
+      _pendingSignVideoPath = null;
+      await _analyzeSignVideo(pendingPath);
+      return;
+    }
+
+    if (_signSendRequested) {
+      return;
+    }
+
+    if (!_signRecordingActive) {
+      _showSignMessage(widget.uiCopy.recordingSignsLabel);
+      return;
+    }
+
+    _signSendRequested = true;
     setState(() => _signRecordingActive = false);
   }
 
-  Future<void> _stopSignAndAnalyze() async {
-    await _sendSignRecording();
+  void _onSignRecordingStopped(String videoPath, Duration recordingDuration) {
+    final generation = _signGeneration;
+    if (!mounted || generation != _signGeneration) {
+      return;
+    }
+
+    _signClipDuration = recordingDuration;
+    debugPrint(
+      '[SignBridge/SignCapture] clip saved '
+      '${recordingDuration.inMilliseconds}ms',
+    );
+
+    setState(() => _pendingSignVideoPath = videoPath);
+
+    if (!_signSendRequested) {
+      return;
+    }
+
+    _signSendRequested = false;
+    _pendingSignVideoPath = null;
+    unawaited(_analyzeSignVideo(videoPath));
   }
 
   Future<void> _analyzeSignVideo(String videoPath) async {
     final generation = _signGeneration;
-    final recordingDuration = _signRecordingStartedAt == null
-        ? Duration.zero
-        : DateTime.now().difference(_signRecordingStartedAt!);
+    final recordingDuration = _signClipDuration ?? Duration.zero;
+    _signClipDuration = null;
     _signRecordingStartedAt = null;
 
     if (!signCameraTestModeEnabled &&
-        recordingDuration < SignCaptureConfig.minRecordingDuration) {
+        recordingDuration <
+            SignCaptureConfig.minRecordingDuration -
+                const Duration(milliseconds: 300)) {
       if (!mounted || generation != _signGeneration) {
         return;
       }
@@ -439,8 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _sessionPhase = TalkSessionPhase.stopped;
       });
       debugPrint(
-        '[SignBridge/Sign] Spoken text (${result.glossSequence.length} gloss, '
-        '${recordingDuration.inMilliseconds}ms clip): ${result.text}',
+        '[SignBridge/Sign] Spoken text (${recordingDuration.inMilliseconds}ms clip): ${result.text}',
       );
       _scheduleSignSpeechAfterTextShown(result, generation);
     } on Object catch (error) {
@@ -449,6 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       debugPrint('Sign analysis failed: $error');
       setState(() => _signPhase = SignFlowPhase.idle);
+      _resetSignCaptureState();
       _showSignError(error);
     }
   }
@@ -947,6 +1047,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _signPhase = SignFlowPhase.idle;
       _signResult = null;
       _signRecordingActive = false;
+      _resetSignCaptureState();
     });
     unawaited(widget.translateService.cancelListening());
   }
@@ -984,11 +1085,20 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         heardResult: _heardForSignFlow,
         isRecording: _signRecordingActive,
-        onRecordingStopped: _analyzeSignVideo,
+        statusLabel: _signRecordingStatusLabel,
+        canStartRecording: !_signRecordingActive && _pendingSignVideoPath == null,
+        onStartRecording: _beginSignClipRecording,
+        onRecordingStopped: _onSignRecordingStopped,
         onCameraError: (message) {
-          debugPrint('Sign camera error: $message');
+          debugPrint('[SignBridge/SignCapture] camera error: $message');
+          if (message.contains('Recording did not start')) {
+            return;
+          }
           _showSignMessage(widget.uiCopy.signCaptureFailedLabel);
-          setState(() => _signPhase = SignFlowPhase.idle);
+          setState(() {
+            _signPhase = SignFlowPhase.idle;
+            _resetSignCaptureState();
+          });
         },
       );
     }
@@ -1162,7 +1272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             onListenTap: _startListening,
                             onStopTap: _stopListening,
                             onSignTap: _startSignRecording,
-                            onTranslateTap: _stopSignAndAnalyze,
+                            onTranslateTap: _onTranslateTap,
                           ),
                         ),
                       ],

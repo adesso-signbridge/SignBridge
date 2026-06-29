@@ -32,12 +32,23 @@ export function geminiTalkGlossOnlyChain(env) {
 }
 
 /**
- * Sign video (POST /sign) uses one model only to stay within free-tier RPM/RPD.
+ * Sign video (POST /sign) uses one model only: direct video → spoken text.
  * Override with SIGN_GEMINI_MODEL (default gemini-3.5-flash).
  */
 export function geminiSignVideoOnlyChain(env) {
   const model = (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
   return model ? [model] : [];
+}
+
+/**
+ * Sign video failover: primary → Gemini 3 Flash → 2.5 Flash.
+ * Override primary with SIGN_GEMINI_MODEL, 2.5 with SIGN_GEMINI_FALLBACK_MODEL.
+ */
+export function geminiSignVideoChain(env) {
+  const primary = (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
+  const flash25 = (env.SIGN_GEMINI_FALLBACK_MODEL || "gemini-2.5-flash").trim();
+
+  return uniqueGeminiModels([primary, "gemini-3-flash-preview", flash25]);
 }
 
 export function geminiQualityChain(env, { primaryVar = "GEMINI_MODEL" } = {}) {

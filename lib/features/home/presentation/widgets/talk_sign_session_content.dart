@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -14,6 +16,9 @@ class TalkSignRecordingContent extends StatefulWidget {
     required this.uiCopy,
     this.heardResult,
     required this.isRecording,
+    this.statusLabel,
+    this.canStartRecording = false,
+    this.onStartRecording,
     required this.onRecordingStopped,
     required this.onCameraError,
   });
@@ -21,7 +26,10 @@ class TalkSignRecordingContent extends StatefulWidget {
   final HomeUiCopy uiCopy;
   final TalkListenResult? heardResult;
   final bool isRecording;
-  final ValueChanged<String> onRecordingStopped;
+  final String? statusLabel;
+  final bool canStartRecording;
+  final VoidCallback? onStartRecording;
+  final SignRecordingStoppedHandler onRecordingStopped;
   final ValueChanged<String> onCameraError;
 
   @override
@@ -33,22 +41,9 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
   final _cameraController = SignCameraRecorderController();
 
   @override
-  void initState() {
-    super.initState();
-    _cameraController.addListener(_onCameraControllerChanged);
-  }
-
-  @override
   void dispose() {
-    _cameraController.removeListener(_onCameraControllerChanged);
     _cameraController.dispose();
     super.dispose();
-  }
-
-  void _onCameraControllerChanged() {
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
@@ -60,18 +55,20 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
           heardResult: widget.heardResult,
           uiCopy: widget.uiCopy,
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.talkSessionStatusBottom,
-            ),
-            child: TalkSignRecordingStatusBubble(
-              label: widget.uiCopy.recordingSignsLabel,
+        if (widget.statusLabel != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.talkSessionStatusBottom,
+              ),
+              child: TalkSignRecordingStatusBubble(
+                label: widget.statusLabel!,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.talkSessionStatusBottom),
+        if (widget.statusLabel != null)
+          const SizedBox(height: AppSpacing.talkSessionStatusBottom),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -84,15 +81,38 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
                 child: SizedBox(
                   height: cameraHeight,
                   child: SignCameraStageFrame(
-                    overlay: null,
+                    overlay: Positioned(
+                      right: 12,
+                      bottom: 12,
+                      child: ListenableBuilder(
+                        listenable: _cameraController,
+                        builder: (context, _) {
+                          return TalkSignCameraActionBar(
+                            flipSemanticsLabel: widget.uiCopy.flipCameraLabel,
+                            canFlip: !widget.isRecording &&
+                                !_cameraController.isFlipping,
+                            flipBusy: _cameraController.isFlipping,
+                            onFlip: () =>
+                                unawaited(_cameraController.flipCamera()),
+                          );
+                        },
+                      ),
+                    ),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        SignCameraRecorder(
-                          controller: _cameraController,
-                          isRecording: widget.isRecording,
-                          onRecordingStopped: widget.onRecordingStopped,
-                          onError: widget.onCameraError,
+                        GestureDetector(
+                          key: const Key('talk_sign_camera_preview_tap'),
+                          behavior: HitTestBehavior.opaque,
+                          onTap: widget.canStartRecording
+                              ? widget.onStartRecording
+                              : null,
+                          child: SignCameraRecorder(
+                            controller: _cameraController,
+                            isRecording: widget.isRecording,
+                            onRecordingStopped: widget.onRecordingStopped,
+                            onError: widget.onCameraError,
+                          ),
                         ),
                         if (widget.isRecording)
                           const Align(

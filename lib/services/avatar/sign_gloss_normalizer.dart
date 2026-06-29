@@ -37,6 +37,7 @@ abstract final class SignGlossNormalizer {
     add(canonicalKey(signId));
 
     add(gloss);
+    add(gloss.replaceAll(RegExp(r'[?!]+$'), ''));
     add(normalizeKey(gloss));
     add(canonicalKey(gloss));
 

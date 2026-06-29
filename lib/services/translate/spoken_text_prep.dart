@@ -2,6 +2,7 @@
 library;
 
 import 'isl_spoken_corpus.dart';
+import 'isl_hindi_lexicon.dart';
 
 abstract final class SpokenTextPrep {
   /// Maps Hindi / Tamil / Malayalam tokens to English grammar words for ISL rules.
@@ -53,6 +54,13 @@ abstract final class SpokenTextPrep {
       }
       final mapped = map[stripped] ?? map[stripped.toLowerCase()];
       if (mapped == null) {
+        if (languageCode == 'HI') {
+          final hindiEnglish = IslHindiLexicon.englishFor(stripped);
+          if (hindiEnglish != null && hindiEnglish.isNotEmpty) {
+            out.add(hindiEnglish);
+            continue;
+          }
+        }
         out.add(raw);
       } else if (mapped.isNotEmpty) {
         out.add(mapped);

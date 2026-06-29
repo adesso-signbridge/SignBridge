@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../translate/sign_language_system.dart';
 import '../translate/sign_token.dart';
+import 'isl_video_gloss_aliases.dart';
 import 'sign_gloss_normalizer.dart';
 import 'sign_playback_clip.dart';
 
@@ -170,6 +171,16 @@ abstract final class SignAssetCatalog {
       final aliased = entries[aliasTarget];
       if (aliased != null && aliased.isNotEmpty) {
         return aliased;
+      }
+    }
+
+    if (language == 'isl') {
+      final islVideoKey = IslVideoGlossAliases.manifestKeyFor(key);
+      if (islVideoKey != null) {
+        final islPath = entries[islVideoKey];
+        if (islPath != null && islPath.isNotEmpty) {
+          return islPath;
+        }
       }
     }
 
