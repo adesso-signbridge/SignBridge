@@ -278,19 +278,20 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
 
     final activeGloss = _clips.isEmpty ? '' : _clips[_clipIndex].token.gloss;
+    final videoSize = controller.value.size;
+    final hasVideoSize = videoSize.width > 0 && videoSize.height > 0;
 
     return Stack(
       fit: StackFit.expand,
       alignment: Alignment.bottomCenter,
       children: [
-        widget.fallback,
-        Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: AspectRatio(
-              aspectRatio: controller.value.aspectRatio == 0
-                  ? 16 / 9
-                  : controller.value.aspectRatio,
+        Positioned.fill(
+          child: FittedBox(
+            fit: BoxFit.contain,
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              width: hasVideoSize ? videoSize.width : 16,
+              height: hasVideoSize ? videoSize.height : 9,
               child: VideoPlayer(controller),
             ),
           ),

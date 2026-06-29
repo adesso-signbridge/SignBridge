@@ -11,6 +11,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/gloss/gloss_sequence_mapper.dart';
+import '../../../services/avatar/sign_asset_catalog.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
@@ -940,6 +941,8 @@ class _HomeScreenState extends State<HomeScreen> {
         jobId: jobId,
         caption: delta,
         signLanguage: signLanguage,
+        languageCode: widget.selectedLanguageCode,
+        spokenLanguage: _selectedLanguage?.label,
       );
       if (!mounted || generation != _glossRequestGeneration) {
         return;
@@ -961,6 +964,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required String jobId,
     required String caption,
     required String signLanguage,
+    required String languageCode,
+    String? spokenLanguage,
   }) async {
     if (CloudflareGlossConfig.isConfigured) {
       try {
@@ -968,13 +973,21 @@ class _HomeScreenState extends State<HomeScreen> {
           jobId: jobId,
           caption: caption,
           signLanguage: signLanguage,
+          languageCode: languageCode,
+          spokenLanguage: spokenLanguage,
         );
         if (tokens.isNotEmpty) {
-          return tokens;
+          if (await _cloudGlossMapsToVideos(tokens, signLanguage)) {
+            return tokens;
+          }
+          debugPrint(
+            '[SignBridge/Gloss] Cloud ISL gloss has no video mapping; using on-device rules',
+          );
+        } else {
+          debugPrint(
+            '[SignBridge/Gloss] Cloud returned empty gloss; using on-device rules',
+          );
         }
-        debugPrint(
-          '[SignBridge/Gloss] Cloud returned empty gloss; using on-device rules',
-        );
       } on Object catch (error) {
         debugPrint('[SignBridge/Gloss] Cloud failed ($error); using on-device rules');
       }
@@ -985,7 +998,25 @@ class _HomeScreenState extends State<HomeScreen> {
       jobId: jobId,
       caption: caption,
       signLanguage: signLanguage,
+      languageCode: languageCode,
+      spokenLanguage: spokenLanguage,
     );
+  }
+
+  Future<bool> _cloudGlossMapsToVideos(
+    List<String> tokens,
+    String signLanguage,
+  ) async {
+    if (!signLanguage.toUpperCase().contains('ISL')) {
+      return true;
+    }
+    await SignAssetCatalog.ensureLoaded();
+    final system = SignLanguageSystem.isl;
+    final sequence = GlossSequenceMapper.tokensFor(
+      glossSequence: tokens,
+      system: system,
+    );
+    return SignAssetCatalog.playbackClipsForSequence(sequence, system).isNotEmpty;
   }
 
   void _insertGlossTokens(int index, List<String> glossTokens) {

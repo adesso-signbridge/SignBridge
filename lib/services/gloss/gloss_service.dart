@@ -9,5 +9,7 @@ abstract class GlossService implements Microservice {
     required String jobId,
     required String caption,
     required String signLanguage,
+    required String languageCode,
+    String? spokenLanguage,
   });
 }

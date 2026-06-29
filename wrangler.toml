@@ -4,9 +4,10 @@ compatibility_date = "2026-06-16"
 
 [vars]
 GROQ_MODEL = "llama-3.1-8b-instant"
-# Talk/listen gloss (POST /): gemini-3-flash-preview only (no Gemini failover)
-GEMINI_MODEL = "gemini-3-flash-preview"
-GEMINI_PRIMARY_TIMEOUT_MS = "6000"
+# Talk/listen gloss (POST /): Gemini chain — primary 2.5-flash, then failover models
+GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
+GEMINI_PRIMARY_TIMEOUT_MS = "15000"
 # Sign video (/sign): gemini-2.5-flash only — direct video → spoken text
 SIGN_GEMINI_MODEL = "gemini-2.5-flash"
 ADESSO_MODEL = "qwen-3.6-35b-sovereign"
