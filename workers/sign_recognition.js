@@ -2,10 +2,10 @@
  * Shared sign video → spoken text handler for Cloudflare Workers.
  *
  * One Gemini call: watch the clip and return natural spoken-language text.
- * Model: SIGN_GEMINI_MODEL only (default gemini-3.5-flash).
+ * Model chain: SIGN_GEMINI_MODEL → gemini-3-flash-preview → SIGN_GEMINI_FALLBACK_MODEL.
  */
 
-import { geminiSignVideoOnlyChain } from "./gemini_model_chain.js";
+import { geminiSignVideoChain } from "./gemini_model_chain.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const MAX_VIDEO_BYTES = 10 * 1024 * 1024;
@@ -65,6 +65,7 @@ export async function handleSignRecognitionRequest(request, env) {
       languageCode,
       signLanguage,
       conversationContext,
+      durationMs,
       env,
     ));
   } catch (err) {
@@ -109,7 +110,7 @@ function geminiApiKey(env) {
 }
 
 function geminiModels(env) {
-  return geminiSignVideoOnlyChain(env);
+  return geminiSignVideoChain(env);
 }
 
 function isRetryableGeminiStatus(status) {
@@ -137,28 +138,114 @@ function spokenLanguageName(languageCode) {
   }
 }
 
-function signSystemInstruction(signLanguage, languageCode) {
-  const sign = signLanguage.trim().toUpperCase();
-  const spoken = spokenLanguageName(languageCode);
+function outputScriptHint(languageCode) {
+  switch (languageCode.trim().toUpperCase()) {
+    case "HI":
+      return "Write Hindi in Devanagari script (e.g. आप कैसे हैं?), never Latin romanization.";
+    case "TA":
+      return "Write Tamil in Tamil script (e.g. நீங்கள் எப்படி இருக்கிறீர்கள்?), never Latin romanization.";
+    case "ML":
+      return "Write Malayalam in Malayalam script (e.g. സുഖമാണോ?), never Latin romanization.";
+    default:
+      return "Write natural English with normal punctuation.";
+  }
+}
+
+function clipDurationHint(durationMs) {
+  const seconds = Number.isFinite(durationMs) ? durationMs / 1000 : 0;
+  if (seconds <= 0) {
+    return (
+      "The clip is very short (a few seconds). Expect at most one short phrase " +
+      "or 1–3 signs — do not invent extra words."
+    );
+  }
+  if (seconds < 3) {
+    return (
+      `The clip is about ${seconds.toFixed(1)}s — usually one word or a brief reply ` +
+      "(greeting, yes/no, thanks, or a single question)."
+    );
+  }
+  if (seconds <= 5) {
+    return (
+      `The clip is about ${seconds.toFixed(1)}s — usually a short phrase of 2–5 signs. ` +
+      "Translate only what was clearly signed."
+    );
+  }
   return (
-    `You translate sign-language video into natural ${spoken} speech text. ` +
-    `The person is signing in ${sign}. ` +
-    `Return JSON only: {"text":"..."}. ` +
-    `Write what they meant to say in ${spoken}, not a scene description. ` +
-    `Do not mention hands, camera, or video. ` +
-    `If nothing clear was signed, return {"text":""}.`
+    `The clip is about ${seconds.toFixed(1)}s. Translate the signed message faithfully ` +
+    "without adding unstated detail."
   );
 }
 
-function signUserPrompt(signLanguage, languageCode, conversationContext) {
+function signSystemInstruction(signLanguage, languageCode, durationMs) {
+  const sign = signLanguage.trim().toUpperCase();
   const spoken = spokenLanguageName(languageCode);
-  const contextHint = conversationContext
-    ? ` Conversation so far: "${conversationContext}".`
-    : "";
-  return (
-    `Watch this ${signLanguage.trim()} signing video and write the ${spoken} ` +
-    `sentence the signer intended to communicate.${contextHint}`
-  );
+  const scriptRule = outputScriptHint(languageCode);
+  const durationRule = clipDurationHint(durationMs);
+
+  const shared = [
+    `You are an expert ${sign} interpreter decoding a mobile-camera signing clip.`,
+    `Return JSON only: {"text":"..."}.`,
+    `The "text" value must be natural ${spoken} that a hearing person would understand.`,
+    scriptRule,
+    durationRule,
+    "Decode sign meaning, not a scene description.",
+    "Never mention hands, fingers, face, camera, background, or the video.",
+    "Never output gloss tokens, finger-spelling, or mixed-language romanization.",
+    "Do not wrap the answer in quotes or add labels like Translation:.",
+    'If nothing was clearly signed, return {"text":""}.',
+  ];
+
+  if (sign.includes("ISL")) {
+    shared.push(
+      "The signer uses Indian Sign Language (ISL).",
+      "ISL uses spatial grammar and facial expressions (raised brows often mark questions).",
+      `Map signs to idiomatic ${spoken}, not word-for-word English order.`,
+      "Prefer everyday conversational phrasing over literal gloss order.",
+      "Examples of intended output (not gloss):",
+      "YOU HOW → Hindi: आप कैसे हैं? | Tamil: நீங்கள் எப்படி இருக்கிறீர்கள்?",
+      "THANK YOU → Hindi: धन्यवाद | Tamil: நன்றி",
+      "YOUR NAME WHAT → Hindi: आपका नाम क्या है? | Tamil: உங்கள் பெயர் என்ன?",
+      "YES / NO → use the natural ${spoken} word for yes or no.",
+    );
+  } else {
+    shared.push(
+      "The signer uses American Sign Language (ASL).",
+      "ASL topic-comment and WH-question structure may differ from English word order.",
+      "Output fluent English that preserves question vs statement intent.",
+      "Examples: HOW YOU → How are you? | NAME YOU WHAT → What is your name? | THANK YOU → Thank you.",
+    );
+  }
+
+  return shared.join(" ");
+}
+
+function signUserPrompt(
+  signLanguage,
+  languageCode,
+  conversationContext,
+  durationMs,
+) {
+  const sign = signLanguage.trim().toUpperCase();
+  const spoken = spokenLanguageName(languageCode);
+  const durationRule = clipDurationHint(durationMs);
+
+  let prompt =
+    `Watch this ${sign} signing clip and write the ${spoken} sentence the signer meant. ` +
+    `${durationRule}`;
+
+  const context = (conversationContext || "").trim();
+  if (context) {
+    prompt +=
+      ` Context: a hearing person recently said "${context}". ` +
+      `The deaf signer is replying in ${sign}. ` +
+      `Your ${spoken} output should be their reply (or standalone message if not a direct answer).`;
+  } else {
+    prompt +=
+      " There is no prior conversation — translate only what was signed in the clip.";
+  }
+
+  return prompt;
 }
 
 const SIGN_RESPONSE_SCHEMA = {
@@ -179,6 +266,7 @@ async function videoToSpokenText(
   languageCode,
   signLanguage,
   conversationContext,
+  durationMs,
   env,
 ) {
   const apiKey = geminiApiKey(env);
@@ -201,6 +289,7 @@ async function videoToSpokenText(
         languageCode,
         signLanguage,
         conversationContext,
+        durationMs,
         apiKey,
       );
     } catch (err) {
@@ -222,6 +311,7 @@ async function requestGeminiSignText(
   languageCode,
   signLanguage,
   conversationContext,
+  durationMs,
   apiKey,
 ) {
   let lastError = null;
@@ -235,6 +325,7 @@ async function requestGeminiSignText(
         languageCode,
         signLanguage,
         conversationContext,
+        durationMs,
         apiKey,
       );
       if (!text.trim()) {
@@ -264,6 +355,7 @@ async function callGeminiSignText(
   languageCode,
   signLanguage,
   conversationContext,
+  durationMs,
   apiKey,
 ) {
   const url =
@@ -275,7 +367,15 @@ async function callGeminiSignText(
     headers: JSON_HEADERS,
     body: JSON.stringify({
       systemInstruction: {
-        parts: [{ text: signSystemInstruction(signLanguage, languageCode) }],
+        parts: [
+          {
+            text: signSystemInstruction(
+              signLanguage,
+              languageCode,
+              durationMs,
+            ),
+          },
+        ],
       },
       contents: [
         {
@@ -292,6 +392,7 @@ async function callGeminiSignText(
                 signLanguage,
                 languageCode,
                 conversationContext,
+                durationMs,
               ),
             },
           ],

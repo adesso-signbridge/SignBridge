@@ -1,16 +1,17 @@
 /**
  * Serves signer video clips from R2 for in-app avatar playback.
  *
- * GET /asl/{token}.mp4
- * GET /isl/{token}.mp4
- * GET /manifest.json
+ * GET  /asl/{token}.mp4
+ * GET  /isl/{token}.mp4
+ * GET  /manifest.json
+ * POST /clips  { "paths": ["isl/hello.mp4", ...] } → signed playback URLs
  *
  * Bucket: signbridge-sign-videos (see wrangler.sign-assets.toml)
  */
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Range, Content-Type",
   "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
 };
@@ -21,14 +22,18 @@ export default {
       return new Response(null, { status: 204, headers: CORS });
     }
 
+    const url = new URL(request.url);
+    const pathname = decodeURIComponent(url.pathname).replace(/^\/+/, "");
+
+    if (request.method === "POST" && (pathname === "clips" || pathname === "")) {
+      return handleClipsPost(request, url);
+    }
+
     if (request.method !== "GET" && request.method !== "HEAD") {
       return json({ error: "Method not allowed" }, 405);
     }
 
-    const key = decodeURIComponent(new URL(request.url).pathname).replace(
-      /^\/+/,
-      "",
-    );
+    const key = pathname;
     if (!key || key.includes("..")) {
       return json({ error: "Not found" }, 404);
     }
@@ -78,6 +83,74 @@ export default {
     return new Response(object.body, { status: 206, headers });
   },
 };
+
+async function handleClipsPost(request, url) {
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const paths = Array.isArray(body.paths)
+    ? body.paths
+    : Array.isArray(body.assetPaths)
+      ? body.assetPaths
+      : [];
+
+  if (paths.length === 0) {
+    return json({ error: "Missing paths array" }, 400);
+  }
+
+  const origin = url.origin;
+  const clips = [];
+  for (const rawPath of paths) {
+    const key = normalizeClipKey(rawPath);
+    if (!key) {
+      continue;
+    }
+    clips.push({
+      key,
+      assetPath: toBundledAssetPath(key),
+      url: `${origin}/${key}`,
+    });
+  }
+
+  if (clips.length === 0) {
+    return json({ error: "No valid clip paths" }, 400);
+  }
+
+  return json({ ok: true, clips });
+}
+
+function normalizeClipKey(rawPath) {
+  const trimmed = String(rawPath || "").trim();
+  if (!trimmed || trimmed.includes("..")) {
+    return null;
+  }
+
+  const withoutQuery = trimmed.split("?")[0];
+  if (withoutQuery.startsWith("http://") || withoutQuery.startsWith("https://")) {
+    try {
+      return normalizeClipKey(new URL(withoutQuery).pathname);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  const stripped = withoutQuery
+    .replace(/^\/+/, "")
+    .replace(/^assets\/signs\//, "");
+
+  if (!/^(asl|isl)\/.+\.mp4$/i.test(stripped)) {
+    return null;
+  }
+  return stripped;
+}
+
+function toBundledAssetPath(key) {
+  return `assets/signs/${key}`;
+}
 
 async function objectSize(env, key) {
   const meta = await env.SIGN_VIDEOS.head(key);

@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:sign_bridge/core/theme/app_colors.dart';
 import 'package:sign_bridge/services/avatar/sign_asset_catalog.dart';
 import 'package:sign_bridge/services/avatar/sign_playback_clip.dart';
+import 'package:sign_bridge/services/avatar/sign_video_cache.dart';
 import 'package:sign_bridge/services/translate/sign_language_system.dart';
 import 'package:sign_bridge/services/translate/sign_token.dart';
 import 'package:video_player/video_player.dart';
 
-/// Plays signer clips sequentially from bundled assets or streamed HTTPS URLs.
+/// Plays signer clips sequentially with streaming, disk cache, and crossfade.
 class SignVideoAvatarView extends StatefulWidget {
   const SignVideoAvatarView({
     super.key,
@@ -28,13 +30,17 @@ class SignVideoAvatarView extends StatefulWidget {
 }
 
 class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
+  static const _crossfadeDuration = Duration(milliseconds: 120);
+
   VideoPlayerController? _controller;
+  VideoPlayerController? _incomingController;
   VideoPlayerController? _prefetchedController;
   var _prefetchedIndex = -1;
   var _catalogReady = false;
   var _videoReady = false;
   var _clipIndex = 0;
   var _playbackGeneration = 0;
+  var _incomingOpacity = 0.0;
   List<SignPlaybackClip> _clips = const [];
   Timer? _watchdogTimer;
 
@@ -69,6 +75,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     _watchdogTimer?.cancel();
     _playbackGeneration++;
     unawaited(_disposeController());
+    unawaited(_disposeIncoming());
     unawaited(_disposePrefetch());
     super.dispose();
   }
@@ -97,7 +104,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   }
 
   Future<void> _syncPlayback({required bool forceReplay}) async {
-    final clips = SignAssetCatalog.playbackClipsForSequence(
+    final clips = await SignAssetCatalog.playbackClipsForSequenceAsync(
       widget.signSequence,
       widget.signSystem,
     );
@@ -105,11 +112,13 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       _playbackGeneration++;
       _watchdogTimer?.cancel();
       await _disposeController();
+      await _disposeIncoming();
       await _disposePrefetch();
       if (mounted) {
         setState(() {
           _clips = const [];
           _videoReady = false;
+          _incomingOpacity = 0;
         });
       }
       return;
@@ -172,6 +181,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     final generation = ++_playbackGeneration;
     _clipIndex = index;
     _watchdogTimer?.cancel();
+    await _disposeIncoming();
     await _disposeController();
 
     VideoPlayerController? controller;
@@ -204,7 +214,10 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       controller.setLooping(false);
       controller.addListener(_handleTick);
       _startWatchdog(generation, controller);
-      setState(() => _videoReady = true);
+      setState(() {
+        _videoReady = true;
+        _incomingOpacity = 0;
+      });
       await controller.play();
       unawaited(_prefetchClipAt(index + 1, generation));
     } on Object catch (error) {
@@ -221,6 +234,58 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
   }
 
+  Future<void> _crossfadeToPrefetched(int nextIndex, int generation) async {
+    final outgoing = _controller;
+    final incoming = _prefetchedController;
+    if (incoming == null) {
+      await _playClipAt(nextIndex);
+      return;
+    }
+
+    _prefetchedController = null;
+    _prefetchedIndex = -1;
+    outgoing?.removeListener(_handleTick);
+    _watchdogTimer?.cancel();
+
+    if (!incoming.value.isInitialized) {
+      await incoming.initialize();
+    }
+    if (!mounted || generation != _playbackGeneration) {
+      return;
+    }
+
+    incoming.setLooping(false);
+    await incoming.seekTo(Duration.zero);
+    _incomingController = incoming;
+    _incomingOpacity = 0;
+
+    setState(() {});
+    await incoming.play();
+
+    const steps = 6;
+    for (var step = 1; step <= steps; step++) {
+      await Future<void>.delayed(
+        Duration(
+          milliseconds: _crossfadeDuration.inMilliseconds ~/ steps,
+        ),
+      );
+      if (!mounted || generation != _playbackGeneration) {
+        return;
+      }
+      setState(() => _incomingOpacity = step / steps);
+    }
+
+    await outgoing?.dispose();
+    _controller = incoming;
+    _incomingController = null;
+    _incomingOpacity = 0;
+    _clipIndex = nextIndex;
+    incoming.addListener(_handleTick);
+    _startWatchdog(generation, incoming);
+    setState(() => _videoReady = true);
+    unawaited(_prefetchClipAt(nextIndex + 1, generation));
+  }
+
   Future<void> _prefetchClipAt(int index, int generation) async {
     if (index < 0 || index >= _clips.length) {
       return;
@@ -230,7 +295,10 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
 
     await _disposePrefetch();
-    final controller = await _createControllerForClip(_clips[index]);
+    final controller = await _createControllerForClip(
+      _clips[index],
+      prefetch: true,
+    );
     if (controller == null) {
       return;
     }
@@ -244,48 +312,48 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
 
   Future<VideoPlayerController?> _createControllerForClip(
     SignPlaybackClip clip, {
+    bool prefetch = false,
     bool allowRemoteFallback = true,
   }) async {
-    if (clip.isRemote) {
-      try {
-        final remote = VideoPlayerController.networkUrl(
-          Uri.parse(clip.playbackUri),
-        );
-        await remote.initialize();
-        return remote;
-      } on Object catch (error) {
-        debugPrint(
-          '[SignBridge/SignVideo] remote stream failed ${clip.playbackUri} ($error)',
-        );
-        if (!allowRemoteFallback || clip.playbackUri == clip.assetPath) {
-          return null;
-        }
-        try {
-          final bundled = VideoPlayerController.asset(clip.assetPath);
-          await bundled.initialize();
-          debugPrint(
-            '[SignBridge/SignVideo] using bundled fallback ${clip.assetPath}',
-          );
-          return bundled;
-        } on Object catch (fallbackError) {
-          debugPrint(
-            '[SignBridge/SignVideo] bundled fallback failed ${clip.assetPath} ($fallbackError)',
-          );
-          return null;
-        }
-      }
-    }
+    final source = prefetch
+        ? await SignVideoPlaybackSource.resolveForPrefetch(clip)
+        : await SignVideoPlaybackSource.resolve(clip);
 
     try {
-      final bundled = VideoPlayerController.asset(clip.playbackUri);
-      await bundled.initialize();
-      return bundled;
+      final controller = _controllerForSource(source);
+      await controller.initialize();
+      return controller;
     } on Object catch (error) {
-      debugPrint(
-        '[SignBridge/SignVideo] bundled load failed ${clip.playbackUri} ($error)',
-      );
-      return null;
+      debugPrint('[SignBridge/SignVideo] source failed $source ($error)');
+      if (!allowRemoteFallback ||
+          !clip.isRemote ||
+          source == clip.assetPath) {
+        return null;
+      }
+      try {
+        final bundled = VideoPlayerController.asset(clip.assetPath);
+        await bundled.initialize();
+        debugPrint(
+          '[SignBridge/SignVideo] using bundled fallback ${clip.assetPath}',
+        );
+        return bundled;
+      } on Object catch (fallbackError) {
+        debugPrint(
+          '[SignBridge/SignVideo] bundled fallback failed (${fallbackError})',
+        );
+        return null;
+      }
     }
+  }
+
+  VideoPlayerController _controllerForSource(String source) {
+    if (source.startsWith('http://') || source.startsWith('https://')) {
+      return VideoPlayerController.networkUrl(Uri.parse(source));
+    }
+    if (source.startsWith('assets/')) {
+      return VideoPlayerController.asset(source);
+    }
+    return VideoPlayerController.file(File(source));
   }
 
   void _startWatchdog(int generation, VideoPlayerController controller) {
@@ -338,7 +406,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
     controller.removeListener(_handleTick);
     _watchdogTimer?.cancel();
-    await _playClipAt(_clipIndex + 1);
+
+    final nextIndex = _clipIndex + 1;
+    if (nextIndex < _clips.length &&
+        _prefetchedIndex == nextIndex &&
+        _prefetchedController != null) {
+      await _crossfadeToPrefetched(nextIndex, generation);
+      return;
+    }
+    await _playClipAt(nextIndex);
   }
 
   Future<void> _disposeController() async {
@@ -352,6 +428,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     await controller.dispose();
   }
 
+  Future<void> _disposeIncoming() async {
+    final controller = _incomingController;
+    _incomingController = null;
+    _incomingOpacity = 0;
+    if (controller != null) {
+      await controller.dispose();
+    }
+  }
+
   Future<void> _disposePrefetch() async {
     final controller = _prefetchedController;
     _prefetchedController = null;
@@ -359,6 +444,26 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     if (controller != null) {
       await controller.dispose();
     }
+  }
+
+  Widget _videoLayer(VideoPlayerController controller, double opacity) {
+    final videoSize = controller.value.size;
+    final hasVideoSize = videoSize.width > 0 && videoSize.height > 0;
+
+    return IgnorePointer(
+      child: Opacity(
+        opacity: opacity.clamp(0.0, 1.0),
+        child: FittedBox(
+          fit: BoxFit.contain,
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            width: hasVideoSize ? videoSize.width : 16,
+            height: hasVideoSize ? videoSize.height : 9,
+            child: VideoPlayer(controller),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -373,24 +478,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
 
     final activeGloss = _clips.isEmpty ? '' : _clips[_clipIndex].token.gloss;
-    final videoSize = controller.value.size;
-    final hasVideoSize = videoSize.width > 0 && videoSize.height > 0;
+    final incoming = _incomingController;
 
     return Stack(
       fit: StackFit.expand,
       alignment: Alignment.bottomCenter,
       children: [
-        Positioned.fill(
-          child: FittedBox(
-            fit: BoxFit.contain,
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              width: hasVideoSize ? videoSize.width : 16,
-              height: hasVideoSize ? videoSize.height : 9,
-              child: VideoPlayer(controller),
-            ),
-          ),
-        ),
+        Positioned.fill(child: _videoLayer(controller, 1 - _incomingOpacity)),
+        if (incoming != null && incoming.value.isInitialized)
+          Positioned.fill(child: _videoLayer(incoming, _incomingOpacity)),
         if (activeGloss.isNotEmpty)
           Positioned(
             left: 8,

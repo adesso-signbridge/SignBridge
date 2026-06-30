@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../translate/sign_language_system.dart';
 import '../translate/sign_token.dart';
 import 'isl_video_gloss_aliases.dart';
+import 'sign_asset_remote_api.dart';
 import 'sign_asset_remote_config.dart';
 import 'sign_gloss_normalizer.dart';
 import 'sign_playback_clip.dart';
@@ -109,6 +110,44 @@ abstract final class SignAssetCatalog {
     List<SignToken> sequence,
     SignLanguageSystem system,
   ) {
+    return _buildClips(sequence, system);
+  }
+
+  /// Resolves clips and batch-fetches remote playback URLs when configured.
+  static Future<List<SignPlaybackClip>> playbackClipsForSequenceAsync(
+    List<SignToken> sequence,
+    SignLanguageSystem system,
+  ) async {
+    final clips = _buildClips(sequence, system);
+    if (!SignAssetRemoteConfig.useRemote || clips.isEmpty) {
+      return clips;
+    }
+
+    try {
+      final paths = clips.map((clip) => clip.assetPath).toList(growable: false);
+      final urls = await SignAssetRemoteApi.resolveClipUrls(paths);
+      if (urls.isEmpty) {
+        return clips;
+      }
+
+      return [
+        for (final clip in clips)
+          SignPlaybackClip(
+            token: clip.token,
+            assetPath: clip.assetPath,
+            playbackUri: urls[clip.assetPath] ?? clip.playbackUri,
+          ),
+      ];
+    } on Object catch (error) {
+      debugPrint('[SignBridge/SignAsset] batch clip URLs failed ($error)');
+      return clips;
+    }
+  }
+
+  static List<SignPlaybackClip> _buildClips(
+    List<SignToken> sequence,
+    SignLanguageSystem system,
+  ) {
     final clips = <SignPlaybackClip>[];
     for (final token in sequence) {
       if (token.id == SignToken.thinking.id) {
@@ -159,8 +198,28 @@ abstract final class SignAssetCatalog {
   }
 
   static Future<void> _loadManifest() async {
+    if (SignAssetRemoteConfig.useRemote) {
+      try {
+        final remote = await SignAssetRemoteApi.fetchManifest();
+        if (remote != null) {
+          _applyManifest(remote, source: 'remote');
+          return;
+        }
+      } on Object catch (error) {
+        debugPrint(
+          '[SignBridge/SignAsset] remote manifest failed, using bundle ($error)',
+        );
+      }
+    }
+
     final raw = await rootBundle.loadString(manifestAsset);
-    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    _applyManifest(jsonDecode(raw) as Map<String, dynamic>, source: 'bundle');
+  }
+
+  static void _applyManifest(
+    Map<String, dynamic> decoded, {
+    required String source,
+  }) {
     final version = decoded['version'];
     if (version is! int || version < 1) {
       throw FormatException('Unsupported sign manifest version: $version');
@@ -178,7 +237,7 @@ abstract final class SignAssetCatalog {
     if (kDebugMode) {
       final remote = SignAssetRemoteConfig.useRemote ? ' remote' : '';
       debugPrint(
-        '[SignBridge/SignAsset] loaded asl=${assetCount(SignLanguageSystem.asl)} '
+        '[SignBridge/SignAsset] loaded ($source) asl=${assetCount(SignLanguageSystem.asl)} '
         'isl=${assetCount(SignLanguageSystem.isl)}$remote',
       );
     }
