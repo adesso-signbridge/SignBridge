@@ -312,18 +312,12 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   Future<VideoPlayerController?> _createControllerForClip(
     SignPlaybackClip clip, {
     bool prefetch = false,
-    bool allowRemoteFallback = true,
   }) async {
-    if (clip.assetPath.startsWith('assets/')) {
-      try {
-        final bundled = VideoPlayerController.asset(clip.assetPath);
-        await bundled.initialize();
-        return bundled;
-      } on Object catch (error) {
-        debugPrint(
-          '[SignBridge/SignVideo] bundled asset unavailable ${clip.assetPath} ($error)',
-        );
-      }
+    if (!clip.isRemote) {
+      debugPrint(
+        '[SignBridge/SignVideo] skipping non-remote clip ${clip.assetPath}',
+      );
+      return null;
     }
 
     final source = prefetch
@@ -335,35 +329,14 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       await controller.initialize();
       return controller;
     } on Object catch (error) {
-      debugPrint('[SignBridge/SignVideo] source failed $source ($error)');
-      if (!allowRemoteFallback ||
-          !clip.isRemote ||
-          source == clip.assetPath ||
-          !clip.assetPath.startsWith('assets/')) {
-        return null;
-      }
-      try {
-        final bundled = VideoPlayerController.asset(clip.assetPath);
-        await bundled.initialize();
-        debugPrint(
-          '[SignBridge/SignVideo] using bundled fallback ${clip.assetPath}',
-        );
-        return bundled;
-      } on Object catch (fallbackError) {
-        debugPrint(
-          '[SignBridge/SignVideo] bundled fallback failed (${fallbackError})',
-        );
-        return null;
-      }
+      debugPrint('[SignBridge/SignVideo] playback failed $source ($error)');
+      return null;
     }
   }
 
   VideoPlayerController _controllerForSource(String source) {
     if (source.startsWith('http://') || source.startsWith('https://')) {
       return VideoPlayerController.networkUrl(Uri.parse(source));
-    }
-    if (source.startsWith('assets/')) {
-      return VideoPlayerController.asset(source);
     }
     return VideoPlayerController.file(File(source));
   }

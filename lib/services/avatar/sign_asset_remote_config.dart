@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-/// Base URL for signer videos hosted on Cloudflare R2 (sign-assets worker).
+/// Base URL for signer videos streamed from Cloudflare R2 (sign-assets worker).
 ///
-/// Set empty via `--dart-define=SIGN_ASSETS_BASE_URL=` to force bundled assets.
+/// Clips are not bundled in the app — manifest.json maps gloss → R2 paths only.
 abstract final class SignAssetRemoteConfig {
   static const _defaultBaseUrl =
       'https://signbridge-sign-assets.signbridge-adesso.workers.dev';
