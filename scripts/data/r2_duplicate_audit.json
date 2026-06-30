@@ -1,0 +1,164 @@
+{
+  "bucket": "signbridge-sign-videos",
+  "r2_object_count": 6847,
+  "r2_total_gb": 5.18,
+  "manifest_expected_clips": 6834,
+  "missing_on_r2_count": 0,
+  "orphans_on_r2_count": 12,
+  "content_duplicate_groups": 24,
+  "content_duplicate_extra_objects": 27,
+  "isl_alias_path_groups": 49,
+  "shared_filename_asl_isl": 844,
+  "missing_on_r2_sample": [],
+  "orphans_on_r2_sample": [
+    "isl/jealous.mp4",
+    "isl/luck.mp4",
+    "isl/me.mp4",
+    "isl/program.mp4",
+    "isl/rested.mp4",
+    "isl/return.mp4",
+    "isl/sit.mp4",
+    "isl/start.mp4",
+    "isl/talent.mp4",
+    "isl/they.mp4",
+    "isl/unlike.mp4",
+    "isl/weather.mp4"
+  ],
+  "content_duplicates_sample": {
+    "332658:cb2b5a5c110f2afc283171ef745ad6cc": [
+      "asl/call.mp4",
+      "asl/call_attention.mp4"
+    ],
+    "679291:bd4d8dc3d2848437377182ec61ba820f": [
+      "asl/excuse.mp4",
+      "asl/excuse_me.mp4"
+    ],
+    "665237:d4404402617737b6ee14483c50d5c08f": [
+      "asl/hello.mp4",
+      "asl/hi.mp4"
+    ],
+    "396257:07f53d41b31ccb580ab21f5887ebd7dc": [
+      "asl/i.mp4",
+      "asl/me.mp4"
+    ],
+    "329503:0ffa48d4ddea241518502ff0cdccbc38": [
+      "asl/thank.mp4",
+      "asl/thank_you.mp4",
+      "asl/thanks.mp4"
+    ],
+    "780187:afa8a018f07d146de47cc1d828215c9a": [
+      "isl/attend.mp4",
+      "isl/attention.mp4"
+    ],
+    "439417:3e1fe077fbf35bb87e39cf7370e11fb0": [
+      "isl/back.mp4",
+      "isl/return.mp4"
+    ],
+    "525283:59ccdeb251785f317acf11082de76064": [
+      "isl/caapital.mp4",
+      "isl/capital.mp4"
+    ],
+    "900141:b717a05911a65a627325fb81e6f740e5": [
+      "isl/clap.mp4",
+      "isl/claps.mp4"
+    ],
+    "1148964:818023896388651562d8341c2ee4fc13": [
+      "isl/emergency.mp4",
+      "isl/emergency_exit.mp4"
+    ],
+    "353522:4390dfcde6fafefa0a4d6762be6bbf86": [
+      "isl/events.mp4",
+      "isl/program.mp4"
+    ],
+    "769182:1fe5756e96af764f29c7ce24486d2d6c": [
+      "isl/good_see_you.mp4",
+      "isl/see_you_later.mp4",
+      "isl/see_you_tomorrow.mp4"
+    ],
+    "799695:c5a7fc9a0211976f9d3870e4fbe70691": [
+      "isl/homes.mp4",
+      "isl/house.mp4"
+    ],
+    "5057487:de504251f385e29574d897c8ca224655": [
+      "isl/how_come.mp4",
+      "isl/how_long.mp4",
+      "isl/how_often.mp4"
+    ],
+    "893792:27b18d4166b5b50cdb78a0d981dc515a": [
+      "isl/injured.mp4",
+      "isl/injuries.mp4"
+    ],
+    "3121834:795917f1b0c085c8693df9494ff721ef": [
+      "isl/look.mp4",
+      "isl/shopping_mall.mp4"
+    ],
+    "1053356:671bd0acbee218e8c24fdc5c9268d6b4": [
+      "isl/lotus.mp4",
+      "isl/lotus_hold.mp4"
+    ],
+    "630582:f1c3b4f5ba377fef95d3282164542d06": [
+      "isl/orders.mp4",
+      "isl/orders_hold.mp4"
+    ],
+    "633368:d4a2f20e91616f0c4ff6a9d9c84a09be": [
+      "isl/patience.mp4",
+      "isl/patient.mp4"
+    ],
+    "906958:78649ede04dba44f03f6ef49f0387836": [
+      "isl/season.mp4",
+      "isl/weather.mp4"
+    ]
+  },
+  "isl_alias_sample": {
+    "assets/signs/isl/allow.mp4": [
+      "allow",
+      "allow__let",
+      "let"
+    ],
+    "assets/signs/isl/arriving.mp4": [
+      "arriving",
+      "reaching",
+      "reaching__arriving"
+    ],
+    "assets/signs/isl/award.mp4": [
+      "award",
+      "award__reward",
+      "reward"
+    ],
+    "assets/signs/isl/awarded.mp4": [
+      "awarded",
+      "awarded__rewarded",
+      "rewarded"
+    ],
+    "assets/signs/isl/back.mp4": [
+      "back",
+      "back__return",
+      "return"
+    ],
+    "assets/signs/isl/battle.mp4": [
+      "battle",
+      "battle__war",
+      "war"
+    ],
+    "assets/signs/isl/beat.mp4": [
+      "beat",
+      "beat__defeat",
+      "defeat"
+    ],
+    "assets/signs/isl/began.mp4": [
+      "began",
+      "began__begun",
+      "begun"
+    ],
+    "assets/signs/isl/begin.mp4": [
+      "begin",
+      "begin__start",
+      "start"
+    ],
+    "assets/signs/isl/belly.mp4": [
+      "belly",
+      "belly__stomach",
+      "stomach"
+    ]
+  }
+}

@@ -10,6 +10,7 @@
 #   ./scripts/upload_sign_videos_r2.sh
 #   ./scripts/upload_sign_videos_r2.sh --dry-run
 #   ./scripts/upload_sign_videos_r2.sh --skip-existing
+#   ./scripts/upload_sign_videos_r2.sh --skip-existing --delete-after-upload
 #   BUCKET=signbridge-sign-videos-dev ./scripts/upload_sign_videos_r2.sh
 
 set -uo pipefail
@@ -20,6 +21,7 @@ cd "$ROOT"
 BUCKET="${BUCKET:-signbridge-sign-videos}"
 DRY_RUN=0
 SKIP_EXISTING=0
+DELETE_AFTER_UPLOAD=0
 MAX_RETRIES="${MAX_RETRIES:-5}"
 SLEEP_SECS="${SLEEP_SECS:-0.2}"
 
@@ -27,6 +29,7 @@ for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
     --skip-existing) SKIP_EXISTING=1 ;;
+    --delete-after-upload) DELETE_AFTER_UPLOAD=1 ;;
   esac
 done
 
@@ -52,6 +55,10 @@ upload_file() {
 
   if [[ "$SKIP_EXISTING" -eq 1 ]] && object_exists "$key"; then
     echo "  skip (exists): $key"
+    if [[ "$DELETE_AFTER_UPLOAD" -eq 1 && "$content_type" == "video/mp4" && -f "$file" ]]; then
+      rm -f "$file"
+      echo "  deleted local: $file"
+    fi
     return 0
   fi
 
@@ -62,6 +69,10 @@ upload_file() {
       --content-type="$content_type" \
       --remote 2>&1; then
       sleep "$SLEEP_SECS"
+      if [[ "$DELETE_AFTER_UPLOAD" -eq 1 && "$content_type" == "video/mp4" && -f "$file" ]]; then
+        rm -f "$file"
+        echo "  deleted local: $file"
+      fi
       return 0
     fi
 
@@ -78,8 +89,12 @@ echo "Uploading sign videos to R2 bucket: ${BUCKET}"
 if [[ "$SKIP_EXISTING" -eq 1 ]]; then
   echo "Skipping objects that already exist in R2."
 fi
+if [[ "$DELETE_AFTER_UPLOAD" -eq 1 ]]; then
+  echo "Deleting local mp4 files after successful R2 upload."
+fi
 
 count=0
+deleted=0
 failed=0
 for lang in asl isl; do
   dir="assets/signs/${lang}"
@@ -91,6 +106,9 @@ for lang in asl isl; do
     key="${lang}/$(basename "$file")"
     if upload_file "$file" "$key" "video/mp4"; then
       count=$((count + 1))
+      if [[ ! -f "$file" ]]; then
+        deleted=$((deleted + 1))
+      fi
       if (( count % 50 == 0 )); then
         echo "  uploaded ${count} clips..."
       fi
@@ -113,3 +131,6 @@ if (( failed > 0 )); then
 fi
 
 echo "Done. Uploaded ${count} video files (+ manifest if present)."
+if [[ "$DELETE_AFTER_UPLOAD" -eq 1 ]]; then
+  echo "Deleted ${deleted} local mp4 file(s) after upload."
+fi

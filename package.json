@@ -8,7 +8,8 @@
     "deploy:sign": "wrangler deploy -c wrangler.sign.toml",
     "dev:assets": "wrangler dev -c wrangler.sign-assets.toml",
     "deploy:assets": "wrangler deploy -c wrangler.sign-assets.toml",
-    "upload:sign-videos": "bash scripts/upload_sign_videos_r2.sh"
+    "upload:sign-videos": "bash scripts/upload_sign_videos_r2.sh",
+    "upload:sign-videos:bulk": "bash scripts/upload_sign_videos_r2_parallel.sh"
   },
   "devDependencies": {
     "wrangler": "^4.24.0"
