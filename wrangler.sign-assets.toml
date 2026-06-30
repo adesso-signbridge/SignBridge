@@ -1,0 +1,8 @@
+name = "signbridge-sign-assets"
+main = "workers/sign_assets/index.js"
+compatibility_date = "2026-06-16"
+
+[[r2_buckets]]
+binding = "SIGN_VIDEOS"
+bucket_name = "signbridge-sign-videos"
+preview_bucket_name = "signbridge-sign-videos-dev"

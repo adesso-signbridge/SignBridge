@@ -8,7 +8,7 @@ import 'package:sign_bridge/services/translate/sign_language_system.dart';
 import 'package:sign_bridge/services/translate/sign_token.dart';
 import 'package:video_player/video_player.dart';
 
-/// Plays real signer clips from the Hugging Face–sourced asset catalog.
+/// Plays signer clips sequentially from bundled assets or streamed HTTPS URLs.
 class SignVideoAvatarView extends StatefulWidget {
   const SignVideoAvatarView({
     super.key,
@@ -29,6 +29,8 @@ class SignVideoAvatarView extends StatefulWidget {
 
 class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   VideoPlayerController? _controller;
+  VideoPlayerController? _prefetchedController;
+  var _prefetchedIndex = -1;
   var _catalogReady = false;
   var _videoReady = false;
   var _clipIndex = 0;
@@ -66,10 +68,8 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   void dispose() {
     _watchdogTimer?.cancel();
     _playbackGeneration++;
-    final controller = _controller;
-    _controller = null;
-    controller?.removeListener(_handleTick);
-    controller?.dispose();
+    unawaited(_disposeController());
+    unawaited(_disposePrefetch());
     super.dispose();
   }
 
@@ -105,6 +105,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       _playbackGeneration++;
       _watchdogTimer?.cancel();
       await _disposeController();
+      await _disposePrefetch();
       if (mounted) {
         setState(() {
           _clips = const [];
@@ -173,12 +174,29 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     _watchdogTimer?.cancel();
     await _disposeController();
 
-    final clip = _clips[index];
-    final controller = VideoPlayerController.asset(clip.assetPath);
+    VideoPlayerController? controller;
+    if (_prefetchedIndex == index && _prefetchedController != null) {
+      controller = _prefetchedController;
+      _prefetchedController = null;
+      _prefetchedIndex = -1;
+    } else {
+      await _disposePrefetch();
+      controller = await _createControllerForClip(_clips[index]);
+    }
+
+    if (controller == null) {
+      if (mounted && generation == _playbackGeneration) {
+        await _playClipAt(index + 1);
+      }
+      return;
+    }
+
     _controller = controller;
 
     try {
-      await controller.initialize();
+      if (!controller.value.isInitialized) {
+        await controller.initialize();
+      }
       if (!mounted || generation != _playbackGeneration) {
         await controller.dispose();
         return;
@@ -188,9 +206,10 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       _startWatchdog(generation, controller);
       setState(() => _videoReady = true);
       await controller.play();
+      unawaited(_prefetchClipAt(index + 1, generation));
     } on Object catch (error) {
       debugPrint(
-        '[SignBridge/SignVideo] failed ${clip.assetPath} ($error); skipping',
+        '[SignBridge/SignVideo] failed ${_clips[index].playbackUri} ($error); skipping',
       );
       await controller.dispose();
       if (_controller == controller) {
@@ -199,6 +218,73 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       if (mounted && generation == _playbackGeneration) {
         await _playClipAt(index + 1);
       }
+    }
+  }
+
+  Future<void> _prefetchClipAt(int index, int generation) async {
+    if (index < 0 || index >= _clips.length) {
+      return;
+    }
+    if (_prefetchedIndex == index && _prefetchedController != null) {
+      return;
+    }
+
+    await _disposePrefetch();
+    final controller = await _createControllerForClip(_clips[index]);
+    if (controller == null) {
+      return;
+    }
+    if (!mounted || generation != _playbackGeneration) {
+      await controller.dispose();
+      return;
+    }
+    _prefetchedController = controller;
+    _prefetchedIndex = index;
+  }
+
+  Future<VideoPlayerController?> _createControllerForClip(
+    SignPlaybackClip clip, {
+    bool allowRemoteFallback = true,
+  }) async {
+    if (clip.isRemote) {
+      try {
+        final remote = VideoPlayerController.networkUrl(
+          Uri.parse(clip.playbackUri),
+        );
+        await remote.initialize();
+        return remote;
+      } on Object catch (error) {
+        debugPrint(
+          '[SignBridge/SignVideo] remote stream failed ${clip.playbackUri} ($error)',
+        );
+        if (!allowRemoteFallback || clip.playbackUri == clip.assetPath) {
+          return null;
+        }
+        try {
+          final bundled = VideoPlayerController.asset(clip.assetPath);
+          await bundled.initialize();
+          debugPrint(
+            '[SignBridge/SignVideo] using bundled fallback ${clip.assetPath}',
+          );
+          return bundled;
+        } on Object catch (fallbackError) {
+          debugPrint(
+            '[SignBridge/SignVideo] bundled fallback failed ${clip.assetPath} ($fallbackError)',
+          );
+          return null;
+        }
+      }
+    }
+
+    try {
+      final bundled = VideoPlayerController.asset(clip.playbackUri);
+      await bundled.initialize();
+      return bundled;
+    } on Object catch (error) {
+      debugPrint(
+        '[SignBridge/SignVideo] bundled load failed ${clip.playbackUri} ($error)',
+      );
+      return null;
     }
   }
 
@@ -264,6 +350,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
     controller.removeListener(_handleTick);
     await controller.dispose();
+  }
+
+  Future<void> _disposePrefetch() async {
+    final controller = _prefetchedController;
+    _prefetchedController = null;
+    _prefetchedIndex = -1;
+    if (controller != null) {
+      await controller.dispose();
+    }
   }
 
   @override
