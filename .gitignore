@@ -60,3 +60,8 @@ app.*.map.json
 node_modules/
 .wrangler/
 .dev.vars
+
+# Sign videos are streamed from R2; keep manifest only in the app bundle.
+/assets/signs/**/*.mp4
+/asl/
+/isl/
