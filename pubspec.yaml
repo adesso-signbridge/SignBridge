@@ -85,6 +85,8 @@ flutter:
     - assets/home/talk_flow/illu_signing.png
     - assets/cwasa/cwasa_avatar.html
     - assets/signs/manifest.json
+    - assets/signs/asl/
+    - assets/signs/isl/
     - assets/home/tabs/tab_convert.png
     - assets/home/tabs/tab_book.png
     - assets/home/tabs/tab_alert.png

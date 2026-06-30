@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:sign_bridge/core/theme/app_colors.dart';
 import 'package:sign_bridge/services/avatar/sign_asset_catalog.dart';
 import 'package:sign_bridge/services/avatar/sign_playback_clip.dart';
 import 'package:sign_bridge/services/avatar/sign_video_cache.dart';
@@ -315,6 +314,18 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     bool prefetch = false,
     bool allowRemoteFallback = true,
   }) async {
+    if (clip.assetPath.startsWith('assets/')) {
+      try {
+        final bundled = VideoPlayerController.asset(clip.assetPath);
+        await bundled.initialize();
+        return bundled;
+      } on Object catch (error) {
+        debugPrint(
+          '[SignBridge/SignVideo] bundled asset unavailable ${clip.assetPath} ($error)',
+        );
+      }
+    }
+
     final source = prefetch
         ? await SignVideoPlaybackSource.resolveForPrefetch(clip)
         : await SignVideoPlaybackSource.resolve(clip);
@@ -327,7 +338,8 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       debugPrint('[SignBridge/SignVideo] source failed $source ($error)');
       if (!allowRemoteFallback ||
           !clip.isRemote ||
-          source == clip.assetPath) {
+          source == clip.assetPath ||
+          !clip.assetPath.startsWith('assets/')) {
         return null;
       }
       try {
@@ -472,12 +484,26 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       return widget.fallback;
     }
 
+    if (_clips.isNotEmpty && !_videoReady) {
+      return Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          widget.fallback,
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ],
+      );
+    }
+
     final controller = _controller;
     if (!_videoReady || controller == null || !controller.value.isInitialized) {
       return widget.fallback;
     }
 
-    final activeGloss = _clips.isEmpty ? '' : _clips[_clipIndex].token.gloss;
     final incoming = _incomingController;
 
     return Stack(
@@ -487,54 +513,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
         Positioned.fill(child: _videoLayer(controller, 1 - _incomingOpacity)),
         if (incoming != null && incoming.value.isInitialized)
           Positioned.fill(child: _videoLayer(incoming, _incomingOpacity)),
-        if (activeGloss.isNotEmpty)
-          Positioned(
-            left: 8,
-            right: 8,
-            bottom: 8,
-            child: _ActiveGlossChip(
-              gloss: activeGloss,
-              index: _clipIndex + 1,
-              total: _clips.length,
-            ),
-          ),
       ],
-    );
-  }
-}
-
-class _ActiveGlossChip extends StatelessWidget {
-  const _ActiveGlossChip({
-    required this.gloss,
-    required this.index,
-    required this.total,
-  });
-
-  final String gloss;
-  final int index;
-  final int total;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.splashBlue.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Text(
-          '$gloss  ($index/$total)',
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-        ),
-      ),
     );
   }
 }
