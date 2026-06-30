@@ -40,6 +40,8 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   var _clipIndex = 0;
   var _playbackGeneration = 0;
   var _incomingOpacity = 0.0;
+  var _isAdvancing = false;
+  var _watchdogDuration = Duration.zero;
   List<SignPlaybackClip> _clips = const [];
   Timer? _watchdogTimer;
 
@@ -60,7 +62,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
     if (sequenceChanged ||
         oldWidget.signSystem != widget.signSystem ||
-        pulseChanged) {
+        (pulseChanged && !sequenceChanged)) {
       unawaited(
         _syncPlayback(
           forceReplay: pulseChanged && !sequenceChanged,
@@ -137,7 +139,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
 
     if (appendedOnly) {
       _clips = clips;
-      await _playClipAt(previous.length);
+      final controller = _controller;
+      if (controller != null &&
+          controller.value.isInitialized &&
+          controller.value.isCompleted &&
+          _clipIndex == previous.length - 1) {
+        await _advanceFrom(controller, _playbackGeneration);
+      } else {
+        unawaited(_prefetchClipAt(_clipIndex + 1, _playbackGeneration));
+      }
       return;
     }
 
@@ -250,6 +260,11 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       await incoming.initialize();
     }
     if (!mounted || generation != _playbackGeneration) {
+      await incoming.dispose();
+      if (outgoing != null && _controller == outgoing) {
+        outgoing.addListener(_handleTick);
+        _startWatchdog(generation, outgoing);
+      }
       return;
     }
 
@@ -269,6 +284,13 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
         ),
       );
       if (!mounted || generation != _playbackGeneration) {
+        await incoming.dispose();
+        _incomingController = null;
+        _incomingOpacity = 0;
+        if (outgoing != null && _controller == outgoing) {
+          outgoing.addListener(_handleTick);
+          _startWatchdog(generation, outgoing);
+        }
         return;
       }
       setState(() => _incomingOpacity = step / steps);
@@ -344,9 +366,10 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   void _startWatchdog(int generation, VideoPlayerController controller) {
     _watchdogTimer?.cancel();
     final duration = controller.value.duration;
+    _watchdogDuration = duration;
     final timeout = duration == Duration.zero
-        ? const Duration(seconds: 4)
-        : duration + const Duration(milliseconds: 500);
+        ? const Duration(seconds: 8)
+        : duration + const Duration(milliseconds: 800);
     _watchdogTimer = Timer(timeout, () {
       if (!mounted || generation != _playbackGeneration) {
         return;
@@ -369,6 +392,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       unawaited(_advanceFrom(controller, _playbackGeneration));
       return;
     }
+
+    if (value.duration > Duration.zero && value.duration != _watchdogDuration) {
+      _startWatchdog(_playbackGeneration, controller);
+    }
+
+    if (!value.isPlaying && !value.isCompleted && !value.isBuffering) {
+      unawaited(controller.play());
+    }
+
     if (value.isCompleted) {
       unawaited(_advanceFrom(controller, _playbackGeneration));
       return;
@@ -383,23 +415,35 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     VideoPlayerController controller,
     int generation,
   ) async {
+    if (_isAdvancing) {
+      return;
+    }
     if (!mounted || generation != _playbackGeneration) {
       return;
     }
     if (_controller != controller) {
       return;
     }
-    controller.removeListener(_handleTick);
-    _watchdogTimer?.cancel();
 
-    final nextIndex = _clipIndex + 1;
-    if (nextIndex < _clips.length &&
-        _prefetchedIndex == nextIndex &&
-        _prefetchedController != null) {
-      await _crossfadeToPrefetched(nextIndex, generation);
-      return;
+    _isAdvancing = true;
+    try {
+      controller.removeListener(_handleTick);
+      _watchdogTimer?.cancel();
+
+      final nextIndex = _clipIndex + 1;
+      if (nextIndex >= _clips.length) {
+        return;
+      }
+      if (nextIndex < _clips.length &&
+          _prefetchedIndex == nextIndex &&
+          _prefetchedController != null) {
+        await _crossfadeToPrefetched(nextIndex, generation);
+        return;
+      }
+      await _playClipAt(nextIndex);
+    } finally {
+      _isAdvancing = false;
     }
-    await _playClipAt(nextIndex);
   }
 
   Future<void> _disposeController() async {
