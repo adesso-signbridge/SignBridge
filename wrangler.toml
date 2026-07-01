@@ -8,6 +8,6 @@ GROQ_MODEL = "llama-3.1-8b-instant"
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 GEMINI_PRIMARY_TIMEOUT_MS = "15000"
-# Sign video (/sign): gemini-2.5-flash only — direct video → spoken text
+# Sign video (/sign): gemini-2.5-flash — direct video → spoken text
 SIGN_GEMINI_MODEL = "gemini-2.5-flash"
 ADESSO_MODEL = "qwen-3.6-35b-sovereign"

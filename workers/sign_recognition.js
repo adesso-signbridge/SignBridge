@@ -2,10 +2,10 @@
  * Shared sign video → spoken text handler for Cloudflare Workers.
  *
  * One Gemini call: watch the clip and return natural spoken-language text.
- * Model chain: SIGN_GEMINI_MODEL → gemini-3-flash-preview → SIGN_GEMINI_FALLBACK_MODEL.
+ * Model: SIGN_GEMINI_MODEL only (no failover; branch pins one model for A/B tests).
  */
 
-import { geminiSignVideoChain } from "./gemini_model_chain.js";
+import { geminiSignVideoOnlyChain } from "./gemini_model_chain.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const MAX_VIDEO_BYTES = 10 * 1024 * 1024;
@@ -110,7 +110,7 @@ function geminiApiKey(env) {
 }
 
 function geminiModels(env) {
-  return geminiSignVideoChain(env);
+  return geminiSignVideoOnlyChain(env);
 }
 
 function isRetryableGeminiStatus(status) {
