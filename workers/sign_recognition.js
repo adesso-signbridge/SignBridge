@@ -2,7 +2,9 @@
  * Shared sign video → spoken text handler for Cloudflare Workers.
  *
  * One Gemini call: watch the clip and return natural spoken-language text.
- * Model: SIGN_GEMINI_MODEL only (no failover; branch pins one model for A/B tests).
+ * Primary: EU-hosted gemini-3.5-flash via Adesso AI Hub OpenAI-compatible API
+ *   POST {ADESSO_API_URL}/chat/completions  (same as hub OpenAI SDK sample).
+ * Fallback: direct Google Gemini generateContent when GEMINI_KEY is set.
  */
 
 import { geminiSignVideoOnlyChain } from "./gemini_model_chain.js";
@@ -107,6 +109,32 @@ function resolveVideoMimeType(video) {
 
 function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
+}
+
+function adessoConfigured(env) {
+  return Boolean(env.ADESSO_KEY && env.ADESSO_API_URL);
+}
+
+function signGeminiModel(env) {
+  return (env.SIGN_GEMINI_MODEL || "gemini-3.5-flash").trim();
+}
+
+/** Hub root without trailing /v1 — e.g. https://adesso-ai-hub.3asabc.de */
+function adessoApiRoot(env) {
+  return (env.ADESSO_API_URL || "").trim().replace(/\/v1\/?$/, "").replace(/\/+$/, "");
+}
+
+function adessoChatCompletionsUrl(env) {
+  const base = (env.ADESSO_API_URL || "").trim().replace(/\/+$/, "");
+  return `${base}/chat/completions`;
+}
+
+function adessoGeminiGenerateContentUrls(env, model) {
+  const root = adessoApiRoot(env);
+  return [
+    `${root}/v1beta/models/${model}:generateContent`,
+    `${root}/v1/models/${model}:generateContent`,
+  ];
 }
 
 function geminiModels(env) {
@@ -269,20 +297,16 @@ async function videoToSpokenText(
   durationMs,
   env,
 ) {
-  const apiKey = geminiApiKey(env);
-  if (!apiKey) {
-    throw new Error("GEMINI_KEY not configured");
-  }
-
-  const models = geminiModels(env);
-  if (!models.length) {
+  const model = signGeminiModel(env);
+  if (!model) {
     throw new Error("SIGN_GEMINI_MODEL not configured");
   }
 
   const errors = [];
-  for (const model of models) {
+
+  if (adessoConfigured(env)) {
     try {
-      return await requestGeminiSignText(
+      return await requestAdessoSignText(
         model,
         bytes,
         mimeType,
@@ -290,18 +314,277 @@ async function videoToSpokenText(
         signLanguage,
         conversationContext,
         durationMs,
-        apiKey,
+        env,
       );
     } catch (err) {
       errors.push(err);
-      if (isModelUnavailableStatus(err.status || 0)) {
-        continue;
+    }
+  }
+
+  const apiKey = geminiApiKey(env);
+  if (apiKey) {
+    for (const fallbackModel of geminiModels(env)) {
+      try {
+        return await requestGeminiSignText(
+          fallbackModel,
+          bytes,
+          mimeType,
+          languageCode,
+          signLanguage,
+          conversationContext,
+          durationMs,
+          apiKey,
+        );
+      } catch (err) {
+        errors.push(err);
+        if (isModelUnavailableStatus(err.status || 0)) {
+          continue;
+        }
+      }
+    }
+  }
+
+  if (!adessoConfigured(env) && !apiKey) {
+    throw new Error("ADESSO_KEY/ADESSO_API_URL or GEMINI_KEY not configured");
+  }
+
+  const detail = errors.map((err) => String(err).slice(0, 80)).join(" | ");
+  throw new Error(detail || "Sign recognition failed");
+}
+
+async function requestAdessoSignText(
+  model,
+  bytes,
+  mimeType,
+  languageCode,
+  signLanguage,
+  conversationContext,
+  durationMs,
+  env,
+) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const text = await callAdessoSignText(
+        model,
+        bytes,
+        mimeType,
+        languageCode,
+        signLanguage,
+        conversationContext,
+        durationMs,
+        env,
+      );
+      if (!text.trim()) {
+        throw new Error("No signs detected in video");
+      }
+      return { text: text.trim(), modelUsed: `adesso:${model}` };
+    } catch (err) {
+      lastError = err;
+      const status = err.status || 0;
+      if (isModelUnavailableStatus(status)) {
+        break;
+      }
+      if (!isRetryableGeminiStatus(status) || attempt === 2) {
+        break;
+      }
+      await sleep(500 * (attempt + 1));
+    }
+  }
+
+  throw lastError || new Error("Adesso sign request failed");
+}
+
+function buildGeminiSignRequestBody(
+  bytes,
+  mimeType,
+  languageCode,
+  signLanguage,
+  conversationContext,
+  durationMs,
+) {
+  return {
+    systemInstruction: {
+      parts: [
+        {
+          text: signSystemInstruction(signLanguage, languageCode, durationMs),
+        },
+      ],
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            inlineData: {
+              mimeType,
+              data: bytesToBase64(bytes),
+            },
+          },
+          {
+            text: signUserPrompt(
+              signLanguage,
+              languageCode,
+              conversationContext,
+              durationMs,
+            ),
+          },
+        ],
+      },
+    ],
+    generationConfig: {
+      temperature: 0.0,
+      topP: 0.1,
+      topK: 1,
+      maxOutputTokens: 512,
+      responseMimeType: "application/json",
+      responseSchema: SIGN_RESPONSE_SCHEMA,
+    },
+  };
+}
+
+async function callAdessoSignText(
+  model,
+  bytes,
+  mimeType,
+  languageCode,
+  signLanguage,
+  conversationContext,
+  durationMs,
+  env,
+) {
+  const authHeaders = {
+    ...JSON_HEADERS,
+    Authorization: `Bearer ${env.ADESSO_KEY}`,
+  };
+  const base64 = bytesToBase64(bytes);
+  const dataUrl = `data:${mimeType};base64,${base64}`;
+  const system = signSystemInstruction(signLanguage, languageCode, durationMs);
+  const userText = signUserPrompt(
+    signLanguage,
+    languageCode,
+    conversationContext,
+    durationMs,
+  );
+  const chatUrl = adessoChatCompletionsUrl(env);
+
+  const chatPayloads = [
+    {
+      model,
+      temperature: 0,
+      max_tokens: 512,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: userText },
+            { type: "video_url", video_url: { url: dataUrl } },
+          ],
+        },
+      ],
+    },
+    {
+      model,
+      temperature: 0,
+      max_tokens: 512,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        {
+          role: "user",
+          content: [
+            {
+              type: "file",
+              file: {
+                filename: "sign.mp4",
+                file_data: dataUrl,
+              },
+            },
+            { type: "text", text: userText },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const errors = [];
+  for (const body of chatPayloads) {
+    try {
+      return await parseAdessoChatSignResponse(
+        await fetch(chatUrl, {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify(body),
+        }),
+      );
+    } catch (err) {
+      errors.push(err);
+    }
+  }
+
+  const nativeBody = buildGeminiSignRequestBody(
+    bytes,
+    mimeType,
+    languageCode,
+    signLanguage,
+    conversationContext,
+    durationMs,
+  );
+  for (const url of adessoGeminiGenerateContentUrls(env, model)) {
+    try {
+      return await parseGeminiSignResponse(
+        await fetch(url, {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify(nativeBody),
+        }),
+        "Adesso",
+      );
+    } catch (err) {
+      errors.push(err);
+      if (!isModelUnavailableStatus(err.status || 0)) {
+        throw err;
       }
     }
   }
 
   const detail = errors.map((err) => String(err).slice(0, 80)).join(" | ");
-  throw new Error(detail || "Gemini sign recognition failed");
+  throw new Error(detail || "Adesso sign recognition failed");
+}
+
+async function parseAdessoChatSignResponse(res) {
+  if (!res.ok) {
+    const detail = await res.text();
+    const error = new Error(`Adesso ${res.status}: ${detail}`);
+    error.status = res.status;
+    throw error;
+  }
+
+  const data = await res.json();
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error("Adesso returned empty sign response");
+  }
+  return parseSignText(content);
+}
+
+async function parseGeminiSignResponse(res, providerLabel) {
+  if (!res.ok) {
+    const detail = await res.text();
+    const error = new Error(`${providerLabel} ${res.status}: ${detail}`);
+    error.status = res.status;
+    throw error;
+  }
+
+  const data = await res.json();
+  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!content) {
+    throw new Error(`${providerLabel} returned empty sign response`);
+  }
+  return parseSignText(content);
 }
 
 async function requestGeminiSignText(
@@ -362,67 +645,23 @@ async function callGeminiSignText(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}` +
     `:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [
-          {
-            text: signSystemInstruction(
-              signLanguage,
-              languageCode,
-              durationMs,
-            ),
-          },
-        ],
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              inlineData: {
-                mimeType,
-                data: bytesToBase64(bytes),
-              },
-            },
-            {
-              text: signUserPrompt(
-                signLanguage,
-                languageCode,
-                conversationContext,
-                durationMs,
-              ),
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.0,
-        topP: 0.1,
-        topK: 1,
-        maxOutputTokens: 512,
-        responseMimeType: "application/json",
-        responseSchema: SIGN_RESPONSE_SCHEMA,
-      },
+  return parseGeminiSignResponse(
+    await fetch(url, {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify(
+        buildGeminiSignRequestBody(
+          bytes,
+          mimeType,
+          languageCode,
+          signLanguage,
+          conversationContext,
+          durationMs,
+        ),
+      ),
     }),
-  });
-
-  if (!res.ok) {
-    const detail = await res.text();
-    const error = new Error(`Gemini ${res.status}: ${detail}`);
-    error.status = res.status;
-    throw error;
-  }
-
-  const data = await res.json();
-  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!content) {
-    throw new Error("Gemini returned empty sign response");
-  }
-
-  return parseSignText(content);
+    "Gemini",
+  );
 }
 
 function parseSignText(content) {

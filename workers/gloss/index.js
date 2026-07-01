@@ -1,8 +1,8 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
- * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini chain (2.5-flash → …) → Groq (ASL only) → Adesso.
- * Sign video (POST /sign): gemini-3.5-flash only, video → spoken text.
+ * POST /sign (multipart video) → spoken text via Adesso EU gemini-3.5-flash.
+ * Gloss (POST /): Adesso Qwen 3.5 122B → Groq (ASL only) → Gemini fallback.
+ * Sign video (POST /sign): Adesso gemini-3.5-flash → direct Gemini fallback.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
@@ -91,9 +91,36 @@ function adessoConfigured(env) {
   return Boolean(env.ADESSO_KEY && env.ADESSO_API_URL);
 }
 
+function adessoModel(env) {
+  return (env.ADESSO_MODEL || "qwen-3.5-122b-sovereign").trim();
+}
+
 async function captionToGloss(caption, glossRequest, env) {
   const errors = [];
   const signLanguage = glossRequest.signLanguage;
+
+  if (adessoConfigured(env)) {
+    try {
+      const glossSequence = validateGlossSequence(
+        await captionToGlossAdesso(caption, glossRequest, env),
+        signLanguage,
+      );
+      return {
+        glossSequence,
+        modelUsed: adessoModel(env),
+      };
+    } catch (err) {
+      errors.push(err);
+    }
+  }
+
+  if (groqConfigured(env) && !isIslSignLanguage(signLanguage)) {
+    try {
+      return await captionToGlossGroq(caption, glossRequest, env);
+    } catch (err) {
+      errors.push(err);
+    }
+  }
 
   if (geminiApiKey(env)) {
     const models = geminiModels(env);
@@ -111,29 +138,6 @@ async function captionToGloss(caption, glossRequest, env) {
       } catch (err) {
         errors.push(err);
       }
-    }
-  }
-
-  if (groqConfigured(env) && !isIslSignLanguage(signLanguage)) {
-    try {
-      return await captionToGlossGroq(caption, glossRequest, env);
-    } catch (err) {
-      errors.push(err);
-    }
-  }
-
-  if (adessoConfigured(env)) {
-    try {
-      const glossSequence = validateGlossSequence(
-        await captionToGlossAdesso(caption, glossRequest, env),
-        signLanguage,
-      );
-      return {
-        glossSequence,
-        modelUsed: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
-      };
-    } catch (err) {
-      errors.push(err);
     }
   }
 
@@ -467,7 +471,7 @@ async function captionToGlossAdesso(caption, glossRequest, env) {
       Authorization: `Bearer ${env.ADESSO_KEY}`,
     },
     body: JSON.stringify({
-      model: env.ADESSO_MODEL || "qwen-3.6-35b-sovereign",
+      model: adessoModel(env),
       temperature: 0.2,
       messages: [
         {

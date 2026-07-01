@@ -4,10 +4,11 @@ compatibility_date = "2026-06-16"
 
 [vars]
 GROQ_MODEL = "llama-3.1-8b-instant"
-# Talk/listen gloss (POST /): Gemini chain — primary 2.5-flash, then failover models
+# Talk/listen gloss (POST /): Adesso Qwen 3.5 122B primary; Gemini chain is fallback
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 GEMINI_PRIMARY_TIMEOUT_MS = "15000"
-# Sign video (/sign): gemini-3.5-flash — direct video → spoken text
+# Sign video (/sign): EU gemini-3.5-flash via Adesso AI Hub (GEMINI_KEY = fallback)
 SIGN_GEMINI_MODEL = "gemini-3.5-flash"
-ADESSO_MODEL = "qwen-3.6-35b-sovereign"
+# Adesso AI Hub — caption → gloss (text)
+ADESSO_MODEL = "qwen-3.5-122b-sovereign"
