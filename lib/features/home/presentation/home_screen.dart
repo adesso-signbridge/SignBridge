@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _scheduleAutoClipRecording(int generation) {
     _signAutoRecordTimer?.cancel();
-    _signAutoRecordTimer = Timer(const Duration(milliseconds: 2500), () {
+    _signAutoRecordTimer = Timer(const Duration(milliseconds: 1500), () {
       if (!mounted ||
           generation != _signGeneration ||
           _signPhase != SignFlowPhase.recording ||
@@ -425,7 +425,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (_signSendRequested) {
-      return;
+      // Recover when Translate was tapped but the camera never produced a clip.
+      if (!_signRecordingActive && _pendingSignVideoPath == null) {
+        _signSendRequested = false;
+      } else {
+        return;
+      }
     }
 
     if (!_signRecordingActive) {
@@ -473,7 +478,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted || generation != _signGeneration) {
         return;
       }
-      setState(() => _signPhase = SignFlowPhase.idle);
+      setState(() {
+        _signPhase = SignFlowPhase.recording;
+        _signSendRequested = false;
+        _signRecordingActive = false;
+        _resetSignCaptureState();
+      });
+      _scheduleAutoClipRecording(generation);
       _showSignMessage(widget.uiCopy.signRecordingTooShortLabel);
       return;
     }
@@ -485,7 +496,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted || generation != _signGeneration) {
         return;
       }
-      setState(() => _signPhase = SignFlowPhase.idle);
+      setState(() {
+        _signPhase = SignFlowPhase.recording;
+        _signSendRequested = false;
+        _signRecordingActive = false;
+        _resetSignCaptureState();
+      });
+      _scheduleAutoClipRecording(generation);
       _showSignMessage(widget.uiCopy.signRecordingTooLargeLabel);
       return;
     }
@@ -950,12 +967,20 @@ class _HomeScreenState extends State<HomeScreen> {
       if (glossTokens.isNotEmpty) {
         _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
+        _lastFetchedGlossCaption = targetCaption;
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
-        _lastFetchedGlossCaption = targetCaption;
         _glossInFlightEndCaption = null;
         setState(() => _cloudGlossInFlight = false);
+        if (_sessionPhase == TalkSessionPhase.listening) {
+          final latestCaption = _normalizeGlossCaption(
+            _listenResult?.fullTranscript ?? '',
+          );
+          if (_needsGlossRefresh(latestCaption)) {
+            _scheduleLiveGlossUpdate();
+          }
+        }
       }
     }
   }
@@ -1123,11 +1148,19 @@ class _HomeScreenState extends State<HomeScreen> {
         onCameraError: (message) {
           debugPrint('[SignBridge/SignCapture] camera error: $message');
           if (message.contains('Recording did not start')) {
+            setState(() {
+              _signSendRequested = false;
+              _signRecordingActive = false;
+            });
+            _scheduleAutoClipRecording(_signGeneration);
+            _showSignMessage(widget.uiCopy.recordingSignsLabel);
             return;
           }
           _showSignMessage(widget.uiCopy.signCaptureFailedLabel);
           setState(() {
             _signPhase = SignFlowPhase.idle;
+            _signSendRequested = false;
+            _signRecordingActive = false;
             _resetSignCaptureState();
           });
         },
