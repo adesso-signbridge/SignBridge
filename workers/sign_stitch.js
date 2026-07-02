@@ -16,7 +16,9 @@ export async function loadManifestFromR2(env) {
     throw new Error("manifest.json not found in R2");
   }
   const text = await object.text();
-  return parseManifest(JSON.parse(text));
+  const manifest = JSON.parse(text);
+  parseManifest(manifest);
+  return manifest;
 }
 
 export async function stitchGlossSequence(env, options) {

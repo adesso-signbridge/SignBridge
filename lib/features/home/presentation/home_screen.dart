@@ -21,7 +21,6 @@ import '../../../services/phrases/phrase_speech_service.dart';
 import '../../../services/translate/sign_capture_config.dart';
 import '../../../services/translate/sign_capture_error_mapper.dart';
 import '../../../services/translate/sign_capture_service.dart';
-import '../../../services/translate/sign_language_system.dart';
 import '../../../services/translate/translate_service.dart';
 import 'language_change_coordinator.dart';
 import 'widgets/talk_audio_waveform.dart';
@@ -85,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
   SignCaptureResult? _signResult;
   bool _signRecordingActive = false;
   bool _uploadAfterStop = false;
-  DateTime? _signRecordingStartedAt;
   Duration? _signClipDuration;
   int _signGeneration = 0;
   int _signSpeakGeneration = 0;
@@ -207,7 +205,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _resetSignCaptureState() {
     _uploadAfterStop = false;
-    _signRecordingStartedAt = null;
     _signClipDuration = null;
   }
 
@@ -216,7 +213,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _uploadAfterStop = false;
     }
     _signRecordingActive = false;
-    _signRecordingStartedAt = null;
     _signClipDuration = null;
   }
 
@@ -363,7 +359,6 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _signPhase = SignFlowPhase.recording;
         _signRecordingActive = true;
-        _signRecordingStartedAt = DateTime.now();
       });
       return;
     }
@@ -409,8 +404,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final generation = _signGeneration;
     final recordingDuration = _signClipDuration ?? Duration.zero;
     _signClipDuration = null;
-    _signRecordingStartedAt = null;
-
     if (!signCameraTestModeEnabled &&
         recordingDuration <
             SignCaptureConfig.minRecordingDuration -
