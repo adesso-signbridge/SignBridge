@@ -17,12 +17,14 @@ class SignVideoAvatarView extends StatefulWidget {
     required this.signSequence,
     required this.fallback,
     this.pulse = 0,
+    this.stitchedVideoUrl,
   });
 
   final SignLanguageSystem signSystem;
   final List<SignToken> signSequence;
   final Widget fallback;
   final int pulse;
+  final String? stitchedVideoUrl;
 
   @override
   State<SignVideoAvatarView> createState() => _SignVideoAvatarViewState();
@@ -44,6 +46,14 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   var _watchdogDuration = Duration.zero;
   List<SignPlaybackClip> _clips = const [];
   Timer? _watchdogTimer;
+  String? _activeStitchedUrl;
+
+  bool get _useStitchedPlayback => _hasStitchedUrl(widget.stitchedVideoUrl);
+
+  static bool _hasStitchedUrl(String? url) {
+    final trimmed = url?.trim();
+    return trimmed != null && trimmed.isNotEmpty;
+  }
 
   @override
   void initState() {
@@ -54,10 +64,27 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   @override
   void didUpdateWidget(SignVideoAvatarView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final stitchedChanged =
+        oldWidget.stitchedVideoUrl?.trim() != widget.stitchedVideoUrl?.trim();
     final sequenceChanged =
         !_sameSequence(oldWidget.signSequence, widget.signSequence);
     final pulseChanged = oldWidget.pulse != widget.pulse;
+    final modeChanged =
+        _hasStitchedUrl(oldWidget.stitchedVideoUrl) != _useStitchedPlayback;
+    if (!_catalogReady && !_useStitchedPlayback) {
+      return;
+    }
+    if (_useStitchedPlayback) {
+      if (modeChanged || stitchedChanged || (pulseChanged && !stitchedChanged)) {
+        unawaited(_syncStitchedPlayback(forceReplay: pulseChanged && !stitchedChanged));
+      }
+      return;
+    }
     if (!_catalogReady) {
+      return;
+    }
+    if (modeChanged) {
+      unawaited(_syncPlayback(forceReplay: true));
       return;
     }
     if (sequenceChanged ||
@@ -96,6 +123,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   }
 
   Future<void> _bootstrap() async {
+    if (_useStitchedPlayback) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _catalogReady = true);
+      await _syncStitchedPlayback(forceReplay: false);
+      return;
+    }
+
     await SignAssetCatalog.ensureLoaded();
     if (!mounted) {
       return;
@@ -104,7 +140,58 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     await _syncPlayback(forceReplay: false);
   }
 
+  Future<void> _syncStitchedPlayback({required bool forceReplay}) async {
+    final url = widget.stitchedVideoUrl?.trim();
+    if (url == null || url.isEmpty) {
+      return;
+    }
+    if (!forceReplay && url == _activeStitchedUrl && _videoReady) {
+      return;
+    }
+
+    final generation = ++_playbackGeneration;
+    _activeStitchedUrl = url;
+    _clips = const [];
+    _clipIndex = 0;
+    _watchdogTimer?.cancel();
+    await _disposeIncoming();
+    await _disposePrefetch();
+    await _disposeController();
+
+    final controller = VideoPlayerController.networkUrl(Uri.parse(url));
+    _controller = controller;
+
+    try {
+      await controller.initialize();
+      if (!mounted || generation != _playbackGeneration) {
+        await controller.dispose();
+        return;
+      }
+      controller.setLooping(false);
+      controller.addListener(_handleTick);
+      _startWatchdog(generation, controller);
+      setState(() {
+        _videoReady = true;
+        _incomingOpacity = 0;
+      });
+      await controller.play();
+    } on Object catch (error) {
+      debugPrint('[SignBridge/SignVideo] stitched playback failed $url ($error)');
+      await controller.dispose();
+      if (_controller == controller) {
+        _controller = null;
+      }
+      if (mounted && generation == _playbackGeneration) {
+        setState(() {
+          _videoReady = false;
+          _activeStitchedUrl = null;
+        });
+      }
+    }
+  }
+
   Future<void> _syncPlayback({required bool forceReplay}) async {
+    _activeStitchedUrl = null;
     final clips = await SignAssetCatalog.playbackClipsForSequenceAsync(
       widget.signSequence,
       widget.signSystem,
@@ -497,8 +584,23 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_catalogReady) {
+    if (!_catalogReady && !_useStitchedPlayback) {
       return widget.fallback;
+    }
+
+    if (_useStitchedPlayback && !_videoReady) {
+      return Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          widget.fallback,
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ],
+      );
     }
 
     if (_clips.isNotEmpty && !_videoReady) {

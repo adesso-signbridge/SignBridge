@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'cloudflare_gloss_config.dart';
+import 'gloss_cloud_result.dart';
 import 'gloss_service.dart';
 import 'gloss_spoken_language.dart';
 
@@ -36,9 +37,27 @@ final class CloudflareGlossService implements GlossService {
     required String languageCode,
     String? spokenLanguage,
   }) async {
+    final result = await requestGlossDetail(
+      jobId: jobId,
+      caption: caption,
+      signLanguage: signLanguage,
+      languageCode: languageCode,
+      spokenLanguage: spokenLanguage,
+    );
+    return result.glossSequence;
+  }
+
+  Future<GlossCloudResult> requestGlossDetail({
+    required String jobId,
+    required String caption,
+    required String signLanguage,
+    required String languageCode,
+    String? spokenLanguage,
+    List<String> priorGlossSequence = const [],
+  }) async {
     final trimmed = caption.trim();
     if (trimmed.isEmpty) {
-      return const [];
+      return const GlossCloudResult(glossSequence: []);
     }
     if (!isConfigured) {
       throw StateError('Cloudflare gloss worker URL is not configured');
@@ -63,9 +82,12 @@ final class CloudflareGlossService implements GlossService {
             'spokenLanguage':
                 spokenLanguage?.trim() ??
                 GlossSpokenLanguage.nameFor(languageCode),
+            'stitchVideo': true,
+            if (priorGlossSequence.isNotEmpty)
+              'priorGlossSequence': priorGlossSequence,
           }),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(const Duration(seconds: 30));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw HttpException(
@@ -96,18 +118,38 @@ final class CloudflareGlossService implements GlossService {
       );
     }
 
-    final glossRaw = decoded['glossSequence'];
-    if (glossRaw is! List) {
-      return const [];
+    final stitchedVideoUrl = decoded['stitchedVideoUrl'];
+    if (stitchedVideoUrl is String && stitchedVideoUrl.trim().isNotEmpty) {
+      debugPrint(
+        '[SignBridge/Gloss] avatar stitched video: ${stitchedVideoUrl.trim()}',
+      );
+    } else {
+      final stitchError = decoded['stitchError'];
+      if (stitchError is String && stitchError.trim().isNotEmpty) {
+        debugPrint('[SignBridge/Gloss] stitch skipped: $stitchError');
+      }
     }
 
-    return glossRaw
+    final glossRaw = decoded['glossSequence'];
+    if (glossRaw is! List) {
+      return const GlossCloudResult(glossSequence: []);
+    }
+
+    final glossSequence = glossRaw
         .map((value) => '$value'.trim().toUpperCase())
         .where((token) =>
             token.isNotEmpty &&
             token != 'GLOSSSEQUENCE' &&
             token != 'GLOSSEQUENCE')
         .toList();
+
+    final stitched = decoded['stitchedVideoUrl'];
+    return GlossCloudResult(
+      glossSequence: glossSequence,
+      stitchedVideoUrl: stitched is String && stitched.trim().isNotEmpty
+          ? stitched.trim()
+          : null,
+    );
   }
 
   void dispose() {

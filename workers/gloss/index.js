@@ -1,7 +1,7 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini chain (2.5-flash → …) → Groq (ASL only) → Adesso.
+ * Gloss (POST /): Gemini chain → optional stitch on sign-assets → glossSequence[].
  * Sign video (POST /sign): gemini-3.5-flash via Adesso AI Hub, GEMINI_KEY fallback.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
@@ -71,7 +71,42 @@ export default {
       );
     }
 
-    return json({ ok: true, jobId, glossSequence, modelUsed });
+    const stitchVideo = body.stitchVideo !== false;
+    let stitchedVideoUrl = null;
+    let clipPaths = [];
+    let stitchCached = null;
+    let stitchError = null;
+
+    const stitchGlossSequence = mergeGlossForStitch(
+      body.priorGlossSequence,
+      glossSequence,
+    );
+
+    if (stitchVideo && stitchGlossSequence.length > 0) {
+      try {
+        const stitch = await requestStitchedVideo(env, {
+          glossSequence: stitchGlossSequence,
+          signLanguage,
+          jobId,
+        });
+        stitchedVideoUrl = stitch.videoUrl || null;
+        clipPaths = Array.isArray(stitch.assetPaths) ? stitch.assetPaths : [];
+        stitchCached = stitch.cached ?? null;
+      } catch (err) {
+        stitchError = String(err).slice(0, 200);
+      }
+    }
+
+    return json({
+      ok: true,
+      jobId,
+      glossSequence,
+      modelUsed,
+      clipPaths,
+      stitchedVideoUrl,
+      stitchCached,
+      ...(stitchError ? { stitchError } : {}),
+    });
   },
 };
 
@@ -590,6 +625,81 @@ function validateGlossSequence(tokens, signLanguage = "ASL") {
     throw new Error("ISL gloss must use English tokens, not romanized Indic");
   }
   return tokens;
+}
+
+function mergeGlossForStitch(priorRaw, deltaRaw) {
+  const merged = normalizeGlossTokens(priorRaw);
+  for (const token of normalizeGlossTokens(deltaRaw)) {
+    if (merged.length > 0 && merged[merged.length - 1] === token) {
+      continue;
+    }
+    merged.push(token);
+  }
+  return merged;
+}
+
+function normalizeGlossTokens(raw) {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  const tokens = [];
+  for (const item of raw) {
+    const trimmed = `${item || ""}`.trim().toUpperCase();
+    if (
+      !trimmed ||
+      trimmed === "GLOSSSEQUENCE" ||
+      trimmed === "GLOSSEQUENCE"
+    ) {
+      continue;
+    }
+    tokens.push(trimmed);
+  }
+  return tokens;
+}
+
+function signAssetsBaseUrl(env) {
+  return (
+    env.SIGN_ASSETS_URL ||
+    "https://signbridge-sign-assets.signbridge-adesso.workers.dev"
+  )
+    .trim()
+    .replace(/\/+$/, "");
+}
+
+async function requestStitchedVideo(env, { glossSequence, signLanguage, jobId }) {
+  const base = signAssetsBaseUrl(env);
+  if (!base) {
+    throw new Error("SIGN_ASSETS_URL not configured");
+  }
+
+  const headers = { ...JSON_HEADERS };
+  if (env.WORKER_SHARED_KEY) {
+    headers["X-SignBridge-Key"] = env.WORKER_SHARED_KEY;
+  }
+
+  const res = await fetch(`${base}/stitch`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      glossSequence,
+      signLanguage,
+      jobId,
+    }),
+  });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (_) {
+    throw new Error(`Stitch worker returned non-JSON (${res.status})`);
+  }
+
+  if (!res.ok || data?.ok !== true) {
+    const detail = data?.detail || data?.error || `HTTP ${res.status}`;
+    throw new Error(detail);
+  }
+
+  return data;
 }
 
 function json(obj, status = 200) {
