@@ -6,3 +6,6 @@ compatibility_date = "2026-06-16"
 binding = "SIGN_VIDEOS"
 bucket_name = "signbridge-sign-videos"
 preview_bucket_name = "signbridge-sign-videos-dev"
+
+# Secret (dashboard): STITCH_SERVICE_URL = http://your-host:8090
+# Run: python3 scripts/stitch_service.py

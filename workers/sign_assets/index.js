@@ -1,13 +1,8 @@
 /**
  * Serves signer video clips from R2 for in-app avatar playback.
- *
- * GET  /asl/{token}.mp4
- * GET  /isl/{token}.mp4
- * GET  /manifest.json
- * POST /clips  { "paths": ["isl/hello.mp4", ...] } → signed playback URLs
- *
- * Bucket: signbridge-sign-videos (see wrangler.sign-assets.toml)
  */
+
+import { stitchGlossSequence } from "../sign_stitch.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -24,6 +19,10 @@ export default {
 
     const url = new URL(request.url);
     const pathname = decodeURIComponent(url.pathname).replace(/^\/+/, "");
+
+    if (request.method === "POST" && pathname === "stitch") {
+      return handleStitchPost(request, env, url);
+    }
 
     if (request.method === "POST" && (pathname === "clips" || pathname === "")) {
       return handleClipsPost(request, url);
@@ -121,6 +120,44 @@ async function handleClipsPost(request, url) {
   }
 
   return json({ ok: true, clips });
+}
+
+async function handleStitchPost(request, env, url) {
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const glossSequence = Array.isArray(body.glossSequence)
+    ? body.glossSequence
+    : [];
+  const signLanguage = (body.signLanguage || "ASL").toString().trim();
+  const jobId = (body.jobId || "").toString().trim();
+
+  if (glossSequence.length === 0) {
+    return json({ error: "Missing glossSequence array" }, 400);
+  }
+
+  try {
+    const result = await stitchGlossSequence(env, {
+      glossSequence,
+      signLanguage,
+      origin: url.origin,
+      jobId,
+    });
+    return json(result);
+  } catch (err) {
+    return json(
+      {
+        error: "Stitch failed",
+        detail: String(err).slice(0, 300),
+        jobId,
+      },
+      502,
+    );
+  }
 }
 
 function normalizeClipKey(rawPath) {

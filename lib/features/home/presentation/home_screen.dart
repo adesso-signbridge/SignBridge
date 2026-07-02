@@ -13,6 +13,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../services/gloss/gloss_sequence_mapper.dart';
 import '../../../services/avatar/sign_asset_catalog.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
+import '../../../services/gloss/cloudflare_gloss_service.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
 import '../../../services/home/home_service.dart';
@@ -90,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _signSpeakGeneration = 0;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
+  String? _stitchedGlossVideoUrl;
   final List<String> _accumulatedGlossTokens = [];
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
@@ -227,6 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _cancelLiveGlossDebounce();
     _glossRequestGeneration++;
     _cloudGlossWord = null;
+    _stitchedGlossVideoUrl = null;
     _accumulatedGlossTokens.clear();
     _lastFetchedGlossCaption = null;
     _glossInFlightEndCaption = null;
@@ -496,6 +499,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _signPhase = SignFlowPhase.spoken;
         _sessionPhase = TalkSessionPhase.stopped;
       });
+      debugPrint(
+        '[SignBridge/SignCapture] model: ${result.modelUsed ?? 'unknown'}',
+      );
       debugPrint(
         '[SignBridge/Sign] Spoken text (${recordingDuration.inMilliseconds}ms clip): ${result.text}',
       );
@@ -896,7 +902,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final jobId = DateTime.now().millisecondsSinceEpoch.toString();
       final signLanguage = system.label;
 
-      final glossTokens = await _requestGlossWithFallback(
+      final glossResult = await _requestGlossWithFallback(
         jobId: jobId,
         caption: delta,
         signLanguage: signLanguage,
@@ -906,9 +912,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted || generation != _glossRequestGeneration) {
         return;
       }
-      if (glossTokens.isNotEmpty) {
-        _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
-        _publishGlossState(system: system, result: result);
+      if (glossResult.tokens.isNotEmpty) {
+        _insertGlossTokens(_accumulatedGlossTokens.length, glossResult.tokens);
+        _publishGlossState(
+          system: system,
+          result: result,
+          stitchedVideoUrl: glossResult.stitchedVideoUrl,
+        );
         _lastFetchedGlossCaption = targetCaption;
       }
     } finally {
@@ -927,25 +937,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<List<String>> _requestGlossWithFallback({
+  Future<({List<String> tokens, String? stitchedVideoUrl})>
+      _requestGlossWithFallback({
     required String jobId,
     required String caption,
     required String signLanguage,
     required String languageCode,
     String? spokenLanguage,
   }) async {
-    if (CloudflareGlossConfig.isConfigured) {
+    if (CloudflareGlossConfig.isConfigured &&
+        widget.glossService is CloudflareGlossService) {
       try {
-        final tokens = await widget.glossService.requestGloss(
+        final detail = await (widget.glossService as CloudflareGlossService)
+            .requestGlossDetail(
           jobId: jobId,
           caption: caption,
           signLanguage: signLanguage,
           languageCode: languageCode,
           spokenLanguage: spokenLanguage,
+          priorGlossSequence: List<String>.from(_accumulatedGlossTokens),
         );
-        if (tokens.isNotEmpty) {
-          if (await _cloudGlossMapsToVideos(tokens, signLanguage)) {
-            return tokens;
+        if (detail.glossSequence.isNotEmpty) {
+          if (await _cloudGlossMapsToVideos(detail.glossSequence, signLanguage)) {
+            return (
+              tokens: detail.glossSequence,
+              stitchedVideoUrl: detail.stitchedVideoUrl,
+            );
           }
           debugPrint(
             '[SignBridge/Gloss] Cloud ISL gloss has no video mapping; using on-device rules',
@@ -961,13 +978,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     debugPrint('[SignBridge/Gloss] On-device gloss (not Gemini)');
-    return widget.localGlossService.requestGloss(
+    final tokens = await widget.localGlossService.requestGloss(
       jobId: jobId,
       caption: caption,
       signLanguage: signLanguage,
       languageCode: languageCode,
       spokenLanguage: spokenLanguage,
     );
+    return (tokens: tokens, stitchedVideoUrl: null);
   }
 
   Future<bool> _cloudGlossMapsToVideos(
@@ -1007,6 +1025,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _publishGlossState({
     required SignLanguageSystem system,
     required TalkListenResult result,
+    String? stitchedVideoUrl,
   }) {
     final sequence = GlossSequenceMapper.tokensFor(
       glossSequence: _accumulatedGlossTokens,
@@ -1014,6 +1033,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     setState(() {
       _cloudGlossWord = _accumulatedGlossTokens.join(' ');
+      if (stitchedVideoUrl != null && stitchedVideoUrl.trim().isNotEmpty) {
+        _stitchedGlossVideoUrl = stitchedVideoUrl.trim();
+      }
       _listenResult = _listenResultForAvatar(result).copyWith(
         signingWord: _cloudGlossWord,
         signSequence: sequence,
@@ -1144,6 +1166,7 @@ class _HomeScreenState extends State<HomeScreen> {
         signPulse: _signPulse,
         isRefreshingGloss: _cloudGlossInFlight,
         cloudGlossWord: _cloudGlossWord,
+        stitchedGlossVideoUrl: _stitchedGlossVideoUrl,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -1164,6 +1187,7 @@ class _HomeScreenState extends State<HomeScreen> {
         signPulse: _signPulse,
         isRefreshingGloss: _cloudGlossInFlight,
         cloudGlossWord: _cloudGlossWord,
+        stitchedGlossVideoUrl: _stitchedGlossVideoUrl,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),
