@@ -200,11 +200,12 @@ final class CloudflareSignCaptureService implements SignCaptureService {
 
     if (modelLabel != null) {
       debugPrint(
-        '[SignBridge/SignCapture] model: $modelLabel (video→text, jobId=$jobId)',
+        '[SignBridge/Sign] Gemini model: $modelLabel '
+        '(video→text, jobId=$jobId)',
       );
     } else {
       debugPrint(
-        '[SignBridge/SignCapture] model unknown (video→text, jobId=$jobId)',
+        '[SignBridge/Sign] Sign recognition ok (model unknown, jobId=$jobId)',
       );
     }
 
