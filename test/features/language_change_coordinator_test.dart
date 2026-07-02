@@ -8,6 +8,7 @@ void main() {
     tapToListen: '',
     tapToSign: '',
     tapToTranslate: '',
+    tapToRecordSign: '',
     tapToStop: '',
     sendCaptionLabel: '',
     flipCameraLabel: '',

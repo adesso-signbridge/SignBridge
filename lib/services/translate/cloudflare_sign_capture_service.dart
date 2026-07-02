@@ -152,7 +152,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     }
 
     final streamed = await _client.send(request).timeout(
-      const Duration(seconds: 120),
+      SignCaptureConfig.workerRequestTimeout,
     );
     final response = await http.Response.fromStream(streamed);
 

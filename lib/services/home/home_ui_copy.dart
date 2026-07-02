@@ -5,6 +5,7 @@ class HomeUiCopy {
     required this.tapToListen,
     required this.tapToSign,
     required this.tapToTranslate,
+    required this.tapToRecordSign,
     required this.tapToStop,
     required this.sendCaptionLabel,
     required this.flipCameraLabel,
@@ -69,6 +70,7 @@ class HomeUiCopy {
   final String tapToListen;
   final String tapToSign;
   final String tapToTranslate;
+  final String tapToRecordSign;
   final String tapToStop;
   final String sendCaptionLabel;
   final String flipCameraLabel;
@@ -141,12 +143,13 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToListen: 'Tap to listen',
     tapToSign: 'Tap to sign',
     tapToTranslate: 'Tap to translate',
+    tapToRecordSign: 'Tap to record',
     tapToStop: 'Tap to stop',
     sendCaptionLabel: 'Send',
     flipCameraLabel: 'Flip camera',
     clearCaptionLabel: 'Clear text',
     recordingSignsLabel:
-        'Recording signs… sign clearly for 2–5 seconds, then release',
+        'Recording signs… sign clearly, then tap Stop when done',
     analyzingSignsLabel: 'Analyzing your signs…',
     spokenLabel: 'Spoken',
     signsCapturedLabel: 'Signs captured',
@@ -227,12 +230,13 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToListen: 'കേൾക്കാൻ ടാപ്പ് ചെയ്യുക',
     tapToSign: 'സൈൻ ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
     tapToTranslate: 'വിവർത്തനം ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
+    tapToRecordSign: 'റെക്കോർഡ് ചെയ്യാൻ ടാപ്പ് ചെയ്യുക',
     tapToStop: 'നിർത്താൻ ടാപ്പ് ചെയ്യുക',
     sendCaptionLabel: 'അയയ്ക്കുക',
     flipCameraLabel: 'ക്യാമറ തിരിക്കുക',
     clearCaptionLabel: 'ടെക്സ്റ്റ് മായ്ക്കുക',
     recordingSignsLabel:
-        'സൈനുകൾ റെക്കോർഡ് ചെയ്യുന്നു… മുഴുവൻ വാചകം സൈൻ ചെയ്യുക (2–3 സെക്ക)',
+        'സൈനുകൾ റെക്കോർഡ് ചെയ്യുന്നു… വ്യക്തമായി സൈൻ ചെയ്ത് നിർത്താൻ ടാപ്പ് ചെയ്യുക',
     analyzingSignsLabel: 'നിങ്ങളുടെ സൈനുകൾ വിശകലനം ചെയ്യുന്നു…',
     spokenLabel: 'സംസാരിച്ചു',
     signsCapturedLabel: 'കൈപ്പിടിച്ച സൈനുകൾ',
@@ -314,12 +318,13 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToListen: 'सुनने के लिए टैप करें',
     tapToSign: 'साइन करने के लिए टैप करें',
     tapToTranslate: 'अनुवाद के लिए टैप करें',
+    tapToRecordSign: 'रिकॉर्ड करने के लिए टैप करें',
     tapToStop: 'रोकने के लिए टैप करें',
     sendCaptionLabel: 'भेजें',
     flipCameraLabel: 'कैमरा पलटें',
     clearCaptionLabel: 'टेक्स्ट साफ़ करें',
     recordingSignsLabel:
-        'साइन रिकॉर्ड हो रहे हैं… पूरा वाक्य साइन करें (2–3 सेक)',
+        'साइन रिकॉर्ड हो रहे हैं… स्पष्ट रूप से साइन करें, फिर रोकें टैप करें',
     analyzingSignsLabel: 'आपके साइन का विश्लेषण हो रहा है…',
     spokenLabel: 'बोला गया',
     signsCapturedLabel: 'पहचाने गए साइन',
@@ -400,12 +405,13 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     tapToListen: 'கேட்க தட்டவும்',
     tapToSign: 'சைகை செய்ய தட்டவும்',
     tapToTranslate: 'மொழிபெயர்க்க தட்டவும்',
+    tapToRecordSign: 'பதிவு செய்ய தட்டவும்',
     tapToStop: 'நிறுத்த தட்டவும்',
     sendCaptionLabel: 'அனுப்பு',
     flipCameraLabel: 'கேமராவை மாற்று',
     clearCaptionLabel: 'உரையை அழிக்க',
     recordingSignsLabel:
-        'சைகைகள் பதிவு செய்யப்படுகின்றன… முழு வாக்கியம் சைகை செய்யுங்கள் (2–3 வி)',
+        'சைகைகள் பதிவு செய்யப்படுகின்றன… தெளிவாக சைகை செய்து நிறுத்த தட்டவும்',
     analyzingSignsLabel: 'உங்கள் சைகைகள் பகுப்பாய்வு செய்யப்படுகின்றன…',
     spokenLabel: 'பேசப்பட்டது',
     signsCapturedLabel: 'பிடிப்பட்ட சைகைகள்',

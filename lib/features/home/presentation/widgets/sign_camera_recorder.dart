@@ -256,6 +256,8 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     }
   }
 
+  static const _minRecordBeforeStop = Duration(milliseconds: 400);
+
   Future<void> _handleStopRequest() async {
     if (_isRecordingVideo) {
       await _stopRecording();
@@ -267,19 +269,8 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       return;
     }
 
-    final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) {
-      _stopPending = true;
-      return;
-    }
-
+    // Preview phase — nothing to stop until the user taps Record.
     _stopPending = false;
-    await _startRecording();
-    if (_isRecordingVideo) {
-      await _stopRecording();
-    } else {
-      widget.onError('Recording did not start');
-    }
   }
 
   Future<void> _startRecording() async {
@@ -295,7 +286,10 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       await controller.startVideoRecording();
       _isRecordingVideo = true;
       _videoRecordingStartedAt = DateTime.now();
-      if (_stopPending || !widget.isRecording) {
+      if (!widget.isRecording) {
+        _stopPending = false;
+        await _stopRecording();
+      } else if (_stopPending) {
         _stopPending = false;
         await _stopRecording();
       }
@@ -311,6 +305,16 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
   Future<void> _stopRecording() async {
     final controller = _controller;
     if (controller == null || !_isRecordingVideo) {
+      return;
+    }
+    final startedAt = _videoRecordingStartedAt;
+    if (startedAt != null) {
+      final elapsed = DateTime.now().difference(startedAt);
+      if (elapsed < _minRecordBeforeStop) {
+        await Future<void>.delayed(_minRecordBeforeStop - elapsed);
+      }
+    }
+    if (!_isRecordingVideo || controller != _controller) {
       return;
     }
     try {
