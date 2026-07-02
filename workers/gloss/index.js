@@ -2,7 +2,7 @@
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
  * Gloss (POST /): Gemini chain (2.5-flash → …) → Groq (ASL only) → Adesso.
- * Sign video (POST /sign): gemini-3.5-flash only, video → spoken text.
+ * Sign video (POST /sign): gemini-3.5-flash via Adesso AI Hub, GEMINI_KEY fallback.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
