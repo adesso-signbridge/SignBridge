@@ -20,6 +20,7 @@ class SignAvatarView extends StatelessWidget {
     this.signPulse = 0,
     this.showNative = true,
     this.generatedVideoUrl,
+    this.veoOnly = false,
   });
 
   final String signTokenId;
@@ -30,6 +31,7 @@ class SignAvatarView extends StatelessWidget {
   final int signPulse;
   final bool showNative;
   final String? generatedVideoUrl;
+  final bool veoOnly;
 
   static bool get _isFlutterTest =>
       Platform.environment.containsKey('FLUTTER_TEST');
@@ -74,12 +76,13 @@ class SignAvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (_useSignerVideo) {
+    if (veoOnly || _useSignerVideo) {
       return SignVideoAvatarView(
         signSystem: signSystem,
-        signSequence: signSequence,
+        signSequence: veoOnly ? const [] : signSequence,
         pulse: signPulse,
         generatedVideoUrl: generatedVideoUrl,
+        veoOnly: veoOnly,
         fallback: _buildFallback(),
       );
     }

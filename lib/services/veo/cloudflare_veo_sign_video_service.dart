@@ -82,7 +82,7 @@ final class CloudflareVeoSignVideoService {
     required String caption,
     required List<String> glossSequence,
     required String signLanguage,
-    Duration timeout = const Duration(minutes: 3),
+    Duration timeout = const Duration(minutes: 5),
   }) async {
     final started = await start(
       jobId: jobId,

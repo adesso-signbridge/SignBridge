@@ -18,6 +18,7 @@ class SignVideoAvatarView extends StatefulWidget {
     required this.fallback,
     this.pulse = 0,
     this.generatedVideoUrl,
+    this.veoOnly = false,
   });
 
   final SignLanguageSystem signSystem;
@@ -25,6 +26,8 @@ class SignVideoAvatarView extends StatefulWidget {
   final Widget fallback;
   final int pulse;
   final String? generatedVideoUrl;
+  /// When true, skip R2 clip playback and wait for [generatedVideoUrl].
+  final bool veoOnly;
 
   @override
   State<SignVideoAvatarView> createState() => _SignVideoAvatarViewState();
@@ -71,11 +74,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     final pulseChanged = oldWidget.pulse != widget.pulse;
     final modeChanged =
         _hasGeneratedUrl(oldWidget.generatedVideoUrl) != _useGeneratedPlayback;
-    if (!_catalogReady && !_useGeneratedPlayback) {
+    final veoOnlyChanged = oldWidget.veoOnly != widget.veoOnly;
+    if (!_catalogReady && !_useGeneratedPlayback && !widget.veoOnly) {
       return;
     }
-    if (_useGeneratedPlayback) {
-      if (modeChanged || generatedChanged || (pulseChanged && !generatedChanged)) {
+    if (widget.veoOnly || _useGeneratedPlayback) {
+      if (modeChanged ||
+          veoOnlyChanged ||
+          generatedChanged ||
+          (pulseChanged && !generatedChanged)) {
         unawaited(
           _syncGeneratedPlayback(forceReplay: pulseChanged && !generatedChanged),
         );
@@ -125,12 +132,14 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   }
 
   Future<void> _bootstrap() async {
-    if (_useGeneratedPlayback) {
+    if (widget.veoOnly || _useGeneratedPlayback) {
       if (!mounted) {
         return;
       }
       setState(() => _catalogReady = true);
-      await _syncGeneratedPlayback(forceReplay: false);
+      if (_useGeneratedPlayback) {
+        await _syncGeneratedPlayback(forceReplay: false);
+      }
       return;
     }
 
@@ -586,6 +595,21 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.veoOnly && !_useGeneratedPlayback) {
+      return Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          widget.fallback,
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ],
+      );
+    }
+
     if (!_catalogReady && !_useGeneratedPlayback) {
       return widget.fallback;
     }

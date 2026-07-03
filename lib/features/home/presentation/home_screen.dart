@@ -28,6 +28,7 @@ import 'language_change_coordinator.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
 import 'widgets/talk_sign_session_content.dart';
+import 'widgets/sign_avatar_view.dart';
 
 enum SignFlowPhase { idle, recording, analyzing, spoken }
 
@@ -1021,6 +1022,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  bool get _useVeoOnlyPlayback =>
+      VeoSignVideoConfig.isConfigured && _veoSignVideoService.isConfigured;
+
   void _publishGlossState({
     required SignLanguageSystem system,
     required TalkListenResult result,
@@ -1033,11 +1037,15 @@ class _HomeScreenState extends State<HomeScreen> {
       _cloudGlossWord = _accumulatedGlossTokens.join(' ');
       _listenResult = _listenResultForAvatar(result).copyWith(
         signingWord: _cloudGlossWord,
-        signSequence: sequence,
-        signTokenId: sequence.isNotEmpty ? sequence.last.id : result.signTokenId,
+        signSequence: _useVeoOnlyPlayback ? const [] : sequence,
+        signTokenId: _useVeoOnlyPlayback
+            ? SignTokenIds.thinking
+            : (sequence.isNotEmpty ? sequence.last.id : result.signTokenId),
         signSystem: system,
       );
-      _signPulse++;
+      if (!_useVeoOnlyPlayback) {
+        _signPulse++;
+      }
     });
   }
 
@@ -1204,6 +1212,7 @@ class _HomeScreenState extends State<HomeScreen> {
         isRefreshingGloss: _cloudGlossInFlight || _veoVideoInFlight,
         cloudGlossWord: _cloudGlossWord,
         generatedSignVideoUrl: _generatedSignVideoUrl,
+        veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -1225,6 +1234,7 @@ class _HomeScreenState extends State<HomeScreen> {
         isRefreshingGloss: _cloudGlossInFlight || _veoVideoInFlight,
         cloudGlossWord: _cloudGlossWord,
         generatedSignVideoUrl: _generatedSignVideoUrl,
+        veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),
