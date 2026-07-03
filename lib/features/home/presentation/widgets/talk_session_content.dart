@@ -17,6 +17,7 @@ class TalkListeningContent extends StatelessWidget {
     this.signPulse = 0,
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
+    this.generatedSignVideoUrl,
   });
 
   final HomeUiCopy uiCopy;
@@ -24,6 +25,7 @@ class TalkListeningContent extends StatelessWidget {
   final int signPulse;
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
+  final String? generatedSignVideoUrl;
 
   bool get _hasCaption => liveResult?.fullTranscript.isNotEmpty ?? false;
 
@@ -90,6 +92,7 @@ class TalkListeningContent extends StatelessWidget {
         signingWord: _avatarSigningWord,
         signSequence: _avatarSignSequence,
         signPulse: signPulse,
+        generatedVideoUrl: generatedSignVideoUrl,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
@@ -180,6 +183,7 @@ class TalkStoppedContent extends StatelessWidget {
     this.signPulse = 0,
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
+    this.generatedSignVideoUrl,
   });
 
   final HomeUiCopy uiCopy;
@@ -187,6 +191,7 @@ class TalkStoppedContent extends StatelessWidget {
   final int signPulse;
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
+  final String? generatedSignVideoUrl;
 
   String? get _chipWord {
     if (cloudGlossWord != null && cloudGlossWord!.trim().isNotEmpty) {
@@ -241,6 +246,7 @@ class TalkStoppedContent extends StatelessWidget {
         signingWord: _avatarSigningWord,
         signSequence: _avatarSignSequence,
         signPulse: signPulse,
+        generatedVideoUrl: generatedSignVideoUrl,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
@@ -443,6 +449,7 @@ class _TalkAvatarCardStage extends StatelessWidget {
     required this.signPulse,
     required this.signingChip,
     this.showSigningChip = true,
+    this.generatedVideoUrl,
   });
 
   final double height;
@@ -454,6 +461,7 @@ class _TalkAvatarCardStage extends StatelessWidget {
   final int signPulse;
   final Widget signingChip;
   final bool showSigningChip;
+  final String? generatedVideoUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -504,6 +512,7 @@ class _TalkAvatarCardStage extends StatelessWidget {
                     signingWord: signingWord,
                     signSequence: signSequence,
                     signPulse: signPulse,
+                    generatedVideoUrl: generatedVideoUrl,
                   ),
                 ),
               ),

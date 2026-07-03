@@ -17,6 +17,8 @@ import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
+import '../../../services/veo/cloudflare_veo_sign_video_service.dart';
+import '../../../services/veo/veo_sign_video_config.dart';
 import '../../../services/translate/sign_capture_config.dart';
 import '../../../services/translate/sign_capture_error_mapper.dart';
 import '../../../services/translate/sign_capture_service.dart';
@@ -90,14 +92,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int _signSpeakGeneration = 0;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
+  String? _generatedSignVideoUrl;
+  bool _veoVideoInFlight = false;
   final List<String> _accumulatedGlossTokens = [];
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
+  int _veoRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
+  late final CloudflareVeoSignVideoService _veoSignVideoService;
 
   @override
   void dispose() {
+    _veoSignVideoService.dispose();
     widget.onUnregisterSession();
     _cancelLiveGlossDebounce();
     _cancelSessionTimers();
@@ -226,7 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _resetLiveGlossState() {
     _cancelLiveGlossDebounce();
     _glossRequestGeneration++;
+    _veoRequestGeneration++;
     _cloudGlossWord = null;
+    _generatedSignVideoUrl = null;
+    _veoVideoInFlight = false;
     _accumulatedGlossTokens.clear();
     _lastFetchedGlossCaption = null;
     _glossInFlightEndCaption = null;
@@ -264,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _veoSignVideoService = CloudflareVeoSignVideoService();
     widget.onRegisterSession(
       HomeSessionRegistration(
         teardownActiveSessions: _teardownActiveSessions,
@@ -910,6 +921,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
         _lastFetchedGlossCaption = targetCaption;
+        unawaited(
+          _requestVeoSignVideo(
+            caption: targetCaption,
+            signLanguage: signLanguage,
+          ),
+        );
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
@@ -1022,6 +1039,48 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       _signPulse++;
     });
+  }
+
+  Future<void> _requestVeoSignVideo({
+    required String caption,
+    required String signLanguage,
+  }) async {
+    if (!VeoSignVideoConfig.isConfigured || !_veoSignVideoService.isConfigured) {
+      return;
+    }
+    if (_accumulatedGlossTokens.isEmpty) {
+      return;
+    }
+
+    final generation = ++_veoRequestGeneration;
+    final jobId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (mounted) {
+      setState(() => _veoVideoInFlight = true);
+    }
+
+    try {
+      final result = await _veoSignVideoService.waitUntilReady(
+        jobId: jobId,
+        caption: caption,
+        glossSequence: List<String>.from(_accumulatedGlossTokens),
+        signLanguage: signLanguage,
+      );
+      if (!mounted || generation != _veoRequestGeneration) {
+        return;
+      }
+      if (result?.isReady == true && result!.videoUrl != null) {
+        setState(() {
+          _generatedSignVideoUrl = result.videoUrl!.trim();
+          _signPulse++;
+        });
+      }
+    } on Object catch (error) {
+      debugPrint('[SignBridge/Veo] generation failed ($error)');
+    } finally {
+      if (mounted && generation == _veoRequestGeneration) {
+        setState(() => _veoVideoInFlight = false);
+      }
+    }
   }
 
   Future<void> _clearHistory() async {
@@ -1142,8 +1201,9 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         liveResult: _listenResult,
         signPulse: _signPulse,
-        isRefreshingGloss: _cloudGlossInFlight,
+        isRefreshingGloss: _cloudGlossInFlight || _veoVideoInFlight,
         cloudGlossWord: _cloudGlossWord,
+        generatedSignVideoUrl: _generatedSignVideoUrl,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -1162,8 +1222,9 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         result: _listenResult!,
         signPulse: _signPulse,
-        isRefreshingGloss: _cloudGlossInFlight,
+        isRefreshingGloss: _cloudGlossInFlight || _veoVideoInFlight,
         cloudGlossWord: _cloudGlossWord,
+        generatedSignVideoUrl: _generatedSignVideoUrl,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),

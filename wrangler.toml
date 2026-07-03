@@ -11,3 +11,14 @@ GEMINI_PRIMARY_TIMEOUT_MS = "15000"
 # Sign video (/sign): gemini-3.5-flash via Adesso AI Hub (GEMINI_KEY = fallback)
 SIGN_GEMINI_MODEL = "gemini-3.5-flash"
 ADESSO_MODEL = "qwen-3.6-35b-sovereign"
+# Veo 3.1 sign-video generation (POST /veo/generate) — Adobe Firefly-style
+VEO_MODEL = "veo-3.1-fast-generate-preview"
+VEO_RESOLUTION = "720p"
+VEO_ASPECT_RATIO = "9:16"
+VEO_DURATION_SECONDS = "8"
+SIGN_ASSETS_PUBLIC_URL = "https://signbridge-sign-assets.signbridge-adesso.workers.dev"
+
+[[r2_buckets]]
+binding = "SIGN_VIDEOS"
+bucket_name = "signbridge-sign-videos"
+preview_bucket_name = "signbridge-sign-videos-dev"

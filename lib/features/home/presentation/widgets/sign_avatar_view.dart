@@ -19,6 +19,7 @@ class SignAvatarView extends StatelessWidget {
     this.signSequence = const [],
     this.signPulse = 0,
     this.showNative = true,
+    this.generatedVideoUrl,
   });
 
   final String signTokenId;
@@ -28,6 +29,7 @@ class SignAvatarView extends StatelessWidget {
   final List<SignToken> signSequence;
   final int signPulse;
   final bool showNative;
+  final String? generatedVideoUrl;
 
   static bool get _isFlutterTest =>
       Platform.environment.containsKey('FLUTTER_TEST');
@@ -77,6 +79,7 @@ class SignAvatarView extends StatelessWidget {
         signSystem: signSystem,
         signSequence: signSequence,
         pulse: signPulse,
+        generatedVideoUrl: generatedVideoUrl,
         fallback: _buildFallback(),
       );
     }

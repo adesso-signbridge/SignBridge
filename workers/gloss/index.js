@@ -1,32 +1,41 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * Gloss (POST /): Gemini chain (2.5-flash → …) → Groq (ASL only) → Adesso.
- * Sign video (POST /sign): gemini-3.5-flash via Adesso AI Hub, GEMINI_KEY fallback.
+ * POST /veo/generate → start Veo 3.1 sign-video generation.
+ * GET  /veo/status?operation=... → poll Veo job and cache MP4 in R2.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
 import { geminiQualityChain } from "../gemini_model_chain.js";
 import { handleSignRecognitionRequest } from "../sign_recognition.js";
+import { resolveVeoSignVideo } from "../veo_sign_video.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-SignBridge-Key",
+};
 
 export default {
   async fetch(request, env) {
-    const pathname = new URL(request.url).pathname;
+    const url = new URL(request.url);
+    const pathname = url.pathname.replace(/\/+$/, "");
+
     if (pathname.endsWith("/sign")) {
       return handleSignRecognitionRequest(request, env);
     }
 
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, X-SignBridge-Key",
-        },
-      });
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    if (pathname.endsWith("/veo/generate") && request.method === "POST") {
+      return handleVeoGenerate(request, env);
+    }
+
+    if (pathname.endsWith("/veo/status") && request.method === "GET") {
+      return handleVeoStatus(request, env);
     }
 
     if (request.method !== "POST") {
@@ -74,6 +83,118 @@ export default {
     return json({ ok: true, jobId, glossSequence, modelUsed });
   },
 };
+
+async function handleVeoGenerate(request, env) {
+  if (env.WORKER_SHARED_KEY) {
+    const provided = request.headers.get("X-SignBridge-Key");
+    if (provided !== env.WORKER_SHARED_KEY) {
+      return json({ error: "Unauthorized" }, 401);
+    }
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const caption = (body.caption || "").trim();
+  const signLanguage = (body.signLanguage || "ASL").trim();
+  const jobId = (body.jobId || crypto.randomUUID()).trim();
+  const glossSequence = Array.isArray(body.glossSequence)
+    ? body.glossSequence
+    : [];
+
+  if (!caption && glossSequence.length === 0) {
+    return json({ error: "Missing caption or glossSequence" }, 400);
+  }
+
+  if (!env.SIGN_VIDEOS) {
+    return json({ error: "SIGN_VIDEOS R2 binding not configured" }, 503);
+  }
+
+  try {
+    const result = await resolveVeoSignVideo(env, {
+      caption,
+      glossSequence,
+      signLanguage,
+      jobId,
+    });
+    return json(result);
+  } catch (err) {
+    return json(
+      {
+        ok: false,
+        error: "Veo generation failed",
+        detail: String(err).slice(0, 300),
+        jobId,
+      },
+      502,
+    );
+  }
+}
+
+async function handleVeoStatus(request, env) {
+  if (env.WORKER_SHARED_KEY) {
+    const provided = request.headers.get("X-SignBridge-Key");
+    if (provided !== env.WORKER_SHARED_KEY) {
+      return json({ error: "Unauthorized" }, 401);
+    }
+  }
+
+  const url = new URL(request.url);
+  const operationName = (url.searchParams.get("operation") || "").trim();
+  const jobId = (url.searchParams.get("jobId") || "").trim();
+  const caption = (url.searchParams.get("caption") || "").trim();
+  const signLanguage = (url.searchParams.get("signLanguage") || "ASL").trim();
+  const glossSequence = parseGlossQuery(url.searchParams.get("glossSequence"));
+
+  if (!operationName) {
+    return json({ error: "Missing operation query parameter" }, 400);
+  }
+
+  if (!env.SIGN_VIDEOS) {
+    return json({ error: "SIGN_VIDEOS R2 binding not configured" }, 503);
+  }
+
+  try {
+    const result = await resolveVeoSignVideo(env, {
+      caption,
+      glossSequence,
+      signLanguage,
+      jobId,
+      operationName,
+    });
+    return json(result);
+  } catch (err) {
+    return json(
+      {
+        ok: false,
+        error: "Veo poll failed",
+        detail: String(err).slice(0, 300),
+        jobId,
+        operationName,
+      },
+      502,
+    );
+  }
+}
+
+function parseGlossQuery(raw) {
+  if (!raw) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) {
+    return raw
+      .split(",")
+      .map((token) => token.trim())
+      .filter(Boolean);
+  }
+}
 
 function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
