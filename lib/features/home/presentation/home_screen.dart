@@ -12,6 +12,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/gloss/gloss_sequence_mapper.dart';
 import '../../../services/avatar/sign_asset_catalog.dart';
+import '../../../services/avatar/sign_playback_config.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
@@ -101,11 +102,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _veoRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
-  late final CloudflareVeoSignVideoService _veoSignVideoService;
+  CloudflareVeoSignVideoService? _veoSignVideoService;
 
   @override
   void dispose() {
-    _veoSignVideoService.dispose();
+    if (!SignPlaybackConfig.imagesOnly) {
+      _veoSignVideoService?.dispose();
+    }
     widget.onUnregisterSession();
     _cancelLiveGlossDebounce();
     _cancelSessionTimers();
@@ -275,7 +278,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _veoSignVideoService = CloudflareVeoSignVideoService();
+    if (!SignPlaybackConfig.imagesOnly) {
+      _veoSignVideoService = CloudflareVeoSignVideoService();
+    }
     widget.onRegisterSession(
       HomeSessionRegistration(
         teardownActiveSessions: _teardownActiveSessions,
@@ -309,6 +314,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool get _isSignFlowActive => _signPhase != SignFlowPhase.idle;
+
+  bool get _isSignFlowBlockingOtherActions {
+    return _signPhase == SignFlowPhase.recording ||
+        _signPhase == SignFlowPhase.analyzing;
+  }
+
+  void _resetCompletedSignSession() {
+    _signGeneration++;
+    _signSpeakGeneration++;
+    _signPhase = SignFlowPhase.idle;
+    _signResult = null;
+    _signRecordingActive = false;
+    _resetSignCaptureState();
+  }
 
   String? get _signRecordingStatusLabel {
     if (_signRecordingActive) {
@@ -358,7 +377,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startSignRecording() async {
-    if (_signPhase != SignFlowPhase.idle || _isActiveListenPhase) {
+    if (_isSignFlowBlockingOtherActions || _isActiveListenPhase) {
+      return;
+    }
+
+    if (_signPhase == SignFlowPhase.spoken) {
+      await widget.phraseSpeechService.stop();
+      if (!mounted) {
+        return;
+      }
+      setState(_resetCompletedSignSession);
+    }
+
+    if (_signPhase != SignFlowPhase.idle) {
       return;
     }
 
@@ -595,10 +626,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _startListening() async {
     if (_listenInFlight ||
-        _isSignFlowActive ||
+        _isSignFlowBlockingOtherActions ||
         (_sessionPhase != TalkSessionPhase.idle &&
             _sessionPhase != TalkSessionPhase.stopped)) {
       return;
+    }
+
+    if (_signPhase == SignFlowPhase.spoken) {
+      await widget.phraseSpeechService.stop();
+      if (!mounted) {
+        return;
+      }
     }
 
     final generation = ++_listenGeneration;
@@ -624,6 +662,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
+      if (_signPhase == SignFlowPhase.spoken) {
+        _resetCompletedSignSession();
+      }
       _listenInFlight = true;
       _sessionPhase = TalkSessionPhase.listening;
       _listenResult = null;
@@ -922,12 +963,14 @@ class _HomeScreenState extends State<HomeScreen> {
         _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
         _lastFetchedGlossCaption = targetCaption;
-        unawaited(
-          _requestVeoSignVideo(
-            caption: targetCaption,
-            signLanguage: signLanguage,
-          ),
-        );
+        if (!SignPlaybackConfig.imagesOnly) {
+          unawaited(
+            _requestVeoSignVideo(
+              caption: targetCaption,
+              signLanguage: signLanguage,
+            ),
+          );
+        }
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
@@ -992,6 +1035,9 @@ class _HomeScreenState extends State<HomeScreen> {
     List<String> tokens,
     String signLanguage,
   ) async {
+    if (SignPlaybackConfig.imagesOnly) {
+      return true;
+    }
     if (!signLanguage.toUpperCase().contains('ISL')) {
       return true;
     }
@@ -1023,7 +1069,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool get _useVeoOnlyPlayback =>
-      VeoSignVideoConfig.isConfigured && _veoSignVideoService.isConfigured;
+      !SignPlaybackConfig.imagesOnly &&
+      VeoSignVideoConfig.isConfigured &&
+      (_veoSignVideoService?.isConfigured ?? false);
 
   void _publishGlossState({
     required SignLanguageSystem system,
@@ -1053,7 +1101,11 @@ class _HomeScreenState extends State<HomeScreen> {
     required String caption,
     required String signLanguage,
   }) async {
-    if (!VeoSignVideoConfig.isConfigured || !_veoSignVideoService.isConfigured) {
+    if (SignPlaybackConfig.imagesOnly) {
+      return;
+    }
+    if (!VeoSignVideoConfig.isConfigured ||
+        !(_veoSignVideoService?.isConfigured ?? false)) {
       return;
     }
     if (_accumulatedGlossTokens.isEmpty) {
@@ -1067,7 +1119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      final result = await _veoSignVideoService.waitUntilReady(
+      final result = await _veoSignVideoService!.waitUntilReady(
         jobId: jobId,
         caption: caption,
         glossSequence: List<String>.from(_accumulatedGlossTokens),
@@ -1107,12 +1159,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
       _resetLiveGlossState();
-      _signGeneration++;
-      _signSpeakGeneration++;
-      _signPhase = SignFlowPhase.idle;
-      _signResult = null;
-      _signRecordingActive = false;
-      _resetSignCaptureState();
+      _resetCompletedSignSession();
     });
     unawaited(widget.translateService.cancelListening());
   }
@@ -1209,9 +1256,12 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         liveResult: _listenResult,
         signPulse: _signPulse,
-        isRefreshingGloss: _cloudGlossInFlight || _veoVideoInFlight,
+        isRefreshingGloss:
+            _cloudGlossInFlight ||
+            (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
         cloudGlossWord: _cloudGlossWord,
-        generatedSignVideoUrl: _generatedSignVideoUrl,
+        generatedSignVideoUrl:
+            SignPlaybackConfig.imagesOnly ? null : _generatedSignVideoUrl,
         veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
@@ -1231,9 +1281,12 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         result: _listenResult!,
         signPulse: _signPulse,
-        isRefreshingGloss: _cloudGlossInFlight || _veoVideoInFlight,
+        isRefreshingGloss:
+            _cloudGlossInFlight ||
+            (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
         cloudGlossWord: _cloudGlossWord,
-        generatedSignVideoUrl: _generatedSignVideoUrl,
+        generatedSignVideoUrl:
+            SignPlaybackConfig.imagesOnly ? null : _generatedSignVideoUrl,
         veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
@@ -1441,10 +1494,10 @@ class _HomeHeader extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'assets/home/icon_globe.png',
-                  width: AppTypography.langGlobe,
-                  height: AppTypography.langGlobe,
+                Icon(
+                  Icons.public_rounded,
+                  size: AppTypography.langGlobe,
+                  color: AppColors.splashBlue,
                 ),
                 const SizedBox(width: AppSpacing.langGlobeToText),
                 Text(

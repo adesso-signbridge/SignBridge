@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sign_bridge/services/avatar/sign_playback_config.dart';
 import 'package:sign_bridge/services/translate/sign_language_system.dart';
 import 'package:sign_bridge/services/translate/sign_token.dart';
 
@@ -37,6 +38,9 @@ class SignAvatarView extends StatelessWidget {
       Platform.environment.containsKey('FLUTTER_TEST');
 
   bool get _useSignerVideo {
+    if (SignPlaybackConfig.imagesOnly) {
+      return false;
+    }
     if (!showNative || kIsWeb || _isFlutterTest) {
       return false;
     }
@@ -47,6 +51,9 @@ class SignAvatarView extends StatelessWidget {
   }
 
   bool get _showOverlay {
+    if (SignPlaybackConfig.imagesOnly) {
+      return false;
+    }
     if (_useSignerVideo || !showNative || kIsWeb || _isFlutterTest) {
       return false;
     }
@@ -76,7 +83,7 @@ class SignAvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (veoOnly || _useSignerVideo) {
+    if (!SignPlaybackConfig.imagesOnly && (veoOnly || _useSignerVideo)) {
       return SignVideoAvatarView(
         signSystem: signSystem,
         signSequence: veoOnly ? const [] : signSequence,
