@@ -71,10 +71,10 @@ export async function handleSignRecognitionRequest(request, env) {
       env,
     ));
   } catch (err) {
+    console.error("Sign recognition failed", { jobId, err });
     return signJson(
       {
         error: "Sign recognition failed",
-        detail: String(err).slice(0, 300),
         jobId,
       },
       502,
