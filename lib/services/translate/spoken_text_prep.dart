@@ -153,8 +153,18 @@ abstract final class SpokenTextPrep {
     return false;
   }
 
-  static const _yesNoTamilSuffixes = ['இருக்கிறதா', 'போகுமா', 'ஏற்குமா', 'விட்டதா'];
-  static const _yesNoMalayalamSuffixes = ['ഉണ്ടോ', 'പോകുമോ', 'സ്വീകരിക്കുമോ', 'എട്ടിട്ടുണ്ടോ'];
+  static const _yesNoTamilSuffixes = [
+    'இருக்கிறதா',
+    'போகுமா',
+    'ஏற்குமா',
+    'விட்டதா',
+  ];
+  static const _yesNoMalayalamSuffixes = [
+    'ഉണ്ടോ',
+    'പോകുമോ',
+    'സ്വീകരിക്കുമോ',
+    'എട്ടിട്ടുണ്ടോ',
+  ];
 
   static final _yesNoLeadPatterns = [
     RegExp(r'^are you\b'),

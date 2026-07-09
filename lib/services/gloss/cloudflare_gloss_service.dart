@@ -15,9 +15,9 @@ final class CloudflareGlossService implements GlossService {
     String? workerUrl,
     String? sharedKey,
     http.Client? client,
-  })  : _workerUrl = (workerUrl ?? CloudflareGlossConfig.workerUrl).trim(),
-        _sharedKey = sharedKey ?? CloudflareGlossConfig.sharedKey,
-        _client = client ?? http.Client();
+  }) : _workerUrl = (workerUrl ?? CloudflareGlossConfig.workerUrl).trim(),
+       _sharedKey = sharedKey ?? CloudflareGlossConfig.sharedKey,
+       _client = client ?? http.Client();
 
   final String _workerUrl;
   final String _sharedKey;
@@ -76,12 +76,17 @@ final class CloudflareGlossService implements GlossService {
 
     final decoded = jsonDecode(response.body);
     if (decoded is! Map<String, dynamic>) {
-      throw FormatException('Unexpected gloss worker response: ${response.body}');
+      throw FormatException(
+        'Unexpected gloss worker response: ${response.body}',
+      );
     }
 
     if (decoded['ok'] != true) {
       final detail = decoded['detail'] ?? decoded['error'] ?? 'unknown error';
-      throw HttpException('Gloss worker failed: $detail', uri: Uri.parse(_workerUrl));
+      throw HttpException(
+        'Gloss worker failed: $detail',
+        uri: Uri.parse(_workerUrl),
+      );
     }
 
     final modelUsed = decoded['modelUsed'];
@@ -103,10 +108,12 @@ final class CloudflareGlossService implements GlossService {
 
     return glossRaw
         .map((value) => '$value'.trim().toUpperCase())
-        .where((token) =>
-            token.isNotEmpty &&
-            token != 'GLOSSSEQUENCE' &&
-            token != 'GLOSSEQUENCE')
+        .where(
+          (token) =>
+              token.isNotEmpty &&
+              token != 'GLOSSSEQUENCE' &&
+              token != 'GLOSSEQUENCE',
+        )
         .toList();
   }
 

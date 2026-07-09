@@ -11,12 +11,7 @@ import 'sign_language_system.dart';
 ///
 /// ASL follows Time + Topic + Comment (see [AslGrammarRules] for sources).
 abstract final class SignGrammarEngine {
-  static const _timeWords = {
-    ...AslGrammarRules.timeWords,
-    'आज',
-    'कल',
-    'अभी',
-  };
+  static const _timeWords = {...AslGrammarRules.timeWords, 'आज', 'कल', 'अभी'};
 
   static const _questionWords = {
     ...AslGrammarRules.questionWords,
@@ -28,13 +23,7 @@ abstract final class SignGrammarEngine {
     'कैसे',
   };
 
-  static const _negationWords = {
-    'not',
-    'no',
-    'never',
-    'none',
-    'नहीं',
-  };
+  static const _negationWords = {'not', 'no', 'never', 'none', 'नहीं'};
 
   static const _beWords = {
     'am',
@@ -391,10 +380,7 @@ abstract final class SignGrammarEngine {
     }
 
     var result = switch (system) {
-      SignLanguageSystem.asl => _applyAslRules(
-        processed,
-        negated: sawNegation,
-      ),
+      SignLanguageSystem.asl => _applyAslRules(processed, negated: sawNegation),
       SignLanguageSystem.isl => _applyIslRules(
         processed,
         negated: sawNegation,
@@ -705,9 +691,7 @@ abstract final class SignGrammarEngine {
 
   static List<String> _stripNmmMarkers(List<String> words) {
     return words
-        .where(
-          (w) => !AslNmmMarkers.isMarker(w) && !IslNmmMarkers.isMarker(w),
-        )
+        .where((w) => !AslNmmMarkers.isMarker(w) && !IslNmmMarkers.isMarker(w))
         .toList();
   }
 
@@ -716,7 +700,10 @@ abstract final class SignGrammarEngine {
       return false;
     }
     final last = words.last;
-  if (last == 'not' || last == 'cannot' || last == 'not-can' || last == 'never') {
+    if (last == 'not' ||
+        last == 'cannot' ||
+        last == 'not-can' ||
+        last == 'never') {
       return true;
     }
     return false;
@@ -874,7 +861,7 @@ abstract final class SignGrammarEngine {
     if (_isSubjectPronoun(words[0]) || _isSubjectPronoun(words[2])) {
       return null;
     }
-  if (_looksLikeVerb(words[0]) || _looksLikeVerb(words[2])) {
+    if (_looksLikeVerb(words[0]) || _looksLikeVerb(words[2])) {
       return null;
     }
     return List<String>.from(words);
@@ -1076,7 +1063,11 @@ abstract final class SignGrammarEngine {
           ..._reorderSubclause(main),
         ];
       }
-      return [..._reorderSubclause(during), 'during', ..._reorderSubclause(head)];
+      return [
+        ..._reorderSubclause(during),
+        'during',
+        ..._reorderSubclause(head),
+      ];
     }
 
     final afterIdx = words.indexOf('after');
@@ -1090,7 +1081,11 @@ abstract final class SignGrammarEngine {
         return [..._reorderSubclause(main), 'work', 'finish'];
       }
       if (prior.any(_looksLikeVerb)) {
-        return [..._reorderSubclause(prior), 'finish', ..._reorderSubclause(main)];
+        return [
+          ..._reorderSubclause(prior),
+          'finish',
+          ..._reorderSubclause(main),
+        ];
       }
     }
 
@@ -1098,7 +1093,11 @@ abstract final class SignGrammarEngine {
     if (whenIdx > 0) {
       final condition = words.sublist(whenIdx + 1);
       final head = words.sublist(0, whenIdx);
-      return [..._reorderSubclause(condition), 'during', ..._reorderSubclause(head)];
+      return [
+        ..._reorderSubclause(condition),
+        'during',
+        ..._reorderSubclause(head),
+      ];
     }
 
     final ifIdx = words.indexOf('if');
@@ -1163,12 +1162,7 @@ abstract final class SignGrammarEngine {
       final result = words.sublist(soIdx + 1);
       if (result.contains('forget')) {
         final rest = result.where((w) => w != 'not' && w != 'forget').toList();
-        return [
-          ..._reorderSubclause(cause),
-          ...rest,
-          'forget',
-          'not',
-        ];
+        return [..._reorderSubclause(cause), ...rest, 'forget', 'not'];
       }
       return _rhetoricalWhyClause(cause, result);
     }
@@ -1191,8 +1185,7 @@ abstract final class SignGrammarEngine {
       return ['espresso', 'bitter', 'too-much'];
     }
     if (stripped.contains('not') && stripped.contains('drop')) {
-      final topics =
-          stripped.where((w) => w != 'not' && w != 'drop').toList();
+      final topics = stripped.where((w) => w != 'not' && w != 'drop').toList();
       return [...topics, 'drop', 'not'];
     }
     if (stripped.contains('valid') && stripped.contains('it')) {
@@ -1240,7 +1233,9 @@ abstract final class SignGrammarEngine {
 
   /// Agent–verb–object narratives: OUR TABLE SERVER PASTRY WRONG BRING.
   static List<String>? _applyAgentNarrativeOsvOrder(List<String> words) {
-    if (words.any((w) => w == 'if' || w == 'because' || w == AslNmmMarkers.rhQ || w == 'so')) {
+    if (words.any(
+      (w) => w == 'if' || w == 'because' || w == AslNmmMarkers.rhQ || w == 'so',
+    )) {
       return null;
     }
     if (_isSubjectPronoun(words.first)) {
@@ -1330,8 +1325,12 @@ abstract final class SignGrammarEngine {
     List<String> locTopic = [];
     if (content.length >= 2 &&
         (content[0] == 'security' && content[1] == 'checkpoint' ||
-            content[0] == 'runway' && content.length > 1 && content[1] == 'tarmac' ||
-            content[0] == 'terminal' && content.length > 1 && content[1] == 'concrete')) {
+            content[0] == 'runway' &&
+                content.length > 1 &&
+                content[1] == 'tarmac' ||
+            content[0] == 'terminal' &&
+                content.length > 1 &&
+                content[1] == 'concrete')) {
       if (content[0] == 'terminal' && content.length >= 2) {
         locTopic = content.sublist(0, 2);
         content = content.sublist(2);
@@ -1359,7 +1358,7 @@ abstract final class SignGrammarEngine {
       }
     }
 
-  final objectMid = content;
+    final objectMid = content;
 
     if (possTopic.isEmpty && objectMid.isEmpty && locTopic.isEmpty) {
       return null;
@@ -1415,7 +1414,9 @@ abstract final class SignGrammarEngine {
           verb,
         ];
       }
-      if (timePart.length >= 2 && timePart[0] == 'three' && timePart[1] == 'time') {
+      if (timePart.length >= 2 &&
+          timePart[0] == 'three' &&
+          timePart[1] == 'time') {
         timePart = ['three-times'];
       }
       return [...topic, ...agent, verb, ...timePart];
@@ -1464,7 +1465,7 @@ abstract final class SignGrammarEngine {
     if (!words.contains('what') || !words.contains('today')) {
       return null;
     }
-  final youIdx = words.indexOf('you');
+    final youIdx = words.indexOf('you');
     if (youIdx < 0) {
       return null;
     }
@@ -1710,8 +1711,7 @@ abstract final class SignGrammarEngine {
         return true;
       }
       final stemE = '${stem}e';
-      if (_commonBaseVerbs.contains(stemE) ||
-          EnglishLexicon.contains(stemE)) {
+      if (_commonBaseVerbs.contains(stemE) || EnglishLexicon.contains(stemE)) {
         return true;
       }
     }
@@ -1742,8 +1742,8 @@ abstract final class SignGrammarEngine {
     if (clause.length == 1) {
       final w = clause[0];
       return RegExp(
-        r'^[a-z0-9]+-(weeks|days|years|hours|times|dollars|oclock)(-ago)?$',
-      ).hasMatch(w) ||
+            r'^[a-z0-9]+-(weeks|days|years|hours|times|dollars|oclock)(-ago)?$',
+          ).hasMatch(w) ||
           w.endsWith('-years-old');
     }
     return false;
@@ -1758,7 +1758,8 @@ abstract final class SignGrammarEngine {
       return null;
     }
     final tail = words.last;
-    if (tail != 'years-old' && !RegExp(r'^[a-z0-9]+-years-old$').hasMatch(tail)) {
+    if (tail != 'years-old' &&
+        !RegExp(r'^[a-z0-9]+-years-old$').hasMatch(tail)) {
       return null;
     }
     if (words.length == 2) {
@@ -1786,7 +1787,9 @@ abstract final class SignGrammarEngine {
       if (out.isNotEmpty && out.last == 'wake-up' && words[i] == 'up') {
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'tear' && words[i + 1] == 'open') {
+      if (i + 1 < words.length &&
+          words[i] == 'tear' &&
+          words[i + 1] == 'open') {
         out.add('tear-open');
         i++;
         continue;
@@ -1796,7 +1799,9 @@ abstract final class SignGrammarEngine {
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'take' && words[i + 1] == 'away') {
+      if (i + 1 < words.length &&
+          words[i] == 'take' &&
+          words[i + 1] == 'away') {
         out.add('take-away');
         i++;
         continue;
@@ -1815,7 +1820,9 @@ abstract final class SignGrammarEngine {
         i += 2;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'jump' && words[i + 1] == 'over') {
+      if (i + 1 < words.length &&
+          words[i] == 'jump' &&
+          words[i + 1] == 'over') {
         out.add('jump-over');
         i++;
         continue;
@@ -1908,7 +1915,9 @@ abstract final class SignGrammarEngine {
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'send' && words[i + 1] == 'back') {
+      if (i + 1 < words.length &&
+          words[i] == 'send' &&
+          words[i + 1] == 'back') {
         out.add('send-back');
         i++;
         continue;
@@ -1918,17 +1927,23 @@ abstract final class SignGrammarEngine {
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'move' && words[i + 1] == 'here') {
+      if (i + 1 < words.length &&
+          words[i] == 'move' &&
+          words[i + 1] == 'here') {
         out.add('move-here');
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'co' && words[i + 1] == 'worker') {
+      if (i + 1 < words.length &&
+          words[i] == 'co' &&
+          words[i + 1] == 'worker') {
         out.add('co-worker');
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'all' && words[i + 1] == 'night') {
+      if (i + 1 < words.length &&
+          words[i] == 'all' &&
+          words[i + 1] == 'night') {
         out.add('all-night');
         i++;
         continue;
@@ -1948,27 +1963,37 @@ abstract final class SignGrammarEngine {
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'clean' && words[i + 1] == 'all') {
+      if (i + 1 < words.length &&
+          words[i] == 'clean' &&
+          words[i + 1] == 'all') {
         out.add('clean-all');
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'cover' && words[i + 1] == 'all') {
+      if (i + 1 < words.length &&
+          words[i] == 'cover' &&
+          words[i + 1] == 'all') {
         out.add('cover-all');
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'knock' && words[i + 1] == 'over') {
+      if (i + 1 < words.length &&
+          words[i] == 'knock' &&
+          words[i + 1] == 'over') {
         out.add('knock-over');
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'cool' && words[i + 1] == 'down') {
+      if (i + 1 < words.length &&
+          words[i] == 'cool' &&
+          words[i + 1] == 'down') {
         out.add('cool-down');
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'clap' && words[i + 1] == 'loud') {
+      if (i + 1 < words.length &&
+          words[i] == 'clap' &&
+          words[i + 1] == 'loud') {
         out.add('clap-loud');
         i++;
         continue;
@@ -1997,7 +2022,9 @@ abstract final class SignGrammarEngine {
         i++;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'not' && words[i + 1] == 'allow') {
+      if (i + 1 < words.length &&
+          words[i] == 'not' &&
+          words[i + 1] == 'allow') {
         out.add('not-allow');
         i++;
         continue;
@@ -2010,7 +2037,9 @@ abstract final class SignGrammarEngine {
         i += 2;
         continue;
       }
-      if (i + 1 < words.length && words[i] == 'snow' && words[i + 1] == 'storm') {
+      if (i + 1 < words.length &&
+          words[i] == 'snow' &&
+          words[i + 1] == 'storm') {
         out.add('snow-storm');
         i++;
         continue;
@@ -2035,7 +2064,9 @@ abstract final class SignGrammarEngine {
   static List<String> _collapseThreeTimes(List<String> words) {
     final out = <String>[];
     for (var i = 0; i < words.length; i++) {
-      if (i + 1 < words.length && words[i] == 'three' && words[i + 1] == 'time') {
+      if (i + 1 < words.length &&
+          words[i] == 'three' &&
+          words[i + 1] == 'time') {
         out.add('three-times');
         i++;
         continue;
@@ -2109,7 +2140,9 @@ abstract final class SignGrammarEngine {
 
   /// RUNNING LATE FOR WORK → WORK ME LATE (drop redundant RUN).
   static List<String> _compactRunningLateReason(List<String> words) {
-    if (words.contains('late') && words.contains('me') && !words.contains('work')) {
+    if (words.contains('late') &&
+        words.contains('me') &&
+        !words.contains('work')) {
       return ['me', 'late'];
     }
     if (words.contains('late') && words.contains('work')) {
@@ -2370,7 +2403,9 @@ abstract final class SignGrammarEngine {
           (tail == 'ago' || tail == 'past')) {
         final before = words.sublist(0, i);
         final after = i + 3 < words.length ? words.sublist(i + 3) : <String>[];
-        final normalizedUnit = unit.endsWith('s') ? unit.substring(0, unit.length - 1) : unit;
+        final normalizedUnit = unit.endsWith('s')
+            ? unit.substring(0, unit.length - 1)
+            : unit;
         return [
           ..._moveAllTimeToFront(before),
           words[i],
@@ -2498,7 +2533,8 @@ abstract final class SignGrammarEngine {
       RegExp(r"^[\p{P}\p{S}']+|[\p{P}\p{S}']+$", unicode: true),
       '',
     );
-    if (clean.length > 3 && (clean.endsWith("'s") || clean.endsWith('\u2019s'))) {
+    if (clean.length > 3 &&
+        (clean.endsWith("'s") || clean.endsWith('\u2019s'))) {
       clean = clean.substring(0, clean.length - 2);
     }
     return clean;
@@ -2521,8 +2557,7 @@ abstract final class SignGrammarEngine {
     String clean, {
     SignLanguageSystem? system,
   }) {
-    if (system == SignLanguageSystem.isl &&
-        _islLemmaPreserve.contains(clean)) {
+    if (system == SignLanguageSystem.isl && _islLemmaPreserve.contains(clean)) {
       return (word: clean, wasPast: false);
     }
     final progressive = _irregularProgressive[clean];
@@ -2846,7 +2881,9 @@ abstract final class SignGrammarEngine {
     if (!words.contains('government') || !words.contains('office')) {
       return words;
     }
-    final rest = words.where((w) => w != 'government' && w != 'office').toList();
+    final rest = words
+        .where((w) => w != 'government' && w != 'office')
+        .toList();
     return ['government', 'office', ...rest];
   }
 
@@ -2904,9 +2941,7 @@ abstract final class SignGrammarEngine {
     if (!words.contains('need')) {
       return words;
     }
-    final whIdx = words.indexWhere(
-      (w) => w == 'how-many' || w == 'how-much',
-    );
+    final whIdx = words.indexWhere((w) => w == 'how-many' || w == 'how-much');
     if (whIdx < 0) {
       return words;
     }
@@ -3071,16 +3106,6 @@ abstract final class SignGrammarEngine {
     'early',
   };
 
-  static List<String> _applyIslTableUpLocative(List<String> words) {
-    if (words.length == 3 &&
-        words[2] == 'up' &&
-        !_looksLikeVerb(words[0]) &&
-        !_looksLikeVerb(words[1])) {
-      return [words[1], words[0], 'up'];
-    }
-    return words;
-  }
-
   /// ISL Rule 22: RAIN / HOME ME STAY — reason clause before main.
   static List<String> _applyIslBecauseClause(
     List<String> words,
@@ -3156,7 +3181,10 @@ abstract final class SignGrammarEngine {
     final topic = [words[nounIdx], words[demoIdx]];
     final rest = <String>[];
     for (var i = 0; i < words.length; i++) {
-      if (i == nounIdx || i == demoIdx || words[i] == 'ix' || words[i] == 'it') {
+      if (i == nounIdx ||
+          i == demoIdx ||
+          words[i] == 'ix' ||
+          words[i] == 'it') {
         continue;
       }
       rest.add(words[i]);
@@ -3298,8 +3326,7 @@ abstract final class SignGrammarEngine {
         continue;
       }
       if (_isSpatialLocusName(word) && !assigned.containsKey(word)) {
-        final letter =
-            locusLetters[locusIdx.clamp(0, locusLetters.length - 1)];
+        final letter = locusLetters[locusIdx.clamp(0, locusLetters.length - 1)];
         final locus = 'ix-$letter';
         assigned[word] = locus;
         locusIdx++;
@@ -3363,10 +3390,7 @@ abstract final class SignGrammarEngine {
         result = [...result, AslNmmMarkers.whQ];
       }
     }
-    final pool = <String>{
-      ...result,
-      ...sourceWords.map(_strip),
-    };
+    final pool = <String>{...result, ...sourceWords.map(_strip)};
     final contextual = <String>[];
     if (pool.any((w) => _routineNmmWords.contains(w))) {
       contextual.add(AslNmmMarkers.mm);
@@ -3403,10 +3427,7 @@ abstract final class SignGrammarEngine {
     List<String> words,
     List<String> sourceWords,
   ) {
-    final pool = <String>{
-      ...words,
-      ...sourceWords.map(_strip),
-    };
+    final pool = <String>{...words, ...sourceWords.map(_strip)};
     var result = List<String>.from(words);
     if (pool.any((w) => _routineNmmWords.contains(w)) &&
         !result.contains(IslNmmMarkers.mm)) {
@@ -3641,9 +3662,17 @@ abstract final class SignGrammarEngine {
         continue;
       }
       final others = words
-          .where((w) => w != loc && w != 'me' && !_looksLikeVerb(w) && !_islDirectionalVerb(w))
+          .where(
+            (w) =>
+                w != loc &&
+                w != 'me' &&
+                !_looksLikeVerb(w) &&
+                !_islDirectionalVerb(w),
+          )
           .toList();
-      final verbTokens = words.where((w) => _looksLikeVerb(w) || _islDirectionalVerb(w)).toList();
+      final verbTokens = words
+          .where((w) => _looksLikeVerb(w) || _islDirectionalVerb(w))
+          .toList();
       return [...others, loc, 'me', ...verbTokens];
     }
     return words;
@@ -3688,20 +3717,6 @@ abstract final class SignGrammarEngine {
       i++;
     }
     return out;
-  }
-
-  static List<String> _applySimpleSov(List<String> words) {
-    if (words.length != 3 || _questionWords.contains(words.last)) {
-      return words;
-    }
-    final verbIndex = words.indexWhere(_looksLikeVerb);
-    if (verbIndex > 0 && verbIndex < words.length - 1) {
-      final result = List<String>.from(words);
-      final verb = result.removeAt(verbIndex);
-      result.add(verb);
-      return result;
-    }
-    return words;
   }
 
   static bool _isSubjectPronoun(String word) {
@@ -3823,25 +3838,6 @@ abstract final class SignGrammarEngine {
     return result;
   }
 
-  /// Rules 5–6: WH-final [wh-q]; Y/N prefix [y/n-q].
-  static List<String> _applySpecNmmMarkers(
-    List<String> words, {
-    required bool isWhQuestion,
-    required bool isYesNoQuestion,
-    required bool clauseIsQuestion,
-  }) {
-    var result = List<String>.from(words);
-    if (isYesNoQuestion && !result.contains(AslNmmMarkers.ynQ)) {
-      result = [AslNmmMarkers.ynQ, ...result];
-    }
-    if (clauseIsQuestion && isWhQuestion && _containsWhWord(result)) {
-      if (!result.contains(AslNmmMarkers.whQ)) {
-        result = [...result, AslNmmMarkers.whQ];
-      }
-    }
-    return result;
-  }
-
   /// Rule 15: ME GO STORE ME / Rule 6: YOU DEAF YOU.
   static List<String> _applyOptionalPronounWrap(
     List<String> words, {
@@ -3867,21 +3863,25 @@ abstract final class SignGrammarEngine {
       return [...words, lead];
     }
     if (lead == 'you' &&
-        words.any((w) =>
-            w == 'give-you' ||
-            w == 'give-me' ||
-            w == 'tell-you' ||
-            w == 'tell-me')) {
+        words.any(
+          (w) =>
+              w == 'give-you' ||
+              w == 'give-me' ||
+              w == 'tell-you' ||
+              w == 'tell-me',
+        )) {
       return [...words, lead];
     }
     if (!isYesNoQuestion &&
         lead == 'me' &&
         (content.any(_looksLikeVerb) ||
-            words.any((w) =>
-                w == 'give-you' ||
-                w == 'give-me' ||
-                w == 'tell-you' ||
-                w == 'tell-me')) &&
+            words.any(
+              (w) =>
+                  w == 'give-you' ||
+                  w == 'give-me' ||
+                  w == 'tell-you' ||
+                  w == 'tell-me',
+            )) &&
         !AslNmmMarkers.isMarker(words.last)) {
       return [...words, lead];
     }

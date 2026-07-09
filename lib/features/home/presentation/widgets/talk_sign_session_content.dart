@@ -62,9 +62,7 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
               padding: const EdgeInsets.only(
                 top: AppSpacing.talkSessionStatusBottom,
               ),
-              child: TalkSignRecordingStatusBubble(
-                label: widget.statusLabel!,
-              ),
+              child: TalkSignRecordingStatusBubble(label: widget.statusLabel!),
             ),
           ),
         if (widget.statusLabel != null)
@@ -89,7 +87,8 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
                         builder: (context, _) {
                           return TalkSignCameraActionBar(
                             flipSemanticsLabel: widget.uiCopy.flipCameraLabel,
-                            canFlip: !widget.isRecording &&
+                            canFlip:
+                                !widget.isRecording &&
                                 !_cameraController.isFlipping,
                             flipBusy: _cameraController.isFlipping,
                             onFlip: () =>
@@ -282,9 +281,7 @@ class TalkSignGlossChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.splashBlue.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: AppColors.splashBlue.withValues(alpha: 0.35),
-        ),
+        border: Border.all(color: AppColors.splashBlue.withValues(alpha: 0.35)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -343,7 +340,8 @@ class TalkSignStatusLabelRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final maxWidth = screenWidth -
+    final maxWidth =
+        screenWidth -
         (AppSpacing.talkContentPaddingH * 2) -
         (AppSpacing.talkSessionBubblePaddingH * 2);
 
@@ -355,13 +353,7 @@ class TalkSignStatusLabelRow extends StatelessWidget {
         children: [
           leading,
           const SizedBox(width: AppSpacing.talkSignStatusBubbleGap),
-          Flexible(
-            child: Text(
-              label,
-              softWrap: true,
-              style: textStyle,
-            ),
-          ),
+          Flexible(child: Text(label, softWrap: true, style: textStyle)),
         ],
       ),
     );

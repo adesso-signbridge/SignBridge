@@ -83,8 +83,8 @@ abstract final class SignLanguageCatalog {
       return const [];
     }
 
-    final fingerspellIndices = system == SignLanguageSystem.asl ||
-            system == SignLanguageSystem.isl
+    final fingerspellIndices =
+        system == SignLanguageSystem.asl || system == SignLanguageSystem.isl
         ? SignGrammarEngine.fingerspellWordIndices(words)
         : const <int>{};
 
@@ -158,10 +158,7 @@ abstract final class SignLanguageCatalog {
     if (!clauseIsQuestion || tokens.isEmpty) {
       return _applyIslImperativeExclamation(tokens);
     }
-    final out = tokens
-        .where((t) => t.gloss != '[wh-q]')
-        .map((t) => t)
-        .toList();
+    final out = tokens.where((t) => t.gloss != '[wh-q]').map((t) => t).toList();
     if (out.isEmpty) {
       return out;
     }
@@ -175,7 +172,9 @@ abstract final class SignLanguageCatalog {
     if (isWhQuestion) {
       for (var i = out.length - 1; i >= 0; i--) {
         final upper = out[i].gloss.toUpperCase();
-        if (AslGrammarRules.questionWords.contains(out[i].gloss.toLowerCase()) ||
+        if (AslGrammarRules.questionWords.contains(
+              out[i].gloss.toLowerCase(),
+            ) ||
             upper == 'HOW-MANY' ||
             upper == 'HOW-MUCH') {
           if (!out[i].gloss.endsWith('?')) {
@@ -189,7 +188,9 @@ abstract final class SignLanguageCatalog {
   }
 
   /// AMBULANCE CALL QUICK! — curriculum imperatives use trailing `!`.
-  static List<SignToken> _applyIslImperativeExclamation(List<SignToken> tokens) {
+  static List<SignToken> _applyIslImperativeExclamation(
+    List<SignToken> tokens,
+  ) {
     if (tokens.isEmpty) {
       return tokens;
     }
@@ -328,7 +329,10 @@ abstract final class SignLanguageCatalog {
       if (word.isEmpty) {
         continue;
       }
-      final lower = word.toLowerCase().replaceAll(RegExp(r"^[\p{P}\p{S}']+|[\p{P}\p{S}']+$", unicode: true), '');
+      final lower = word.toLowerCase().replaceAll(
+        RegExp(r"^[\p{P}\p{S}']+|[\p{P}\p{S}']+$", unicode: true),
+        '',
+      );
       if (lower.startsWith('fs-') || lower.contains('/')) {
         tokens.add(word);
         continue;
@@ -362,8 +366,9 @@ abstract final class SignLanguageCatalog {
     if (lower.endsWith('%') && lower.length > 1) {
       lower = lower.substring(0, lower.length - 1);
     }
-  // Possessive 's: cat's → cat (HandsSpeak: possession shown in context).
-    if (lower.length > 3 && (lower.endsWith("'s") || lower.endsWith('\u2019s'))) {
+    // Possessive 's: cat's → cat (HandsSpeak: possession shown in context).
+    if (lower.length > 3 &&
+        (lower.endsWith("'s") || lower.endsWith('\u2019s'))) {
       lower = lower.substring(0, lower.length - 2);
     }
     return lower;
@@ -381,5 +386,4 @@ abstract final class SignLanguageCatalog {
     }
     return false;
   }
-
 }

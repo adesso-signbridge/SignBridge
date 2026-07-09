@@ -18,6 +18,7 @@ class VeoSignVideoResult {
   final int pollAfterMs;
   final bool? cached;
 
-  bool get isReady => status == 'ready' && videoUrl != null && videoUrl!.isNotEmpty;
+  bool get isReady =>
+      status == 'ready' && videoUrl != null && videoUrl!.isNotEmpty;
   bool get isProcessing => status == 'processing';
 }

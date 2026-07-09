@@ -49,7 +49,9 @@ void main() {
       }
       if (r.avgOverlap != null) {
         // ignore: avoid_print
-        print('Avg token overlap: ${(r.avgOverlap! * 100).toStringAsFixed(1)}%');
+        print(
+          'Avg token overlap: ${(r.avgOverlap! * 100).toStringAsFixed(1)}%',
+        );
       }
       if (r.fingerspell3Plus != null) {
         // ignore: avoid_print
@@ -77,8 +79,8 @@ void main() {
       final exact = r.exactMatch != null
           ? '${r.exactMatch}/${r.total} exact'
           : r.avgOverlap != null
-              ? 'overlap ${(r.avgOverlap! * 100).toStringAsFixed(0)}%'
-              : 'coverage only';
+          ? 'overlap ${(r.avgOverlap! * 100).toStringAsFixed(0)}%'
+          : 'coverage only';
       // ignore: avoid_print
       print(
         '${r.system} ${r.name}: ${r.withGloss}/${r.total} covered, '
@@ -87,7 +89,10 @@ void main() {
     }
 
     expect(
-      reports.where((r) => r.name.contains('ISL Conversational')).first.exactMatch,
+      reports
+          .where((r) => r.name.contains('ISL Conversational'))
+          .first
+          .exactMatch,
       300,
     );
     expect(
@@ -126,7 +131,9 @@ class _AuditReport {
 }
 
 _AuditReport _auditIslConversational() {
-  final lines = File('test/fixtures/isl_conversational_sets.txt').readAsLinesSync();
+  final lines = File(
+    'test/fixtures/isl_conversational_sets.txt',
+  ).readAsLinesSync();
   var total = 0;
   var withGloss = 0;
   var hidden = 0;
@@ -145,8 +152,10 @@ _AuditReport _auditIslConversational() {
     final lang = parts[0];
     final native = parts[1];
     final expected = parts[2].trim().split(RegExp(r'\s+'));
-    final actual =
-        SignGlossMapper.signSequence(native, lang).map((t) => t.gloss).toList();
+    final actual = SignGlossMapper.signSequence(
+      native,
+      lang,
+    ).map((t) => t.gloss).toList();
 
     if (actual.isEmpty) {
       hidden++;
@@ -203,8 +212,10 @@ _AuditReport _auditIslGrammarExamples() {
   final failures = <String>[];
 
   for (final entry in examples.entries) {
-    final actual =
-        SignGlossMapper.signSequence(entry.key, 'HI').map((t) => t.gloss).toList();
+    final actual = SignGlossMapper.signSequence(
+      entry.key,
+      'HI',
+    ).map((t) => t.gloss).toList();
     if (actual.isEmpty) {
       hidden++;
       failures.add('HIDDEN: ${entry.key}');
@@ -234,14 +245,12 @@ _AuditReport _auditIslGrammarExamples() {
 }
 
 _AuditReport _auditAslCategoryCorpus() {
-  final sentences = File('test/fixtures/category_corpus_sentences.txt')
-      .readAsLinesSync()
-      .where((l) => l.trim().isNotEmpty)
-      .toList();
-  final expectedLines = File('test/fixtures/category_corpus_expected_glosses.txt')
-      .readAsLinesSync()
-      .where((l) => l.trim().isNotEmpty)
-      .toList();
+  final sentences = File(
+    'test/fixtures/category_corpus_sentences.txt',
+  ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
+  final expectedLines = File(
+    'test/fixtures/category_corpus_expected_glosses.txt',
+  ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
   final expectedById = <String, List<String>>{};
   for (final line in expectedLines) {
@@ -260,8 +269,10 @@ _AuditReport _auditAslCategoryCorpus() {
     final id = 'C${i + 1}';
     final sentence = sentences[i];
     final expected = expectedById[id]!;
-    final actual =
-        SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+    final actual = SignGlossMapper.signSequence(
+      sentence,
+      'ENG',
+    ).map((t) => t.gloss).toList();
 
     if (actual.isEmpty) {
       hidden++;
@@ -301,10 +312,9 @@ _AuditReport _auditAslCategoryCorpus() {
 }
 
 _AuditReport _auditAslGrammarShift() {
-  final sentences = File('test/fixtures/asl_grammar_shift_sentences.txt')
-      .readAsLinesSync()
-      .where((l) => l.trim().isNotEmpty)
-      .toList();
+  final sentences = File(
+    'test/fixtures/asl_grammar_shift_sentences.txt',
+  ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
   var withGloss = 0;
   var hidden = 0;
@@ -312,8 +322,10 @@ _AuditReport _auditAslGrammarShift() {
   final failures = <String>[];
 
   for (final sentence in sentences) {
-    final actual =
-        SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+    final actual = SignGlossMapper.signSequence(
+      sentence,
+      'ENG',
+    ).map((t) => t.gloss).toList();
     if (actual.isEmpty) {
       hidden++;
       failures.add('HIDDEN: $sentence');
@@ -339,12 +351,7 @@ _AuditReport _auditAslGrammarShift() {
 
 _AuditReport _auditAslSpecExamples() {
   final examples = <String, List<String>>{
-    'I went to the store yesterday': [
-      'YESTERDAY',
-      'STORE',
-      'ME',
-      'GO',
-    ],
+    'I went to the store yesterday': ['YESTERDAY', 'STORE', 'ME', 'GO'],
     'I like dogs': ['DOG', 'ME', 'LIKE'],
     'If it rains, the game is cancelled': ['IF', 'RAIN', 'GAME', 'CANCEL'],
     'Why did you go?': ['YOU', 'GO', 'WHY', '[wh-q]'],
@@ -365,8 +372,10 @@ _AuditReport _auditAslSpecExamples() {
   final failures = <String>[];
 
   for (final entry in examples.entries) {
-    final actual =
-        SignGlossMapper.signSequence(entry.key, 'ENG').map((t) => t.gloss).toList();
+    final actual = SignGlossMapper.signSequence(
+      entry.key,
+      'ENG',
+    ).map((t) => t.gloss).toList();
     if (actual.isEmpty) {
       hidden++;
       failures.add('HIDDEN: ${entry.key}');

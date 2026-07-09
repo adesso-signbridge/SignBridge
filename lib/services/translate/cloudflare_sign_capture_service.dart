@@ -16,9 +16,9 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     String? workerUrl,
     String? sharedKey,
     http.Client? client,
-  })  : _workerUrl = (workerUrl ?? CloudflareSignConfig.workerUrl).trim(),
-        _sharedKey = sharedKey ?? CloudflareSignConfig.sharedKey,
-        _client = client ?? http.Client();
+  }) : _workerUrl = (workerUrl ?? CloudflareSignConfig.workerUrl).trim(),
+       _sharedKey = sharedKey ?? CloudflareSignConfig.sharedKey,
+       _client = client ?? http.Client();
 
   final String _workerUrl;
   final String _sharedKey;
@@ -31,10 +31,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
 
   @override
   SignCaptureResult peekResult(String languageCode) {
-    return SignCaptureResult(
-      text: '',
-      duration: Duration.zero,
-    );
+    return SignCaptureResult(text: '', duration: Duration.zero);
   }
 
   @override
@@ -127,8 +124,9 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     required Duration recordingDuration,
     String? conversationContext,
   }) async {
-    final signLanguage =
-        SignLanguageSystem.forSpokenLanguage(languageCode).label;
+    final signLanguage = SignLanguageSystem.forSpokenLanguage(
+      languageCode,
+    ).label;
     final jobId = DateTime.now().millisecondsSinceEpoch.toString();
 
     final request = http.MultipartRequest('POST', Uri.parse(workerUrl))
@@ -151,9 +149,9 @@ final class CloudflareSignCaptureService implements SignCaptureService {
       request.headers['X-SignBridge-Key'] = _sharedKey;
     }
 
-    final streamed = await _client.send(request).timeout(
-      SignCaptureConfig.workerRequestTimeout,
-    );
+    final streamed = await _client
+        .send(request)
+        .timeout(SignCaptureConfig.workerRequestTimeout);
     final response = await http.Response.fromStream(streamed);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {

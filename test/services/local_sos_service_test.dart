@@ -18,10 +18,7 @@ void main() {
         EmergencyConfig.sosMessageFor('ENG'),
         contains('I need help immediately'),
       );
-      expect(
-        EmergencyConfig.sosMessageFor('ML'),
-        contains('എനിക്ക്'),
-      );
+      expect(EmergencyConfig.sosMessageFor('ML'), contains('എനിക്ക്'));
     });
   });
 
@@ -63,9 +60,7 @@ void main() {
     });
 
     test('returns failure when dialer cannot open', () async {
-      final service = LocalSosService(
-        dialEmergency: (_) async => false,
-      );
+      final service = LocalSosService(dialEmergency: (_) async => false);
 
       final result = await service.callEmergency(languageCode: 'ENG');
 

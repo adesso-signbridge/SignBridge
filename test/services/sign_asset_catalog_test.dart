@@ -36,21 +36,33 @@ void main() {
 
       expect(
         SignAssetCatalog.assetPathForToken(
-          const SignToken(id: 'hello', gloss: 'HELLO', system: SignLanguageSystem.asl),
+          const SignToken(
+            id: 'hello',
+            gloss: 'HELLO',
+            system: SignLanguageSystem.asl,
+          ),
           SignLanguageSystem.asl,
         ),
         'assets/signs/asl/hello.mp4',
       );
       expect(
         SignAssetCatalog.assetPathForToken(
-          const SignToken(id: 'greeting', gloss: 'HI', system: SignLanguageSystem.asl),
+          const SignToken(
+            id: 'greeting',
+            gloss: 'HI',
+            system: SignLanguageSystem.asl,
+          ),
           SignLanguageSystem.asl,
         ),
         'assets/signs/asl/hello.mp4',
       );
       expect(
         SignAssetCatalog.assetPathForToken(
-          const SignToken(id: 'thanks', gloss: 'THANKS', system: SignLanguageSystem.asl),
+          const SignToken(
+            id: 'thanks',
+            gloss: 'THANKS',
+            system: SignLanguageSystem.asl,
+          ),
           SignLanguageSystem.asl,
         ),
         'assets/signs/asl/thank_you.mp4',
@@ -66,14 +78,19 @@ void main() {
         },
       );
 
-      final clips = SignAssetCatalog.playbackClipsForSequence(
-        [
-          SignToken.thinking,
-          const SignToken(id: 'hello', gloss: 'HELLO', system: SignLanguageSystem.asl),
-          const SignToken(id: 'missing', gloss: 'MISSING', system: SignLanguageSystem.asl),
-        ],
-        SignLanguageSystem.asl,
-      );
+      final clips = SignAssetCatalog.playbackClipsForSequence([
+        SignToken.thinking,
+        const SignToken(
+          id: 'hello',
+          gloss: 'HELLO',
+          system: SignLanguageSystem.asl,
+        ),
+        const SignToken(
+          id: 'missing',
+          gloss: 'MISSING',
+          system: SignLanguageSystem.asl,
+        ),
+      ], SignLanguageSystem.asl);
 
       expect(clips.length, 1);
       expect(clips.first.assetPath, 'assets/signs/asl/hello.mp4');
@@ -81,18 +98,21 @@ void main() {
       expect(clips.first.token.gloss, 'HELLO');
     });
 
-    test('playbackUriForAssetPath maps bundled paths to remote worker URLs', () {
-      SignAssetRemoteConfig.setBaseUrlForTest(
-        'https://signbridge-sign-assets.example.workers.dev',
-      );
+    test(
+      'playbackUriForAssetPath maps bundled paths to remote worker URLs',
+      () {
+        SignAssetRemoteConfig.setBaseUrlForTest(
+          'https://signbridge-sign-assets.example.workers.dev',
+        );
 
-      expect(
-        SignAssetCatalog.playbackUriForAssetPath(
-          'assets/signs/isl/hello.mp4',
-        ),
-        'https://signbridge-sign-assets.example.workers.dev/isl/hello.mp4',
-      );
-    });
+        expect(
+          SignAssetCatalog.playbackUriForAssetPath(
+            'assets/signs/isl/hello.mp4',
+          ),
+          'https://signbridge-sign-assets.example.workers.dev/isl/hello.mp4',
+        );
+      },
+    );
 
     test('playbackClipsForSequence uses remote URIs when configured', () {
       SignAssetRemoteConfig.setBaseUrlForTest(
@@ -105,12 +125,13 @@ void main() {
         },
       );
 
-      final clips = SignAssetCatalog.playbackClipsForSequence(
-        [
-          const SignToken(id: 'hello', gloss: 'HELLO', system: SignLanguageSystem.asl),
-        ],
-        SignLanguageSystem.asl,
-      );
+      final clips = SignAssetCatalog.playbackClipsForSequence([
+        const SignToken(
+          id: 'hello',
+          gloss: 'HELLO',
+          system: SignLanguageSystem.asl,
+        ),
+      ], SignLanguageSystem.asl);
 
       expect(clips.single.isRemote, isTrue);
       expect(

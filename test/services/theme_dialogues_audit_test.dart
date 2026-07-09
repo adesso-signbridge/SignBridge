@@ -11,8 +11,22 @@ bool _reasonBeforeMain(List<String> glosses) {
   if (reasonIdx < 0) return true;
   // Main verb-ish tokens after REASON should not precede REASON.
   const mainVerbs = {
-    'WANT', 'PREFER', 'NEED', 'MISS', 'RETURN', 'BUY', 'DRINK', 'EAT',
-    'PRINT', 'SIT', 'WAIT', 'LEAVE', 'GO', 'SEE', 'TAKE', 'SWALLOW',
+    'WANT',
+    'PREFER',
+    'NEED',
+    'MISS',
+    'RETURN',
+    'BUY',
+    'DRINK',
+    'EAT',
+    'PRINT',
+    'SIT',
+    'WAIT',
+    'LEAVE',
+    'GO',
+    'SEE',
+    'TAKE',
+    'SWALLOW',
   };
   for (var i = 0; i < reasonIdx; i++) {
     if (mainVerbs.contains(glosses[i])) return false;
@@ -28,7 +42,8 @@ bool _ifAfterCondition(List<String> glosses) {
 
 bool _willAtEndWhenConditional(List<String> glosses) {
   if (!glosses.contains('WILL') || !glosses.contains('IF')) return true;
-  return glosses.last == 'WILL' || glosses.indexOf('WILL') == glosses.length - 1;
+  return glosses.last == 'WILL' ||
+      glosses.indexOf('WILL') == glosses.length - 1;
 }
 
 bool _finishForPast(String english, List<String> glosses) {
@@ -60,10 +75,9 @@ void main() {
   });
 
   test('theme dialogues audit report', () {
-    final sentences = File('test/fixtures/theme_dialogues_sentences.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final sentences = File(
+      'test/fixtures/theme_dialogues_sentences.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
     var hidden = 0;
     var withGloss = 0;
@@ -84,8 +98,10 @@ void main() {
 
     for (var i = 0; i < sentences.length; i++) {
       final sentence = sentences[i];
-      final glosses =
-          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+      final glosses = SignGlossMapper.signSequence(
+        sentence,
+        'ENG',
+      ).map((t) => t.gloss).toList();
 
       final theme = i < 15
           ? 'coffee'

@@ -11,18 +11,12 @@ enum AppSessionMode {
   emergencyActive,
 }
 
-enum LanguageChangeAction {
-  applyImmediate,
-  confirmThenTeardown,
-  block,
-}
+enum LanguageChangeAction { applyImmediate, confirmThenTeardown, block }
 
 /// Callbacks registered by [HomeScreen] so [MainShell] can coordinate language
 /// changes from any tab without bypassing session guards.
 class HomeSessionRegistration {
-  const HomeSessionRegistration({
-    required this.teardownActiveSessions,
-  });
+  const HomeSessionRegistration({required this.teardownActiveSessions});
 
   final Future<void> Function() teardownActiveSessions;
 }
@@ -42,7 +36,8 @@ abstract final class LanguageChangeCoordinator {
 
   static String blockMessageFor(AppSessionMode mode, HomeUiCopy uiCopy) {
     return switch (mode) {
-      AppSessionMode.signAnalyzing => uiCopy.languageChangeBlockedAnalyzingLabel,
+      AppSessionMode.signAnalyzing =>
+        uiCopy.languageChangeBlockedAnalyzingLabel,
       AppSessionMode.emergencyActive =>
         uiCopy.languageChangeBlockedEmergencyLabel,
       _ => uiCopy.languageChangeBlockedAnalyzingLabel,

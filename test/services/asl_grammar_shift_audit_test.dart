@@ -14,10 +14,9 @@ void main() {
   });
 
   test('grammar shift audit report', () {
-    final sentences = File('test/fixtures/asl_grammar_shift_sentences.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final sentences = File(
+      'test/fixtures/asl_grammar_shift_sentences.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
     var hidden = 0;
     var withGloss = 0;
@@ -26,8 +25,10 @@ void main() {
     final spellSamples = <String>[];
 
     for (final sentence in sentences) {
-      final glosses =
-          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+      final glosses = SignGlossMapper.signSequence(
+        sentence,
+        'ENG',
+      ).map((t) => t.gloss).toList();
 
       if (glosses.isEmpty) {
         hidden++;

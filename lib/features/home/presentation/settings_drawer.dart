@@ -311,7 +311,9 @@ class _SettingsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: enabled ? backgroundColor : backgroundColor.withValues(alpha: 0.55),
+      color: enabled
+          ? backgroundColor
+          : backgroundColor.withValues(alpha: 0.55),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: enabled ? onTap : null,

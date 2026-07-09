@@ -63,7 +63,7 @@ void main() {
       'Sentences: ${combined.total} | Coverage: ${combined.coveragePct}% | '
       'Fingerspell 3+: ${combined.fingerspellPct}% | Hidden: ${combined.hidden}',
     );
-  // ignore: avoid_print
+    // ignore: avoid_print
     print('--- GRADE ---');
     // ignore: avoid_print
     print(_grade(combined));
@@ -119,8 +119,10 @@ _CorpusStats _audit(List<String> sentences) {
   final spellSamples = <String>[];
 
   for (final sentence in sentences) {
-    final glosses =
-        SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+    final glosses = SignGlossMapper.signSequence(
+      sentence,
+      'ENG',
+    ).map((t) => t.gloss).toList();
 
     if (glosses.isEmpty) {
       hidden++;

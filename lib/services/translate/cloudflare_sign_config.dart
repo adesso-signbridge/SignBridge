@@ -2,8 +2,7 @@
 abstract final class CloudflareSignConfig {
   static const workerUrl = String.fromEnvironment(
     'CLOUDFLARE_SIGN_WORKER_URL',
-    defaultValue:
-        'https://signbridge-gloss.signbridge-adesso.workers.dev/sign',
+    defaultValue: 'https://signbridge-gloss.signbridge-adesso.workers.dev/sign',
   );
 
   static const sharedKey = String.fromEnvironment(

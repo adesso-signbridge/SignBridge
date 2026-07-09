@@ -26,6 +26,7 @@ class SignVideoAvatarView extends StatefulWidget {
   final Widget fallback;
   final int pulse;
   final String? generatedVideoUrl;
+
   /// When true, skip R2 clip playback and wait for [generatedVideoUrl].
   final bool veoOnly;
 
@@ -69,8 +70,10 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     super.didUpdateWidget(oldWidget);
     final generatedChanged =
         oldWidget.generatedVideoUrl?.trim() != widget.generatedVideoUrl?.trim();
-    final sequenceChanged =
-        !_sameSequence(oldWidget.signSequence, widget.signSequence);
+    final sequenceChanged = !_sameSequence(
+      oldWidget.signSequence,
+      widget.signSequence,
+    );
     final pulseChanged = oldWidget.pulse != widget.pulse;
     final modeChanged =
         _hasGeneratedUrl(oldWidget.generatedVideoUrl) != _useGeneratedPlayback;
@@ -84,7 +87,9 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
           generatedChanged ||
           (pulseChanged && !generatedChanged)) {
         unawaited(
-          _syncGeneratedPlayback(forceReplay: pulseChanged && !generatedChanged),
+          _syncGeneratedPlayback(
+            forceReplay: pulseChanged && !generatedChanged,
+          ),
         );
       }
       return;
@@ -99,11 +104,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     if (sequenceChanged ||
         oldWidget.signSystem != widget.signSystem ||
         (pulseChanged && !sequenceChanged)) {
-      unawaited(
-        _syncPlayback(
-          forceReplay: pulseChanged && !sequenceChanged,
-        ),
-      );
+      unawaited(_syncPlayback(forceReplay: pulseChanged && !sequenceChanged));
     }
   }
 
@@ -223,14 +224,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       return;
     }
 
-    final sameClipPaths = _clips.length == clips.length &&
-        _pathsMatch(_clips, clips);
+    final sameClipPaths =
+        _clips.length == clips.length && _pathsMatch(_clips, clips);
     if (!forceReplay && sameClipPaths) {
       return;
     }
 
     final previous = _clips;
-    final appendedOnly = !forceReplay &&
+    final appendedOnly =
+        !forceReplay &&
         previous.isNotEmpty &&
         clips.length > previous.length &&
         _pathsSharePrefix(previous, clips);
@@ -377,9 +379,7 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     const steps = 6;
     for (var step = 1; step <= steps; step++) {
       await Future<void>.delayed(
-        Duration(
-          milliseconds: _crossfadeDuration.inMilliseconds ~/ steps,
-        ),
+        Duration(milliseconds: _crossfadeDuration.inMilliseconds ~/ steps),
       );
       if (!mounted || generation != _playbackGeneration) {
         await incoming.dispose();
@@ -486,7 +486,9 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
     final value = controller.value;
     if (value.hasError) {
-      debugPrint('[SignBridge/SignVideo] player error: ${value.errorDescription}');
+      debugPrint(
+        '[SignBridge/SignVideo] player error: ${value.errorDescription}',
+      );
       unawaited(_advanceFrom(controller, _playbackGeneration));
       return;
     }

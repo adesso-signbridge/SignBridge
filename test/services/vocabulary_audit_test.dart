@@ -77,7 +77,7 @@ void main() {
     print('Token counts: 1=$oneToken 2=$twoTokens 3+=$threePlus');
     // ignore: avoid_print
     print('Heavy fingerspell (3+ letters): $singleLetterHeavy');
-  // ignore: avoid_print
+    // ignore: avoid_print
     print('--- Hidden samples (first ${hiddenSamples.length}) ---');
     for (final s in hiddenSamples) {
       // ignore: avoid_print

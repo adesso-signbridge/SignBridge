@@ -635,9 +635,7 @@ final class LocalTranslateService implements TranslateService {
     final captionBefore = _sessionCaption;
     _syncSessionCaption(nextLive);
     final captionChanged = _sessionCaption != captionBefore;
-    if (captionChanged ||
-        nextLive != previousLive ||
-        result.finalResult) {
+    if (captionChanged || nextLive != previousLive || result.finalResult) {
       _emitUpdate(isFinal: result.finalResult);
     }
   }
@@ -729,7 +727,9 @@ final class LocalTranslateService implements TranslateService {
     }
 
     final signingCaption = _transcript.currentPhrase.trim();
-    final glossSource = signingCaption.isNotEmpty ? signingCaption : text.trim();
+    final glossSource = signingCaption.isNotEmpty
+        ? signingCaption
+        : text.trim();
     final elapsed = DateTime.now().difference(_startedAt ?? DateTime.now());
     final active = SignGlossMapper.activeSign(glossSource, _languageCode);
     final sequence = isFinal

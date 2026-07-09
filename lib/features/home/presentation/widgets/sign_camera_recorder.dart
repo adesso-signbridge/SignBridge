@@ -8,10 +8,8 @@ import '../../../../core/platform/sign_camera_test_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
-typedef SignRecordingStoppedHandler = void Function(
-  String videoPath,
-  Duration recordingDuration,
-);
+typedef SignRecordingStoppedHandler =
+    void Function(String videoPath, Duration recordingDuration);
 
 /// Controls [SignCameraRecorder] from an overlay (e.g. flip camera).
 class SignCameraRecorderController extends ChangeNotifier {
@@ -172,9 +170,8 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
         : CameraLensDirection.front;
     final nextCamera = _cameras.firstWhere(
       (camera) => camera.lensDirection == opposite,
-      orElse: () => _cameras.firstWhere(
-        (camera) => camera.lensDirection != current,
-      ),
+      orElse: () =>
+          _cameras.firstWhere((camera) => camera.lensDirection != current),
     );
 
     _isFlipping = true;
@@ -233,8 +230,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
         // Keep sign clips small for worker upload and Gemini file processing.
         videoBitrate: 2_000_000,
         // JPEG stream format breaks video reconfigure on some Samsung devices.
-        imageFormatGroup:
-            Platform.isAndroid ? null : ImageFormatGroup.bgra8888,
+        imageFormatGroup: Platform.isAndroid ? null : ImageFormatGroup.bgra8888,
       );
       await controller.initialize();
       if (!mounted) {
@@ -406,11 +402,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
 
 /// Figma camera card: dark stage, blue border, corner brackets.
 class SignCameraStageFrame extends StatelessWidget {
-  const SignCameraStageFrame({
-    super.key,
-    required this.child,
-    this.overlay,
-  });
+  const SignCameraStageFrame({super.key, required this.child, this.overlay});
 
   final Widget child;
   final Widget? overlay;
@@ -437,7 +429,7 @@ class SignCameraStageFrame extends StatelessWidget {
           children: [
             child,
             const IgnorePointer(child: SignCameraCornerBrackets()),
-            if (overlay != null) overlay!,
+            ?overlay,
           ],
         ),
       ),

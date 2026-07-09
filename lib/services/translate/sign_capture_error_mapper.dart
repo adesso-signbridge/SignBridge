@@ -260,8 +260,10 @@ abstract final class SignCaptureErrorMapper {
     if (error is! HttpException) {
       return null;
     }
-    final match = RegExp(r'sign worker (\d+):', caseSensitive: false)
-        .firstMatch(error.message);
+    final match = RegExp(
+      r'sign worker (\d+):',
+      caseSensitive: false,
+    ).firstMatch(error.message);
     if (match == null) {
       return null;
     }
@@ -303,8 +305,10 @@ abstract final class SignCaptureErrorMapper {
 
   static Set<int> _geminiStatuses(String haystack) {
     final statuses = <int>{};
-    for (final match
-        in RegExp(r'gemini (\d+):', caseSensitive: false).allMatches(haystack)) {
+    for (final match in RegExp(
+      r'gemini (\d+):',
+      caseSensitive: false,
+    ).allMatches(haystack)) {
       final status = int.tryParse(match.group(1)!);
       if (status != null) {
         statuses.add(status);

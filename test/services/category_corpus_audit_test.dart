@@ -113,15 +113,13 @@ void main() {
   });
 
   test('category corpus audit report', () {
-    final sentences = File('test/fixtures/category_corpus_sentences.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final sentences = File(
+      'test/fixtures/category_corpus_sentences.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
-    final expectedLines = File('test/fixtures/category_corpus_expected_glosses.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final expectedLines = File(
+      'test/fixtures/category_corpus_expected_glosses.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
     final expectedById = <String, List<String>>{};
     for (final line in expectedLines) {
@@ -142,8 +140,10 @@ void main() {
       final category = ((i ~/ 10) + 1).toString();
       final sentence = sentences[i];
       final expected = expectedById[id]!;
-      final actual =
-          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+      final actual = SignGlossMapper.signSequence(
+        sentence,
+        'ENG',
+      ).map((t) => t.gloss).toList();
 
       if (actual.isEmpty) {
         hidden++;

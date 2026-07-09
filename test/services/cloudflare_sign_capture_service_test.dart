@@ -52,10 +52,7 @@ void main() {
 
   test('analyzeRecording throws when worker returns empty text', () async {
     final client = MockClient((request) async {
-      return http.Response(
-        jsonEncode({'ok': true, 'text': ''}),
-        200,
-      );
+      return http.Response(jsonEncode({'ok': true, 'text': ''}), 200);
     });
 
     final tempDir = await Directory.systemTemp.createTemp('sign_capture_test');
@@ -68,10 +65,7 @@ void main() {
     );
 
     await expectLater(
-      service.analyzeRecording(
-        videoPath: videoFile.path,
-        languageCode: 'ENG',
-      ),
+      service.analyzeRecording(videoPath: videoFile.path, languageCode: 'ENG'),
       throwsA(isA<HttpException>()),
     );
     service.dispose();
@@ -134,10 +128,7 @@ void main() {
     );
 
     await expectLater(
-      service.analyzeRecording(
-        videoPath: videoFile.path,
-        languageCode: 'ENG',
-      ),
+      service.analyzeRecording(videoPath: videoFile.path, languageCode: 'ENG'),
       throwsA(
         isA<HttpException>().having(
           (error) => error.message,

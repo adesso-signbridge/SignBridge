@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../services/home/home_service.dart';
-import '../../../../services/translate/sign_token.dart';
 import '../../../../services/translate/translate_service.dart';
 import 'sign_avatar_view.dart';
 
@@ -99,7 +98,9 @@ class TalkListeningContent extends StatelessWidget {
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
-          systemLabel: cloudGlossWord != null ? liveResult?.signSystem.label : null,
+          systemLabel: cloudGlossWord != null
+              ? liveResult?.signSystem.label
+              : null,
           showLoader: isRefreshingGloss,
         ),
       ),
@@ -454,7 +455,6 @@ class _TalkAvatarCardStage extends StatelessWidget {
     this.signSequence = const [],
     required this.signPulse,
     required this.signingChip,
-    this.showSigningChip = true,
     this.generatedVideoUrl,
     this.veoOnly = false,
   });
@@ -467,7 +467,6 @@ class _TalkAvatarCardStage extends StatelessWidget {
   final List<SignToken> signSequence;
   final int signPulse;
   final Widget signingChip;
-  final bool showSigningChip;
   final String? generatedVideoUrl;
   final bool veoOnly;
 
@@ -493,26 +492,19 @@ class _TalkAvatarCardStage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (showSigningChip) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: signingChip,
-                ),
-              ),
-              const SizedBox(
-                height: AppSpacing.talkSessionSigningChipToAvatarGap,
-              ),
-            ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Align(alignment: Alignment.topCenter, child: signingChip),
+            ),
+            const SizedBox(
+              height: AppSpacing.talkSessionSigningChipToAvatarGap,
+            ),
             Expanded(
               child: Align(
                 alignment: Alignment.topCenter,
                 child: SizedBox(
                   width: AppSpacing.talkSessionAvatarIlluWidth,
-                  height: showSigningChip
-                      ? AppSpacing.talkSessionAvatarIlluHeight
-                      : height,
+                  height: AppSpacing.talkSessionAvatarIlluHeight,
                   child: SignAvatarView(
                     signTokenId: signTokenId,
                     signSystem: signSystem,
@@ -804,7 +796,7 @@ class _OverlaySigningChip extends StatelessWidget {
         final maxChipWidth = constraints.maxWidth.isFinite
             ? constraints.maxWidth
             : MediaQuery.sizeOf(context).width -
-                (AppSpacing.screenPaddingH * 2);
+                  (AppSpacing.screenPaddingH * 2);
 
         return ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxChipWidth),

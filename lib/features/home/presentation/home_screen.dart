@@ -23,7 +23,6 @@ import '../../../services/veo/veo_sign_video_config.dart';
 import '../../../services/translate/sign_capture_config.dart';
 import '../../../services/translate/sign_capture_error_mapper.dart';
 import '../../../services/translate/sign_capture_service.dart';
-import '../../../services/translate/sign_language_system.dart';
 import '../../../services/translate/translate_service.dart';
 import 'language_change_coordinator.dart';
 import 'widgets/talk_audio_waveform.dart';
@@ -88,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
   SignCaptureResult? _signResult;
   bool _signRecordingActive = false;
   bool _uploadAfterStop = false;
-  DateTime? _signRecordingStartedAt;
   Duration? _signClipDuration;
   int _signGeneration = 0;
   int _signSpeakGeneration = 0;
@@ -216,7 +214,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _resetSignCaptureState() {
     _uploadAfterStop = false;
-    _signRecordingStartedAt = null;
     _signClipDuration = null;
   }
 
@@ -225,7 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _uploadAfterStop = false;
     }
     _signRecordingActive = false;
-    _signRecordingStartedAt = null;
     _signClipDuration = null;
   }
 
@@ -282,9 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _veoSignVideoService = CloudflareVeoSignVideoService();
     }
     widget.onRegisterSession(
-      HomeSessionRegistration(
-        teardownActiveSessions: _teardownActiveSessions,
-      ),
+      HomeSessionRegistration(teardownActiveSessions: _teardownActiveSessions),
     );
     widget.onSessionModeChanged(_appSessionMode);
     widget.homeService.fetchHomeContent().then((content) {
@@ -403,7 +397,6 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _signPhase = SignFlowPhase.recording;
         _signRecordingActive = true;
-        _signRecordingStartedAt = DateTime.now();
       });
       return;
     }
@@ -422,7 +415,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _signPhase = SignFlowPhase.recording;
       _signRecordingActive = false;
     });
-    debugPrint('[SignBridge/SignCapture] camera preview (flip, then tap to record)');
+    debugPrint(
+      '[SignBridge/SignCapture] camera preview (flip, then tap to record)',
+    );
   }
 
   void _onSignRecordingStopped(String videoPath, Duration recordingDuration) {
@@ -449,7 +444,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final generation = _signGeneration;
     final recordingDuration = _signClipDuration ?? Duration.zero;
     _signClipDuration = null;
-    _signRecordingStartedAt = null;
 
     if (!signCameraTestModeEnabled &&
         recordingDuration <
@@ -571,10 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showSignMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -1017,7 +1008,9 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
       } on Object catch (error) {
-        debugPrint('[SignBridge/Gloss] Cloud failed ($error); using on-device rules');
+        debugPrint(
+          '[SignBridge/Gloss] Cloud failed ($error); using on-device rules',
+        );
       }
     }
 
@@ -1047,7 +1040,10 @@ class _HomeScreenState extends State<HomeScreen> {
       glossSequence: tokens,
       system: system,
     );
-    return SignAssetCatalog.playbackClipsForSequence(sequence, system).isNotEmpty;
+    return SignAssetCatalog.playbackClipsForSequence(
+      sequence,
+      system,
+    ).isNotEmpty;
   }
 
   void _insertGlossTokens(int index, List<String> glossTokens) {
@@ -1260,8 +1256,9 @@ class _HomeScreenState extends State<HomeScreen> {
             _cloudGlossInFlight ||
             (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
         cloudGlossWord: _cloudGlossWord,
-        generatedSignVideoUrl:
-            SignPlaybackConfig.imagesOnly ? null : _generatedSignVideoUrl,
+        generatedSignVideoUrl: SignPlaybackConfig.imagesOnly
+            ? null
+            : _generatedSignVideoUrl,
         veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
@@ -1285,8 +1282,9 @@ class _HomeScreenState extends State<HomeScreen> {
             _cloudGlossInFlight ||
             (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
         cloudGlossWord: _cloudGlossWord,
-        generatedSignVideoUrl:
-            SignPlaybackConfig.imagesOnly ? null : _generatedSignVideoUrl,
+        generatedSignVideoUrl: SignPlaybackConfig.imagesOnly
+            ? null
+            : _generatedSignVideoUrl,
         veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),

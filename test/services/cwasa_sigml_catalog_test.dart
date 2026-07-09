@@ -25,10 +25,7 @@ void main() {
     });
 
     test('fragmentForToken normalizes underscores', () {
-      expect(
-        CwasaSigmlCatalog.fragmentForToken('pass_me'),
-        isNotEmpty,
-      );
+      expect(CwasaSigmlCatalog.fragmentForToken('pass_me'), isNotEmpty);
     });
 
     test('signDocumentsForPhrase returns one document per mapped token', () {
@@ -72,18 +69,31 @@ void main() {
         'GOOD MORNING IS THIS GOOD TIME TO TALK',
       );
       expect(doc, isNotNull);
-      expect(
-        doc!.split('<hamgestural_sign').length - 1,
-        8,
-      );
+      expect(doc!.split('<hamgestural_sign').length - 1, 8);
     });
 
     test('buildDocumentFromSequence animates every token', () {
       final sequence = [
-        const SignToken(id: 'good', gloss: 'GOOD', system: SignLanguageSystem.asl),
-        const SignToken(id: 'morning', gloss: 'MORNING', system: SignLanguageSystem.asl),
-        const SignToken(id: 'time', gloss: 'TIME', system: SignLanguageSystem.asl),
-        const SignToken(id: 'talk', gloss: 'TALK', system: SignLanguageSystem.asl),
+        const SignToken(
+          id: 'good',
+          gloss: 'GOOD',
+          system: SignLanguageSystem.asl,
+        ),
+        const SignToken(
+          id: 'morning',
+          gloss: 'MORNING',
+          system: SignLanguageSystem.asl,
+        ),
+        const SignToken(
+          id: 'time',
+          gloss: 'TIME',
+          system: SignLanguageSystem.asl,
+        ),
+        const SignToken(
+          id: 'talk',
+          gloss: 'TALK',
+          system: SignLanguageSystem.asl,
+        ),
       ];
       final doc = CwasaSigmlCatalog.buildDocumentFromSequence(sequence);
       expect(doc, isNotNull);
@@ -92,12 +102,24 @@ void main() {
 
     test('buildDocumentForSequenceDelta builds only appended tokens', () {
       final previous = [
-        const SignToken(id: 'hello', gloss: 'HELLO', system: SignLanguageSystem.asl),
-        const SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.asl),
+        const SignToken(
+          id: 'hello',
+          gloss: 'HELLO',
+          system: SignLanguageSystem.asl,
+        ),
+        const SignToken(
+          id: 'you',
+          gloss: 'YOU',
+          system: SignLanguageSystem.asl,
+        ),
       ];
       final current = [
         ...previous,
-        const SignToken(id: 'how', gloss: 'HOW', system: SignLanguageSystem.asl),
+        const SignToken(
+          id: 'how',
+          gloss: 'HOW',
+          system: SignLanguageSystem.asl,
+        ),
         const SignToken(id: 'me', gloss: 'ME', system: SignLanguageSystem.asl),
       ];
       final doc = CwasaSigmlCatalog.buildDocumentForSequenceDelta(

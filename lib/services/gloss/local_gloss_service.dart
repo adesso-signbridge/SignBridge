@@ -18,8 +18,9 @@ final class LocalGlossService implements GlossService {
     final system = signLanguage.toUpperCase().contains('ISL')
         ? SignLanguageSystem.isl
         : SignLanguageSystem.asl;
-    final glossLanguageCode =
-        system == SignLanguageSystem.isl ? languageCode : 'ENG';
+    final glossLanguageCode = system == SignLanguageSystem.isl
+        ? languageCode
+        : 'ENG';
     return SignLanguageCatalog.sequenceFor(
       caption,
       glossLanguageCode,

@@ -14,10 +14,9 @@ void main() {
   });
 
   test('musings audit report', () {
-    final sentences = File('test/fixtures/musings_sentences.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final sentences = File(
+      'test/fixtures/musings_sentences.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
     expect(sentences.length, greaterThan(100));
 
     var hidden = 0;
@@ -30,8 +29,10 @@ void main() {
     final goodSamples = <String>[];
 
     for (final sentence in sentences) {
-      final glosses =
-          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+      final glosses = SignGlossMapper.signSequence(
+        sentence,
+        'ENG',
+      ).map((t) => t.gloss).toList();
 
       if (glosses.isEmpty) {
         hidden++;
@@ -61,7 +62,7 @@ void main() {
     }
 
     final n = sentences.length;
-  // ignore: avoid_print
+    // ignore: avoid_print
     print('=== MUSINGS AUDIT ($n unique sentences) ===');
     // ignore: avoid_print
     print(

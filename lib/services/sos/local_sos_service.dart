@@ -5,10 +5,8 @@ import 'sos_action_result.dart';
 import 'sos_service.dart';
 
 final class LocalSosService implements SosService {
-  LocalSosService({
-    this._phraseSpeech,
-    EmergencyDialer? dialEmergency,
-  }) : _dialEmergency = dialEmergency ?? launchEmergencyCall;
+  LocalSosService({this._phraseSpeech, EmergencyDialer? dialEmergency})
+    : _dialEmergency = dialEmergency ?? launchEmergencyCall;
 
   final PhraseSpeechService? _phraseSpeech;
   final EmergencyDialer _dialEmergency;

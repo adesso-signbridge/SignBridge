@@ -49,10 +49,14 @@ abstract final class SignLexiconBuilder {
       return null;
     }
 
-    if (RegExp(r'^\d{1,2}-o.clock', caseSensitive: false).hasMatch(normalized)) {
+    if (RegExp(
+      r'^\d{1,2}-o.clock',
+      caseSensitive: false,
+    ).hasMatch(normalized)) {
       return SignToken(
         id: normalized,
-        gloss: AslCoreLexicon.corpusGlosses[normalized] ??
+        gloss:
+            AslCoreLexicon.corpusGlosses[normalized] ??
             normalized.toUpperCase(),
         system: system,
       );
@@ -78,11 +82,7 @@ abstract final class SignLexiconBuilder {
     final percent = _percentPattern.firstMatch(normalized);
     if (percent != null) {
       final digits = percent.group(1)!;
-      return SignToken(
-        id: 'num_$digits',
-        gloss: digits,
-        system: system,
-      );
+      return SignToken(id: 'num_$digits', gloss: digits, system: system);
     }
 
     for (final form in _lookupForms(normalized)) {
@@ -251,11 +251,7 @@ abstract final class SignLexiconBuilder {
 
     final corpusGloss = AslCoreLexicon.corpusGlosses[normalized];
     if (corpusGloss != null) {
-      return SignToken(
-        id: normalized,
-        gloss: corpusGloss,
-        system: system,
-      );
+      return SignToken(id: normalized, gloss: corpusGloss, system: system);
     }
 
     final pedagogyGloss = AslCoreLexicon.pedagogicalOverrides[normalized];
@@ -301,13 +297,7 @@ abstract final class SignLexiconBuilder {
       final gloss = fsLabel
           ? 'FS-${letter.toUpperCase()}'
           : letter.toUpperCase();
-      tokens.add(
-        SignToken(
-          id: 'letter_$lower',
-          gloss: gloss,
-          system: system,
-        ),
-      );
+      tokens.add(SignToken(id: 'letter_$lower', gloss: gloss, system: system));
     }
     return tokens;
   }
@@ -349,7 +339,11 @@ abstract final class SignLexiconBuilder {
 
   static Map<String, SignToken> _regionalIslEntries() {
     return {
-      'नहीं': SignToken(id: 'not', gloss: 'NOT', system: SignLanguageSystem.isl),
+      'नहीं': SignToken(
+        id: 'not',
+        gloss: 'NOT',
+        system: SignLanguageSystem.isl,
+      ),
       'नमस्ते': SignToken(
         id: 'hello',
         gloss: 'HELLO',
@@ -360,16 +354,8 @@ abstract final class SignLexiconBuilder {
         gloss: 'HOW',
         system: SignLanguageSystem.isl,
       ),
-      'हैं': SignToken(
-        id: 'you',
-        gloss: 'YOU',
-        system: SignLanguageSystem.isl,
-      ),
-      'आप': SignToken(
-        id: 'you',
-        gloss: 'YOU',
-        system: SignLanguageSystem.isl,
-      ),
+      'हैं': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.isl),
+      'आप': SignToken(id: 'you', gloss: 'YOU', system: SignLanguageSystem.isl),
       'आज': SignToken(
         id: 'today',
         gloss: 'TODAY',

@@ -46,7 +46,10 @@ void main() {
       expect(body['languageCode'], 'TA');
       expect(body['spokenLanguage'], 'தமிழ்');
       return http.Response(
-        jsonEncode({'ok': true, 'glossSequence': ['YOU', 'HOW']}),
+        jsonEncode({
+          'ok': true,
+          'glossSequence': ['YOU', 'HOW'],
+        }),
         200,
       );
     });
@@ -72,7 +75,10 @@ void main() {
     final client = MockClient((request) async {
       expect(request.headers['X-SignBridge-Key'], 'secret-key');
       return http.Response(
-        jsonEncode({'ok': true, 'glossSequence': ['ME', 'HELLO']}),
+        jsonEncode({
+          'ok': true,
+          'glossSequence': ['ME', 'HELLO'],
+        }),
         200,
       );
     });

@@ -2,10 +2,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 /// Picks a TTS locale available on the device for [languageCode].
 abstract final class TtsLocaleResolver {
-  static Future<String?> resolve(
-    FlutterTts engine,
-    String languageCode,
-  ) async {
+  static Future<String?> resolve(FlutterTts engine, String languageCode) async {
     final languages = await engine.getLanguages;
     if (languages is! List || languages.isEmpty) {
       return _preferredLocale(languageCode);
@@ -47,14 +44,7 @@ abstract final class TtsLocaleResolver {
 
   static List<String> _candidatesFor(String languageCode) {
     return switch (languageCode.trim().toUpperCase()) {
-      'ENG' => const [
-        'en-US',
-        'en_US',
-        'en-IN',
-        'en_IN',
-        'en-GB',
-        'en_GB',
-      ],
+      'ENG' => const ['en-US', 'en_US', 'en-IN', 'en_IN', 'en-GB', 'en_GB'],
       'HI' => const ['hi-IN', 'hi_IN', 'hi-in', 'hi'],
       'TA' => const ['ta-IN', 'ta_IN', 'ta-in', 'ta'],
       'ML' => const ['ml-IN', 'ml_IN', 'ml-in', 'ml'],

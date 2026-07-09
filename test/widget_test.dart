@@ -91,7 +91,10 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('Recording signs'), findsOneWidget);
-    expect(find.byKey(const Key('talk_sign_flip_camera_button')), findsOneWidget);
+    expect(
+      find.byKey(const Key('talk_sign_flip_camera_button')),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('talk_sign_stop_button')), findsOneWidget);
     expect(find.text('Clear history'), findsNothing);
 
@@ -122,56 +125,58 @@ void main() {
     expect(find.text('Tap to sign'), findsOneWidget);
   });
 
-  testWidgets('After sign spoken, listen works without clearing history first', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const SignBridgeApp());
+  testWidgets(
+    'After sign spoken, listen works without clearing history first',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const SignBridgeApp());
 
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('talk_sign_button')));
-    await tester.pump();
-    await tester.tap(find.byKey(const Key('talk_sign_stop_button')));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pump(const Duration(milliseconds: 700));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('talk_sign_button')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('talk_sign_stop_button')));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Clear history'), findsOneWidget);
-    expect(find.byKey(const Key('talk_sign_spoken_content')), findsOneWidget);
+      expect(find.text('Clear history'), findsOneWidget);
+      expect(find.byKey(const Key('talk_sign_spoken_content')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('talk_listen_button')));
-    await tester.pump();
+      await tester.tap(find.byKey(const Key('talk_listen_button')));
+      await tester.pump();
 
-    expect(find.text('Listening...'), findsOneWidget);
-    expect(find.byKey(const Key('talk_sign_spoken_content')), findsNothing);
-  });
+      expect(find.text('Listening...'), findsOneWidget);
+      expect(find.byKey(const Key('talk_sign_spoken_content')), findsNothing);
+    },
+  );
 
-  testWidgets('After sign spoken, sign again works without clearing history first', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const SignBridgeApp());
+  testWidgets(
+    'After sign spoken, sign again works without clearing history first',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const SignBridgeApp());
 
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('talk_sign_button')));
-    await tester.pump();
-    await tester.tap(find.byKey(const Key('talk_sign_stop_button')));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pump(const Duration(milliseconds: 700));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('talk_sign_button')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('talk_sign_stop_button')));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Clear history'), findsOneWidget);
+      expect(find.text('Clear history'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('talk_sign_button')));
-    await tester.pump();
+      await tester.tap(find.byKey(const Key('talk_sign_button')));
+      await tester.pump();
 
-    expect(find.textContaining('Recording signs'), findsOneWidget);
-    expect(find.byKey(const Key('talk_sign_spoken_content')), findsNothing);
-  });
+      expect(find.textContaining('Recording signs'), findsOneWidget);
+      expect(find.byKey(const Key('talk_sign_spoken_content')), findsNothing);
+    },
+  );
 
   testWidgets('Phrases tab shows categories and speaks on tap', (
     WidgetTester tester,

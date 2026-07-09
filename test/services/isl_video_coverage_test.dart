@@ -57,7 +57,7 @@ void main() {
     // ignore: avoid_print
     print(
       'ISL video coverage: $resolvedTokens/$totalTokens '
-      '(${ (coverage * 100).toStringAsFixed(1)}%)',
+      '(${(coverage * 100).toStringAsFixed(1)}%)',
     );
     if (missing.isNotEmpty) {
       final top = missing.entries.toList()

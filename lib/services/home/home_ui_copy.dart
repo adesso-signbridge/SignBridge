@@ -195,8 +195,7 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencyConfirmLabel: 'Call now',
     emergencyCallFailedLabel: 'Could not place the emergency call.',
     sosCountdownTitle: 'Calling emergency services',
-    sosCountdownBody:
-        'Calling 112 automatically. Tap Cancel to stop.',
+    sosCountdownBody: 'Calling 112 automatically. Tap Cancel to stop.',
     sosCountdownCancelLabel: 'Cancel',
     emergencyPhonePermissionRequiredLabel:
         'Phone permission is required to auto-call emergency services.',
@@ -284,7 +283,8 @@ const _homeUiCopyByLanguage = <String, HomeUiCopy>{
     emergencyConfirmLabel: 'ഇപ്പോൾ വിളിക്കുക',
     emergencyCallFailedLabel: 'അടിയന്തര കോൾ ചെയ്യാൻ കഴിഞ്ഞില്ല.',
     sosCountdownTitle: 'അടിയന്തര സേവനങ്ങളിലേക്ക് വിളിക്കുന്നു',
-    sosCountdownBody: '112-ലേക്ക് സ്വയമേവ വിളിക്കും. നിർത്താൻ റദ്ദാക്കുക അമർത്തുക.',
+    sosCountdownBody:
+        '112-ലേക്ക് സ്വയമേവ വിളിക്കും. നിർത്താൻ റദ്ദാക്കുക അമർത്തുക.',
     sosCountdownCancelLabel: 'റദ്ദാക്കുക',
     emergencyPhonePermissionRequiredLabel:
         'അടിയന്തര കോൾ ചെയ്യാൻ ഫോൺ അനുമതി ആവശ്യമാണ്.',

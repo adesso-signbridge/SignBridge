@@ -172,9 +172,10 @@ abstract final class SignAssetCatalog {
     List<SignToken> sequence,
     SignLanguageSystem system,
   ) {
-    return playbackClipsForSequence(sequence, system)
-        .map((clip) => clip.assetPath)
-        .toList(growable: false);
+    return playbackClipsForSequence(
+      sequence,
+      system,
+    ).map((clip) => clip.assetPath).toList(growable: false);
   }
 
   /// Resolves a bundled manifest path to a remote worker URL when configured.

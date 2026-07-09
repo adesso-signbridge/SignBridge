@@ -96,7 +96,9 @@ void main() {
     test('400 other maps to generic failure', () {
       expect(
         SignCaptureErrorMapper.userMessage(
-          HttpException('Sign worker 400: {"error":"Expected multipart form data"}'),
+          HttpException(
+            'Sign worker 400: {"error":"Expected multipart form data"}',
+          ),
           copy,
         ),
         'generic-failed',
@@ -228,18 +230,21 @@ void main() {
       );
     });
 
-    test('maps Gemini 503 high demand inside worker 502 to rate limit message', () {
-      expect(
-        SignCaptureErrorMapper.userMessage(
-          HttpException(
-            'Sign worker 502: {"error":"Sign recognition failed",'
-            '"detail":"Error: Gemini 503: The model is overloaded. Please try again later."}',
+    test(
+      'maps Gemini 503 high demand inside worker 502 to rate limit message',
+      () {
+        expect(
+          SignCaptureErrorMapper.userMessage(
+            HttpException(
+              'Sign worker 502: {"error":"Sign recognition failed",'
+              '"detail":"Error: Gemini 503: The model is overloaded. Please try again later."}',
+            ),
+            copy,
           ),
-          copy,
-        ),
-        'rate-limited',
-      );
-    });
+          'rate-limited',
+        );
+      },
+    );
 
     test('maps Gemini 504 inside worker 502 to upload timeout', () {
       expect(

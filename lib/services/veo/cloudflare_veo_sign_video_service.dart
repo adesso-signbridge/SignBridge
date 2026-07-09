@@ -14,9 +14,9 @@ final class CloudflareVeoSignVideoService {
     String? workerUrl,
     String? sharedKey,
     http.Client? client,
-  })  : _workerBase = _normalizeBase(workerUrl ?? VeoSignVideoConfig.workerUrl),
-        _sharedKey = sharedKey ?? VeoSignVideoConfig.sharedKey,
-        _client = client ?? http.Client();
+  }) : _workerBase = _normalizeBase(workerUrl ?? VeoSignVideoConfig.workerUrl),
+       _sharedKey = sharedKey ?? VeoSignVideoConfig.sharedKey,
+       _client = client ?? http.Client();
 
   final String _workerBase;
   final String _sharedKey;
@@ -30,15 +30,12 @@ final class CloudflareVeoSignVideoService {
     required List<String> glossSequence,
     required String signLanguage,
   }) async {
-    final decoded = await _postJson(
-      '$_workerBase/veo/generate',
-      {
-        'jobId': jobId,
-        'caption': caption.trim(),
-        'signLanguage': signLanguage,
-        'glossSequence': glossSequence,
-      },
-    );
+    final decoded = await _postJson('$_workerBase/veo/generate', {
+      'jobId': jobId,
+      'caption': caption.trim(),
+      'signLanguage': signLanguage,
+      'glossSequence': glossSequence,
+    });
     return _parseResult(decoded);
   }
 
@@ -92,7 +89,9 @@ final class CloudflareVeoSignVideoService {
     );
 
     if (started.model != null && started.model!.trim().isNotEmpty) {
-      debugPrint('[SignBridge/Veo] model: ${started.model!.trim()} (jobId=$jobId)');
+      debugPrint(
+        '[SignBridge/Veo] model: ${started.model!.trim()} (jobId=$jobId)',
+      );
     }
 
     if (started.isReady) {
@@ -134,11 +133,7 @@ final class CloudflareVeoSignVideoService {
     Map<String, dynamic> body,
   ) async {
     final response = await _client
-        .post(
-          Uri.parse(url),
-          headers: _headers(),
-          body: jsonEncode(body),
-        )
+        .post(Uri.parse(url), headers: _headers(), body: jsonEncode(body))
         .timeout(const Duration(seconds: 60));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -163,7 +158,9 @@ final class CloudflareVeoSignVideoService {
     final pollAfter = decoded['pollAfterMs'];
     return VeoSignVideoResult(
       status: '${decoded['status'] ?? 'unknown'}',
-      videoUrl: decoded['videoUrl'] is String ? decoded['videoUrl'] as String : null,
+      videoUrl: decoded['videoUrl'] is String
+          ? decoded['videoUrl'] as String
+          : null,
       operationName: decoded['operationName'] is String
           ? decoded['operationName'] as String
           : null,
