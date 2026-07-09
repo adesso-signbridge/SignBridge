@@ -74,9 +74,11 @@ export default {
         env,
       ));
     } catch (err) {
-      return json(
-        { error: "Gloss request failed", detail: String(err).slice(0, 300), jobId },
+      return jsonError(
+        { error: "Gloss request failed", jobId },
         502,
+        err,
+        "[gloss] caption request failed",
       );
     }
 
@@ -123,14 +125,15 @@ async function handleVeoGenerate(request, env) {
     });
     return json(result);
   } catch (err) {
-    return json(
+    return jsonError(
       {
         ok: false,
         error: "Veo generation failed",
-        detail: String(err).slice(0, 300),
         jobId,
       },
       502,
+      err,
+      "[gloss] veo generate failed",
     );
   }
 }
@@ -168,15 +171,16 @@ async function handleVeoStatus(request, env) {
     });
     return json(result);
   } catch (err) {
-    return json(
+    return jsonError(
       {
         ok: false,
         error: "Veo poll failed",
-        detail: String(err).slice(0, 300),
         jobId,
         operationName,
       },
       502,
+      err,
+      "[gloss] veo status failed",
     );
   }
 }
@@ -258,8 +262,12 @@ async function captionToGloss(caption, glossRequest, env) {
     }
   }
 
-  const detail = errors.map((err) => String(err).slice(0, 80)).join(" | ");
-  throw new Error(detail || "No gloss provider configured");
+  if (errors.length > 0) {
+    for (const err of errors) {
+      logWorkerError("[gloss] provider failed", err);
+    }
+  }
+  throw new Error("No gloss provider configured");
 }
 
 function geminiPrimaryTimeoutMs(env) {
@@ -711,6 +719,19 @@ function validateGlossSequence(tokens, signLanguage = "ASL") {
     throw new Error("ISL gloss must use English tokens, not romanized Indic");
   }
   return tokens;
+}
+
+function logWorkerError(context, err) {
+  if (err instanceof Error) {
+    console.error(context, err.message, err.stack);
+    return;
+  }
+  console.error(context, err);
+}
+
+function jsonError(body, status, err, context) {
+  logWorkerError(context, err);
+  return json(body, status);
 }
 
 function json(obj, status = 200) {
