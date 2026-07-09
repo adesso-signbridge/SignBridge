@@ -13,8 +13,17 @@ const prompt = buildSignVideoPrompt({
 });
 
 assertIncludes(prompt, "American Sign Language");
-assertIncludes(prompt, "HELLO HOW YOU");
+assertIncludes(prompt, "Sign the spoken phrase");
+assertIncludes(prompt, "hello how are you");
 assertIncludes(prompt, "light gray studio background");
+
+const glossPrompt = buildSignVideoPrompt({
+  caption: "",
+  glossSequence: ["HELLO", "HOW", "YOU"],
+  signLanguage: "ASL",
+});
+assertIncludes(glossPrompt, "Sign the gloss sequence");
+assertIncludes(glossPrompt, "HELLO HOW YOU");
 
 const params = veoParameters({ VEO_ASPECT_RATIO: "9:16", VEO_RESOLUTION: "720p" });
 if (params.aspectRatio !== "9:16" || params.resolution !== "720p") {

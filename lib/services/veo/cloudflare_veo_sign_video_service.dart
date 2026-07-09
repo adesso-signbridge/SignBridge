@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'veo_sign_video_config.dart';
 import 'veo_sign_video_result.dart';
 
-/// Starts and polls Veo 3.1 sign-video jobs on the gloss worker.
+/// Starts and polls Gemini Veo 3.1 sign-video jobs on the gloss worker.
 final class CloudflareVeoSignVideoService {
   CloudflareVeoSignVideoService({
     String? workerUrl,
@@ -27,7 +27,7 @@ final class CloudflareVeoSignVideoService {
   Future<VeoSignVideoResult> start({
     required String jobId,
     required String caption,
-    required List<String> glossSequence,
+    List<String> glossSequence = const [],
     required String signLanguage,
   }) async {
     final decoded = await _postJson('$_workerBase/veo/generate', {
@@ -43,7 +43,7 @@ final class CloudflareVeoSignVideoService {
     required String operationName,
     required String jobId,
     required String caption,
-    required List<String> glossSequence,
+    List<String> glossSequence = const [],
     required String signLanguage,
   }) async {
     final uri = Uri.parse('$_workerBase/veo/status').replace(
@@ -77,7 +77,7 @@ final class CloudflareVeoSignVideoService {
   Future<VeoSignVideoResult?> waitUntilReady({
     required String jobId,
     required String caption,
-    required List<String> glossSequence,
+    List<String> glossSequence = const [],
     required String signLanguage,
     Duration timeout = const Duration(minutes: 5),
   }) async {

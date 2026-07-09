@@ -90,6 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Duration? _signClipDuration;
   int _signGeneration = 0;
   int _signSpeakGeneration = 0;
+  int _signFlowVeoGeneration = 0;
+  String? _signFlowGlossWord;
+  String? _signFlowGeneratedVideoUrl;
+  bool _signFlowGlossInFlight = false;
+  bool _signFlowVeoInFlight = false;
+  int _signFlowPulse = 0;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
   String? _generatedSignVideoUrl;
@@ -104,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    if (!SignPlaybackConfig.imagesOnly) {
+    if (SignPlaybackConfig.veoEnabled) {
       _veoSignVideoService?.dispose();
     }
     widget.onUnregisterSession();
@@ -169,6 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _signPhase = SignFlowPhase.idle;
         _signRecordingActive = false;
         _resetSignCaptureState();
+        _resetSignFlowVeoState();
       });
     }
   }
@@ -215,6 +222,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void _resetSignCaptureState() {
     _uploadAfterStop = false;
     _signClipDuration = null;
+  }
+
+  void _resetSignFlowVeoState() {
+    _signFlowVeoGeneration++;
+    _signFlowGlossWord = null;
+    _signFlowGeneratedVideoUrl = null;
+    _signFlowGlossInFlight = false;
+    _signFlowVeoInFlight = false;
+    _signFlowPulse = 0;
   }
 
   void _returnToSignPreview({bool clearUploadFlag = true}) {
@@ -274,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (!SignPlaybackConfig.imagesOnly) {
+    if (SignPlaybackConfig.veoEnabled) {
       _veoSignVideoService = CloudflareVeoSignVideoService();
     }
     widget.onRegisterSession(
@@ -321,6 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _signResult = null;
     _signRecordingActive = false;
     _resetSignCaptureState();
+    _resetSignFlowVeoState();
   }
 
   String? get _signRecordingStatusLabel {
@@ -389,6 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final generation = ++_signGeneration;
     _resetSignCaptureState();
+    _resetSignFlowVeoState();
 
     if (signCameraTestModeEnabled) {
       if (!mounted || generation != _signGeneration) {
@@ -398,6 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _signPhase = SignFlowPhase.recording;
         _signRecordingActive = true;
       });
+      unawaited(_prepareSignFlowVeo(signGeneration: generation));
       return;
     }
 
@@ -415,6 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _signPhase = SignFlowPhase.recording;
       _signRecordingActive = false;
     });
+    unawaited(_prepareSignFlowVeo(signGeneration: generation));
     debugPrint(
       '[SignBridge/SignCapture] camera preview (flip, then tap to record)',
     );
@@ -940,6 +960,15 @@ class _HomeScreenState extends State<HomeScreen> {
       final jobId = DateTime.now().millisecondsSinceEpoch.toString();
       final signLanguage = system.label;
 
+      if (!SignPlaybackConfig.imagesOnly) {
+        unawaited(
+          _requestVeoSignVideo(
+            caption: targetCaption,
+            signLanguage: signLanguage,
+          ),
+        );
+      }
+
       final glossTokens = await _requestGlossWithFallback(
         jobId: jobId,
         caption: delta,
@@ -954,14 +983,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
         _lastFetchedGlossCaption = targetCaption;
-        if (!SignPlaybackConfig.imagesOnly) {
-          unawaited(
-            _requestVeoSignVideo(
-              caption: targetCaption,
-              signLanguage: signLanguage,
-            ),
-          );
-        }
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
@@ -1069,6 +1090,14 @@ class _HomeScreenState extends State<HomeScreen> {
       VeoSignVideoConfig.isConfigured &&
       (_veoSignVideoService?.isConfigured ?? false);
 
+  bool get _useSignFlowVeoPlayback =>
+      SignPlaybackConfig.veoOnSignTap &&
+      VeoSignVideoConfig.isConfigured &&
+      (_veoSignVideoService?.isConfigured ?? false);
+
+  bool get _showSignFlowVeoPreview =>
+      _useSignFlowVeoPlayback && (_heardForSignFlow?.hasTranscript ?? false);
+
   void _publishGlossState({
     required SignLanguageSystem system,
     required TalkListenResult result,
@@ -1104,7 +1133,7 @@ class _HomeScreenState extends State<HomeScreen> {
         !(_veoSignVideoService?.isConfigured ?? false)) {
       return;
     }
-    if (_accumulatedGlossTokens.isEmpty) {
+    if (caption.trim().isEmpty) {
       return;
     }
 
@@ -1118,23 +1147,204 @@ class _HomeScreenState extends State<HomeScreen> {
       final result = await _veoSignVideoService!.waitUntilReady(
         jobId: jobId,
         caption: caption,
-        glossSequence: List<String>.from(_accumulatedGlossTokens),
+        glossSequence: const [],
         signLanguage: signLanguage,
       );
       if (!mounted || generation != _veoRequestGeneration) {
         return;
       }
       if (result?.isReady == true && result!.videoUrl != null) {
+        final videoUrl = result.videoUrl!.trim();
         setState(() {
-          _generatedSignVideoUrl = result.videoUrl!.trim();
+          _generatedSignVideoUrl = videoUrl;
           _signPulse++;
+          if (_signPhase == SignFlowPhase.recording &&
+              _signFlowGeneratedVideoUrl == null) {
+            _signFlowGeneratedVideoUrl = videoUrl;
+            final glossWord =
+                _cloudGlossWord ?? _accumulatedGlossTokens.join(' ').trim();
+            if (glossWord.isNotEmpty) {
+              _signFlowGlossWord ??= glossWord;
+            }
+            _signFlowVeoInFlight = false;
+            _signFlowPulse++;
+          }
         });
       }
     } on Object catch (error) {
-      debugPrint('[SignBridge/Veo] generation failed ($error)');
+      debugPrint('[SignBridge/GeminiVeo] generation failed ($error)');
     } finally {
       if (mounted && generation == _veoRequestGeneration) {
         setState(() => _veoVideoInFlight = false);
+      }
+    }
+  }
+
+  Future<void> _prepareSignFlowVeo({required int signGeneration}) async {
+    if (!_useSignFlowVeoPlayback) {
+      return;
+    }
+
+    final heard = _heardForSignFlow;
+    if (heard == null || !heard.hasTranscript) {
+      return;
+    }
+
+    final caption = _normalizeGlossCaption(heard.fullTranscript);
+    if (caption.isEmpty) {
+      return;
+    }
+
+    final signLanguage = SignLanguageSystem.forSpokenLanguage(
+      widget.selectedLanguageCode,
+    ).label;
+
+    if (_canReuseListenSessionGeminiVeo(caption)) {
+      final glossWord =
+          _cloudGlossWord ?? _accumulatedGlossTokens.join(' ').trim();
+      if (mounted) {
+        setState(() {
+          if (glossWord.isNotEmpty) {
+            _signFlowGlossWord = glossWord;
+          }
+          _signFlowGeneratedVideoUrl = _generatedSignVideoUrl;
+          _signFlowVeoInFlight = _veoVideoInFlight;
+          _signFlowPulse++;
+        });
+      }
+      if (_generatedSignVideoUrl != null || _veoVideoInFlight) {
+        if (glossWord.isEmpty) {
+          unawaited(
+            _prepareSignFlowGlossDisplay(
+              signGeneration: signGeneration,
+              caption: caption,
+              signLanguage: signLanguage,
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    unawaited(
+      _prepareSignFlowGlossDisplay(
+        signGeneration: signGeneration,
+        caption: caption,
+        signLanguage: signLanguage,
+      ),
+    );
+    unawaited(
+      _requestSignFlowVeoVideo(
+        signGeneration: signGeneration,
+        caption: caption,
+        signLanguage: signLanguage,
+      ),
+    );
+  }
+
+  Future<void> _prepareSignFlowGlossDisplay({
+    required int signGeneration,
+    required String caption,
+    required String signLanguage,
+  }) async {
+    if (_canReuseListenSessionGloss(caption)) {
+      final glossWord =
+          _cloudGlossWord ?? _accumulatedGlossTokens.join(' ').trim();
+      if (mounted &&
+          signGeneration == _signGeneration &&
+          glossWord.isNotEmpty) {
+        setState(() => _signFlowGlossWord = glossWord);
+      }
+      return;
+    }
+
+    final jobId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (mounted) {
+      setState(() => _signFlowGlossInFlight = true);
+    }
+
+    try {
+      final glossTokens = await _requestGlossWithFallback(
+        jobId: jobId,
+        caption: caption,
+        signLanguage: signLanguage,
+        languageCode: widget.selectedLanguageCode,
+        spokenLanguage: _selectedLanguage?.label,
+      );
+      if (!mounted || signGeneration != _signGeneration) {
+        return;
+      }
+      if (glossTokens.isEmpty) {
+        return;
+      }
+      setState(() {
+        _signFlowGlossWord = glossTokens.join(' ');
+        _signFlowPulse++;
+      });
+    } finally {
+      if (mounted && signGeneration == _signGeneration) {
+        setState(() => _signFlowGlossInFlight = false);
+      }
+    }
+  }
+
+  bool _canReuseListenSessionGloss(String caption) {
+    if (_accumulatedGlossTokens.isEmpty) {
+      return false;
+    }
+    final listenCaption = _normalizeGlossCaption(
+      _heardForSignFlow?.fullTranscript ?? '',
+    );
+    return listenCaption.isNotEmpty && listenCaption == caption;
+  }
+
+  bool _canReuseListenSessionGeminiVeo(String caption) {
+    final listenCaption = _normalizeGlossCaption(
+      _heardForSignFlow?.fullTranscript ?? '',
+    );
+    return listenCaption.isNotEmpty && listenCaption == caption;
+  }
+
+  Future<void> _requestSignFlowVeoVideo({
+    required int signGeneration,
+    required String caption,
+    required String signLanguage,
+  }) async {
+    if (!_useSignFlowVeoPlayback || caption.trim().isEmpty) {
+      return;
+    }
+
+    final generation = ++_signFlowVeoGeneration;
+    final jobId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (mounted) {
+      setState(() => _signFlowVeoInFlight = true);
+    }
+
+    try {
+      final result = await _veoSignVideoService!.waitUntilReady(
+        jobId: jobId,
+        caption: caption,
+        glossSequence: const [],
+        signLanguage: signLanguage,
+      );
+      if (!mounted ||
+          signGeneration != _signGeneration ||
+          generation != _signFlowVeoGeneration) {
+        return;
+      }
+      if (result?.isReady == true && result!.videoUrl != null) {
+        setState(() {
+          _signFlowGeneratedVideoUrl = result.videoUrl!.trim();
+          _signFlowPulse++;
+        });
+      }
+    } on Object catch (error) {
+      debugPrint('[SignBridge/GeminiVeo/SignFlow] generation failed ($error)');
+    } finally {
+      if (mounted &&
+          signGeneration == _signGeneration &&
+          generation == _signFlowVeoGeneration) {
+        setState(() => _signFlowVeoInFlight = false);
       }
     }
   }
@@ -1199,6 +1409,16 @@ class _HomeScreenState extends State<HomeScreen> {
         canStartRecording: !_signRecordingActive,
         onStartRecording: _onSignRecordTap,
         onRecordingStopped: _onSignRecordingStopped,
+        showVeoPreview: _showSignFlowVeoPreview,
+        signSystem: SignLanguageSystem.forSpokenLanguage(
+          widget.selectedLanguageCode,
+        ),
+        glossWord: _signFlowGlossWord,
+        signPulse: _signFlowPulse,
+        isRefreshingGloss: _signFlowGlossInFlight,
+        isGeneratingVideo: _signFlowVeoInFlight,
+        generatedSignVideoUrl: _signFlowGeneratedVideoUrl,
+        veoOnly: _useSignFlowVeoPlayback,
         onCameraError: (message) {
           debugPrint('[SignBridge/SignCapture] camera error: $message');
           if (message.contains('Recording did not start')) {
@@ -1210,6 +1430,7 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _signPhase = SignFlowPhase.idle;
             _returnToSignPreview();
+            _resetSignFlowVeoState();
           });
         },
       );

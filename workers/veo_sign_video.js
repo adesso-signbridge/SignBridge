@@ -25,15 +25,20 @@ export function geminiApiKey(env) {
 }
 
 export function buildSignVideoPrompt({ caption, glossSequence, signLanguage }) {
+  const trimmedCaption = `${caption || ""}`.trim();
   const glosses = normalizeGlossList(glossSequence);
-  const phrase = glosses.length > 0 ? glosses.join(" ") : `${caption || ""}`.trim();
+  const phrase = trimmedCaption || glosses.join(" ");
   const languageLabel = `${signLanguage || "ASL"}`.toUpperCase().includes("ISL")
     ? "Indian Sign Language (ISL)"
     : "American Sign Language (ASL)";
 
+  const signingInstruction = trimmedCaption
+    ? `Sign the spoken phrase in ${languageLabel}: "${phrase}".`
+    : `Sign the gloss sequence: ${phrase}.`;
+
   return [
     `Portrait video of a professional deaf signer performing ${languageLabel}.`,
-    `Sign the gloss sequence: ${phrase}.`,
+    signingInstruction,
     "Clean light gray studio background, signer centered from waist up,",
     "natural expressive signing motion, no spoken dialogue, signing only,",
     "realistic human hands and face, stable camera, soft even lighting.",

@@ -6,7 +6,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../services/home/home_service.dart';
 import '../../../../services/translate/sign_capture_result.dart';
+import '../../../../services/translate/sign_language_system.dart';
 import '../../../../services/translate/talk_listen_result.dart';
+import 'sign_avatar_view.dart';
 import 'sign_camera_recorder.dart';
 import 'talk_session_content.dart';
 
@@ -21,6 +23,14 @@ class TalkSignRecordingContent extends StatefulWidget {
     this.onStartRecording,
     required this.onRecordingStopped,
     required this.onCameraError,
+    this.showVeoPreview = false,
+    this.signSystem = SignLanguageSystem.asl,
+    this.glossWord,
+    this.signPulse = 0,
+    this.isRefreshingGloss = false,
+    this.isGeneratingVideo = false,
+    this.generatedSignVideoUrl,
+    this.veoOnly = false,
   });
 
   final HomeUiCopy uiCopy;
@@ -31,6 +41,14 @@ class TalkSignRecordingContent extends StatefulWidget {
   final VoidCallback? onStartRecording;
   final SignRecordingStoppedHandler onRecordingStopped;
   final ValueChanged<String> onCameraError;
+  final bool showVeoPreview;
+  final SignLanguageSystem signSystem;
+  final String? glossWord;
+  final int signPulse;
+  final bool isRefreshingGloss;
+  final bool isGeneratingVideo;
+  final String? generatedSignVideoUrl;
+  final bool veoOnly;
 
   @override
   State<TalkSignRecordingContent> createState() =>
@@ -55,6 +73,20 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
           heardResult: widget.heardResult,
           uiCopy: widget.uiCopy,
         ),
+        if (widget.showVeoPreview) ...[
+          const SizedBox(height: AppSpacing.talkSessionStatusBottom),
+          TalkSignVeoPreview(
+            signSystem: widget.signSystem,
+            glossWord: widget.glossWord,
+            signPulse: widget.signPulse,
+            isRefreshingGloss: widget.isRefreshingGloss,
+            isGeneratingVideo: widget.isGeneratingVideo,
+            generatedSignVideoUrl: widget.generatedSignVideoUrl,
+            veoOnly: widget.veoOnly,
+            signingPrefix: widget.uiCopy.signingPrefix,
+            signingListeningWord: widget.uiCopy.signingListeningWord,
+          ),
+        ],
         if (widget.statusLabel != null)
           Align(
             alignment: Alignment.centerRight,
@@ -130,6 +162,153 @@ class _TalkSignRecordingContentState extends State<TalkSignRecordingContent> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Compact Gemini Veo avatar shown while the user records their sign response.
+class TalkSignVeoPreview extends StatelessWidget {
+  const TalkSignVeoPreview({
+    super.key,
+    required this.signSystem,
+    required this.glossWord,
+    required this.signPulse,
+    required this.isRefreshingGloss,
+    required this.isGeneratingVideo,
+    required this.signingPrefix,
+    required this.signingListeningWord,
+    this.generatedSignVideoUrl,
+    this.veoOnly = false,
+  });
+
+  final SignLanguageSystem signSystem;
+  final String? glossWord;
+  final int signPulse;
+  final bool isRefreshingGloss;
+  final bool isGeneratingVideo;
+  final String signingPrefix;
+  final String signingListeningWord;
+  final String? generatedSignVideoUrl;
+  final bool veoOnly;
+
+  String? get _chipWord {
+    if (glossWord != null && glossWord!.trim().isNotEmpty) {
+      return glossWord;
+    }
+    if (isRefreshingGloss || isGeneratingVideo) {
+      return signingListeningWord;
+    }
+    return null;
+  }
+
+  bool get _hasGloss => glossWord != null && glossWord!.trim().isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final chipWord = _chipWord;
+    return SizedBox(
+      height: 108,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.talkScreenBackground,
+          border: Border.all(
+            color: AppColors.talkAvatarCardBorder,
+            width: 0.52,
+          ),
+          borderRadius: BorderRadius.circular(
+            AppSpacing.talkSessionAvatarCardRadius,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (chipWord != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: TalkSignSigningChip(
+                    prefix: signingPrefix,
+                    word: chipWord,
+                    showLoader: isRefreshingGloss && !_hasGloss,
+                  ),
+                ),
+              ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+                child: SignAvatarView(
+                  signTokenId: SignTokenIds.thinking,
+                  signSystem: signSystem,
+                  fallbackAsset: 'assets/home/talk_flow/illu_signing.png',
+                  signingWord: _hasGloss ? glossWord! : signingListeningWord,
+                  signSequence: const [],
+                  signPulse: signPulse,
+                  generatedVideoUrl: generatedSignVideoUrl,
+                  veoOnly: veoOnly,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TalkSignSigningChip extends StatelessWidget {
+  const TalkSignSigningChip({
+    super.key,
+    required this.prefix,
+    required this.word,
+    this.showLoader = false,
+  });
+
+  final String prefix;
+  final String word;
+  final bool showLoader;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.talkSigningChipBg,
+        border: Border.all(color: AppColors.talkSigningChipBorder, width: 0.52),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showLoader) ...[
+              SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.4,
+                  color: AppColors.splashBlue.withValues(alpha: 0.55),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Flexible(
+              child: Text(
+                '$prefix $word',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'Klavika',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 11,
+                  height: 16 / 11,
+                  color: AppColors.phraseCategoryText,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

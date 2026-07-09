@@ -81,9 +81,13 @@ class SignAvatarView extends StatelessWidget {
     );
   }
 
+  bool get _allowVeoGeneratedVideo =>
+      veoOnly && SignPlaybackConfig.veoOnSignTap;
+
   @override
   Widget build(BuildContext context) {
-    if (!SignPlaybackConfig.imagesOnly && (veoOnly || _useSignerVideo)) {
+    if (_allowVeoGeneratedVideo ||
+        (!SignPlaybackConfig.imagesOnly && (veoOnly || _useSignerVideo))) {
       return SignVideoAvatarView(
         signSystem: signSystem,
         signSequence: veoOnly ? const [] : signSequence,

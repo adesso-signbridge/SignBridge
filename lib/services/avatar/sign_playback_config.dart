@@ -5,4 +5,12 @@ abstract final class SignPlaybackConfig {
     'SIGN_IMAGES_ONLY',
     defaultValue: true,
   );
+
+  /// Generate a Gemini Veo reference video when the user taps Sign (Speak for me).
+  static const veoOnSignTap = bool.fromEnvironment(
+    'VEO_ON_SIGN_TAP',
+    defaultValue: true,
+  );
+
+  static bool get veoEnabled => veoOnSignTap || !imagesOnly;
 }
