@@ -24,20 +24,59 @@ export function geminiApiKey(env) {
   return env.GEMINI_KEY || env.GEMINI_API_KEY || "";
 }
 
-export function buildSignVideoPrompt({ caption, glossSequence, signLanguage }) {
+export function avatarGenerationMode(env, requestedMode = "") {
+  const mode = `${requestedMode || env.VEO_AVATAR_MODE || "genasl"}`
+    .trim()
+    .toLowerCase();
+  return mode || "genasl";
+}
+
+export function buildSignVideoPrompt({
+  caption,
+  glossSequence,
+  signLanguage,
+  avatarMode = "genasl",
+}) {
   const glosses = normalizeGlossList(glossSequence);
   const phrase = glosses.length > 0 ? glosses.join(" ") : `${caption || ""}`.trim();
   const languageLabel = `${signLanguage || "ASL"}`.toUpperCase().includes("ISL")
     ? "Indian Sign Language (ISL)"
     : "American Sign Language (ASL)";
+  const trimmedCaption = `${caption || ""}`.trim();
+  const mode = avatarMode.trim().toLowerCase();
+
+  const signingInstruction =
+    mode === "genasl"
+      ? buildGenAslPrompt({ phrase, glosses, languageLabel, trimmedCaption })
+      : `Sign the gloss sequence: ${phrase}.`;
 
   return [
     `Portrait video of a professional deaf signer performing ${languageLabel}.`,
-    `Sign the gloss sequence: ${phrase}.`,
+    signingInstruction,
     "Clean light gray studio background, signer centered from waist up,",
     "natural expressive signing motion, no spoken dialogue, signing only,",
     "realistic human hands and face, stable camera, soft even lighting.",
   ].join(" ");
+}
+
+function buildGenAslPrompt({ phrase, glosses, languageLabel, trimmedCaption }) {
+  if (glosses.length > 0) {
+    return (
+      `Use a GenASL-style gloss-first workflow for ${languageLabel}. ` +
+      `Follow this gloss sequence exactly as the signing plan: ${phrase}. ` +
+      `If a word has no exact lexical sign, fingerspell only that word while preserving natural signing flow.`
+    );
+  }
+
+  if (trimmedCaption) {
+    return (
+      `Use a GenASL-style workflow for ${languageLabel}. ` +
+      `Translate the spoken phrase into accurate signing: "${trimmedCaption}". ` +
+      `Prefer canonical sign choices and fingerspell unknown names or missing words only.`
+    );
+  }
+
+  return `Use a GenASL-style workflow for ${languageLabel}. Sign naturally and clearly.`;
 }
 
 export function veoParameters(env, { seed } = {}) {
@@ -57,9 +96,15 @@ export async function resolveVeoSignVideo(env, options) {
     signLanguage = "ASL",
     jobId = "",
     operationName = "",
+    avatarMode = "",
   } = options;
 
-  const prompt = buildSignVideoPrompt({ caption, glossSequence, signLanguage });
+  const prompt = buildSignVideoPrompt({
+    caption,
+    glossSequence,
+    signLanguage,
+    avatarMode: avatarGenerationMode(env, avatarMode),
+  });
   const seed = seedFromJob(jobId);
   const parameters = veoParameters(env, { seed });
   const cacheKey = `${VEO_PREFIX}${await hashPayload(prompt, parameters)}.mp4`;

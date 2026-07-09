@@ -16,5 +16,11 @@ abstract final class VeoSignVideoConfig {
     defaultValue: true,
   );
 
+  /// Prompt/profile selector for avatar generation on the worker.
+  static const avatarMode = String.fromEnvironment(
+    'VEO_AVATAR_MODE',
+    defaultValue: 'genasl',
+  );
+
   static bool get isConfigured => workerUrl.trim().isNotEmpty && enabled;
 }

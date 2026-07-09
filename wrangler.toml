@@ -13,6 +13,7 @@ SIGN_GEMINI_MODEL = "gemini-3.5-flash"
 ADESSO_MODEL = "qwen-3.6-35b-sovereign"
 # Veo 3.1 sign-video generation (POST /veo/generate) — Adobe Firefly-style
 VEO_MODEL = "veo-3.1-fast-generate-preview"
+VEO_AVATAR_MODE = "genasl"
 VEO_RESOLUTION = "720p"
 VEO_ASPECT_RATIO = "9:16"
 VEO_DURATION_SECONDS = "8"

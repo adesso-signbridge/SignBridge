@@ -35,6 +35,7 @@ final class CloudflareVeoSignVideoService {
       'caption': caption.trim(),
       'signLanguage': signLanguage,
       'glossSequence': glossSequence,
+      'avatarMode': VeoSignVideoConfig.avatarMode,
     });
     return _parseResult(decoded);
   }
@@ -53,6 +54,7 @@ final class CloudflareVeoSignVideoService {
         'caption': caption.trim(),
         'signLanguage': signLanguage,
         'glossSequence': jsonEncode(glossSequence),
+        'avatarMode': VeoSignVideoConfig.avatarMode,
       },
     );
 

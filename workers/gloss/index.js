@@ -107,6 +107,7 @@ async function handleVeoGenerate(request, env) {
   const glossSequence = Array.isArray(body.glossSequence)
     ? body.glossSequence
     : [];
+  const avatarMode = (body.avatarMode || "").trim();
 
   if (!caption && glossSequence.length === 0) {
     return json({ error: "Missing caption or glossSequence" }, 400);
@@ -122,6 +123,7 @@ async function handleVeoGenerate(request, env) {
       glossSequence,
       signLanguage,
       jobId,
+      avatarMode,
     });
     return json(result);
   } catch (err) {
@@ -152,6 +154,7 @@ async function handleVeoStatus(request, env) {
   const caption = (url.searchParams.get("caption") || "").trim();
   const signLanguage = (url.searchParams.get("signLanguage") || "ASL").trim();
   const glossSequence = parseGlossQuery(url.searchParams.get("glossSequence"));
+  const avatarMode = (url.searchParams.get("avatarMode") || "").trim();
 
   if (!operationName) {
     return json({ error: "Missing operation query parameter" }, 400);
@@ -168,6 +171,7 @@ async function handleVeoStatus(request, env) {
       signLanguage,
       jobId,
       operationName,
+      avatarMode,
     });
     return json(result);
   } catch (err) {
