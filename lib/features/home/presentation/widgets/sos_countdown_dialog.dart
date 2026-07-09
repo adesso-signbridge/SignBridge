@@ -8,11 +8,7 @@ import '../../../../services/home/home_service.dart';
 
 /// iPhone-style SOS countdown before auto-calling emergency services.
 class SosCountdownDialog extends StatefulWidget {
-  const SosCountdownDialog({
-    super.key,
-    required this.uiCopy,
-    this.seconds = 3,
-  });
+  const SosCountdownDialog({super.key, required this.uiCopy, this.seconds = 3});
 
   final HomeUiCopy uiCopy;
   final int seconds;

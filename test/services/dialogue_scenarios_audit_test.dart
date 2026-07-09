@@ -14,10 +14,9 @@ void main() {
   });
 
   test('dialogue scenarios audit report', () {
-    final sentences = File('test/fixtures/dialogue_scenarios_sentences.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final sentences = File(
+      'test/fixtures/dialogue_scenarios_sentences.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
     expect(sentences.length, greaterThan(60));
 
     var hidden = 0;
@@ -28,8 +27,10 @@ void main() {
     final spellSamples = <String>[];
 
     for (final sentence in sentences) {
-      final glosses =
-          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+      final glosses = SignGlossMapper.signSequence(
+        sentence,
+        'ENG',
+      ).map((t) => t.gloss).toList();
 
       if (glosses.isEmpty) {
         hidden++;
@@ -53,7 +54,9 @@ void main() {
     // ignore: avoid_print
     print('=== DIALOGUE SCENARIOS AUDIT ($n utterances) ===');
     // ignore: avoid_print
-    print('Coverage: $withGloss/$n (${(withGloss / n * 100).toStringAsFixed(1)}%)');
+    print(
+      'Coverage: $withGloss/$n (${(withGloss / n * 100).toStringAsFixed(1)}%)',
+    );
     // ignore: avoid_print
     print('Hidden: $hidden');
     // ignore: avoid_print

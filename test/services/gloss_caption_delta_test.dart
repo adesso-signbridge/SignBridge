@@ -5,10 +5,7 @@ void main() {
   group('GlossCaptionDelta.compute', () {
     test('returns full caption when nothing glossed yet', () {
       expect(
-        GlossCaptionDelta.compute(
-          fullCaption: 'hello how',
-          glossedPrefix: '',
-        ),
+        GlossCaptionDelta.compute(fullCaption: 'hello how', glossedPrefix: ''),
         'hello how',
       );
     });

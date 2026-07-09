@@ -16,10 +16,6 @@ class PhraseItem {
 
 extension PhraseItemLocalization on PhraseItem {
   String textFor(String languageCode) {
-    return PhraseLocalizations.text(
-      id,
-      languageCode,
-      fallback: text,
-    );
+    return PhraseLocalizations.text(id, languageCode, fallback: text);
   }
 }

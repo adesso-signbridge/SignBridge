@@ -198,7 +198,8 @@ class _MainShellState extends State<MainShell> {
               uiCopy: uiCopy,
               emergencyActive: _emergencyActive,
               onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
-              onLanguageChanged: (code) => unawaited(_requestLanguageChange(code)),
+              onLanguageChanged: (code) =>
+                  unawaited(_requestLanguageChange(code)),
               onRegisterSession: _registerHomeSession,
               onUnregisterSession: _unregisterHomeSession,
               onSessionModeChanged: _onHomeSessionModeChanged,
@@ -210,7 +211,8 @@ class _MainShellState extends State<MainShell> {
                 speechService: services.phraseSpeech,
                 languageCode: _languageCode,
                 onMenuTap: () => _scaffoldKey.currentState?.openEndDrawer(),
-                onLanguageChanged: (code) => unawaited(_requestLanguageChange(code)),
+                onLanguageChanged: (code) =>
+                    unawaited(_requestLanguageChange(code)),
               )
             else
               const SizedBox.shrink(),

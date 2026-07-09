@@ -150,7 +150,8 @@ abstract final class CwasaSigmlCatalog {
 
   static String fragmentForToken(String rawToken) {
     final normalized = _normalizeToken(rawToken);
-    return _specificFragment(normalized) ?? _fallbackFragmentForToken(normalized);
+    return _specificFragment(normalized) ??
+        _fallbackFragmentForToken(normalized);
   }
 
   static String fragmentForSignToken(SignToken token) {
@@ -363,8 +364,7 @@ abstract final class CwasaSigmlCatalog {
       'work' ||
       'today' ||
       'tomorrow' ||
-      'yesterday' =>
-        _takeSign,
+      'yesterday' => _takeSign,
       'you' ||
       'my' ||
       'name' ||
@@ -377,8 +377,7 @@ abstract final class CwasaSigmlCatalog {
       'what' ||
       'where' ||
       'when' ||
-      'why' =>
-        _iSign,
+      'why' => _iSign,
       'good' ||
       'yes' ||
       'no' ||
@@ -389,8 +388,7 @@ abstract final class CwasaSigmlCatalog {
       'evening' ||
       'night' ||
       'sorry' ||
-      'welcome' =>
-        _mugSign,
+      'welcome' => _mugSign,
       'thinking' => _iSign,
       _ => _fallbackFragmentForToken(id),
     };
@@ -410,10 +408,7 @@ abstract final class CwasaSigmlCatalog {
   }
 
   static String _normalizePhrase(String phrase) {
-    return phrase
-        .trim()
-        .toUpperCase()
-        .replaceAll(RegExp(r'\s+'), ' ');
+    return phrase.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
   }
 
   static String _normalizeToken(String token) {

@@ -8,6 +8,9 @@ import '../../../../core/platform/sign_camera_test_mode.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
+typedef SignRecordingStoppedHandler =
+    void Function(String videoPath, Duration recordingDuration);
+
 /// Controls [SignCameraRecorder] from an overlay (e.g. flip camera).
 class SignCameraRecorderController extends ChangeNotifier {
   _SignCameraRecorderState? _state;
@@ -72,7 +75,7 @@ class SignCameraRecorder extends StatefulWidget {
 
   final SignCameraRecorderController? controller;
   final bool isRecording;
-  final ValueChanged<String> onRecordingStopped;
+  final SignRecordingStoppedHandler onRecordingStopped;
   final ValueChanged<String> onError;
 
   @override
@@ -86,8 +89,13 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
   bool _stopPending = false;
   bool _startInFlight = false;
   bool _isFlipping = false;
+  DateTime? _videoRecordingStartedAt;
+  bool _lastPublishedCanFlip = false;
 
   bool get _canFlipCamera {
+    if (_isRecordingVideo || _stopPending || _isFlipping) {
+      return false;
+    }
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) {
       return false;
@@ -113,47 +121,93 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       oldWidget.controller?._detach(this);
       widget.controller?._attach(this);
     }
-    if (widget.isRecording && !_isRecordingVideo && !_stopPending) {
+    if (widget.isRecording && !oldWidget.isRecording) {
       unawaited(_startRecording());
-    } else if (!widget.isRecording) {
+    } else if (!widget.isRecording && oldWidget.isRecording) {
       unawaited(_handleStopRequest());
+    }
+    if (widget.isRecording != oldWidget.isRecording) {
+      _publishCameraControls();
     }
   }
 
   Future<void> flipCamera() async {
+    if (_isFlipping || _isRecordingVideo) {
+      return;
+    }
+
+    final deadline = DateTime.now().add(const Duration(milliseconds: 1500));
+    while (mounted && DateTime.now().isBefore(deadline)) {
+      final controller = _controller;
+      if (controller != null &&
+          controller.value.isInitialized &&
+          !_isRecordingVideo &&
+          !_stopPending &&
+          !_isFlipping) {
+        final current = controller.value.description.lensDirection;
+        if (_cameras.any((camera) => camera.lensDirection != current)) {
+          break;
+        }
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+    }
+
     final controller = _controller;
     if (controller == null ||
         !controller.value.isInitialized ||
-        !_canFlipCamera ||
+        _isRecordingVideo ||
         _isFlipping) {
       return;
     }
 
     final current = controller.value.description.lensDirection;
+    if (!_cameras.any((camera) => camera.lensDirection != current)) {
+      return;
+    }
+
     final opposite = current == CameraLensDirection.front
         ? CameraLensDirection.back
         : CameraLensDirection.front;
     final nextCamera = _cameras.firstWhere(
       (camera) => camera.lensDirection == opposite,
-      orElse: () => _cameras.firstWhere(
-        (camera) => camera.lensDirection != current,
-      ),
+      orElse: () =>
+          _cameras.firstWhere((camera) => camera.lensDirection != current),
     );
 
     _isFlipping = true;
     widget.controller?._setFlipping(true);
+    if (mounted) {
+      setState(() {});
+    }
     try {
+      if (_startInFlight) {
+        final startDeadline = DateTime.now().add(const Duration(seconds: 1));
+        while (_startInFlight &&
+            mounted &&
+            DateTime.now().isBefore(startDeadline)) {
+          await Future<void>.delayed(const Duration(milliseconds: 40));
+        }
+      }
       await controller.setDescription(nextCamera);
     } on Object catch (error) {
       widget.onError(error.toString());
     } finally {
       _isFlipping = false;
       widget.controller?._setFlipping(false);
-      widget.controller?._setCanFlipCamera(_canFlipCamera);
+      _publishCameraControls();
       if (mounted) {
         setState(() {});
       }
     }
+  }
+
+  void _onCameraValueChanged() {
+    final canFlip = _canFlipCamera;
+    if (canFlip == _lastPublishedCanFlip) {
+      return;
+    }
+    _lastPublishedCanFlip = canFlip;
+    _publishCameraControls();
   }
 
   void _publishCameraControls() {
@@ -171,18 +225,21 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       );
       final controller = CameraController(
         camera,
-        ResolutionPreset.high,
+        ResolutionPreset.low,
         enableAudio: false,
+        // Keep sign clips small for worker upload and Gemini file processing.
+        videoBitrate: 2_000_000,
         // JPEG stream format breaks video reconfigure on some Samsung devices.
-        imageFormatGroup:
-            Platform.isAndroid ? null : ImageFormatGroup.bgra8888,
+        imageFormatGroup: Platform.isAndroid ? null : ImageFormatGroup.bgra8888,
       );
       await controller.initialize();
       if (!mounted) {
         await controller.dispose();
         return;
       }
+      controller.addListener(_onCameraValueChanged);
       setState(() => _controller = controller);
+      _lastPublishedCanFlip = _canFlipCamera;
       _publishCameraControls();
       if (widget.isRecording) {
         await _startRecording();
@@ -195,6 +252,8 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     }
   }
 
+  static const _minRecordBeforeStop = Duration(milliseconds: 400);
+
   Future<void> _handleStopRequest() async {
     if (_isRecordingVideo) {
       await _stopRecording();
@@ -206,19 +265,8 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       return;
     }
 
-    final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) {
-      _stopPending = true;
-      return;
-    }
-
+    // Preview phase — nothing to stop until the user taps Record.
     _stopPending = false;
-    await _startRecording();
-    if (_isRecordingVideo) {
-      await _stopRecording();
-    } else {
-      widget.onError('Recording did not start');
-    }
   }
 
   Future<void> _startRecording() async {
@@ -233,7 +281,11 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     try {
       await controller.startVideoRecording();
       _isRecordingVideo = true;
-      if (_stopPending || !widget.isRecording) {
+      _videoRecordingStartedAt = DateTime.now();
+      if (!widget.isRecording) {
+        _stopPending = false;
+        await _stopRecording();
+      } else if (_stopPending) {
         _stopPending = false;
         await _stopRecording();
       }
@@ -242,6 +294,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       widget.onError(error.toString());
     } finally {
       _startInFlight = false;
+      _publishCameraControls();
     }
   }
 
@@ -250,19 +303,35 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     if (controller == null || !_isRecordingVideo) {
       return;
     }
+    final startedAt = _videoRecordingStartedAt;
+    if (startedAt != null) {
+      final elapsed = DateTime.now().difference(startedAt);
+      if (elapsed < _minRecordBeforeStop) {
+        await Future<void>.delayed(_minRecordBeforeStop - elapsed);
+      }
+    }
+    if (!_isRecordingVideo || controller != _controller) {
+      return;
+    }
     try {
       final file = await controller.stopVideoRecording();
       _isRecordingVideo = false;
       _stopPending = false;
+      final recordingDuration = _videoRecordingStartedAt == null
+          ? Duration.zero
+          : DateTime.now().difference(_videoRecordingStartedAt!);
+      _videoRecordingStartedAt = null;
       // Let the encoder/camera HAL release before the widget is disposed for
       // the analyzing phase (avoids stream reconfigure errors on Samsung).
       if (Platform.isAndroid) {
         await Future<void>.delayed(const Duration(milliseconds: 200));
       }
-      widget.onRecordingStopped(file.path);
+      widget.onRecordingStopped(file.path, recordingDuration);
     } on Object catch (error) {
       _stopPending = false;
       widget.onError(error.toString());
+    } finally {
+      _publishCameraControls();
     }
   }
 
@@ -271,6 +340,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
     widget.controller?._detach(this);
     final controller = _controller;
     _controller = null;
+    controller?.removeListener(_onCameraValueChanged);
     controller?.dispose();
     super.dispose();
   }
@@ -298,13 +368,31 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
       );
     }
 
+    if (_isFlipping) {
+      return const ColoredBox(
+        color: AppColors.talkSignCameraBackground,
+        child: Center(
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    final previewSize = controller.value.previewSize;
+    final width = previewSize?.height ?? 1;
+    final height = previewSize?.width ?? 1;
+
     return ColoredBox(
       color: AppColors.talkSignCameraBackground,
       child: FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
-          width: controller.value.previewSize?.height ?? 1,
-          height: controller.value.previewSize?.width ?? 1,
+          key: ValueKey(controller.description.name),
+          width: width,
+          height: height,
           child: CameraPreview(controller),
         ),
       ),
@@ -314,11 +402,7 @@ class _SignCameraRecorderState extends State<SignCameraRecorder> {
 
 /// Figma camera card: dark stage, blue border, corner brackets.
 class SignCameraStageFrame extends StatelessWidget {
-  const SignCameraStageFrame({
-    super.key,
-    required this.child,
-    this.overlay,
-  });
+  const SignCameraStageFrame({super.key, required this.child, this.overlay});
 
   final Widget child;
   final Widget? overlay;
@@ -345,7 +429,7 @@ class SignCameraStageFrame extends StatelessWidget {
           children: [
             child,
             const IgnorePointer(child: SignCameraCornerBrackets()),
-            if (overlay != null) overlay!,
+            ?overlay,
           ],
         ),
       ),

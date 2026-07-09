@@ -35,8 +35,10 @@ void main() {
 
     var hidden = 0;
     for (final sentence in sentences) {
-      final glosses =
-          SignGlossMapper.signSequence(sentence, 'HI').map((t) => t.gloss).toList();
+      final glosses = SignGlossMapper.signSequence(
+        sentence,
+        'HI',
+      ).map((t) => t.gloss).toList();
       if (glosses.isEmpty) {
         hidden++;
         // ignore: avoid_print
@@ -45,7 +47,9 @@ void main() {
     }
 
     // ignore: avoid_print
-    print('ISL audit: ${sentences.length - hidden}/${sentences.length} with gloss');
+    print(
+      'ISL audit: ${sentences.length - hidden}/${sentences.length} with gloss',
+    );
     expect(hidden, 0);
   });
 }

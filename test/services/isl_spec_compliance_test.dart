@@ -12,9 +12,10 @@ void main() {
   });
 
   List<String> gloss(String english) {
-    return SignGlossMapper.signSequence(english, 'HI')
-        .map((t) => t.gloss)
-        .toList();
+    return SignGlossMapper.signSequence(
+      english,
+      'HI',
+    ).map((t) => t.gloss).toList();
   }
 
   test('ISL sentence structure', () {
@@ -26,18 +27,10 @@ void main() {
     ]);
     expect(gloss('I eat an apple'), ['ME', 'APPLE', 'EAT']);
     expect(gloss('That book, I like it'), ['BOOK', 'THAT', 'ME', 'LIKE']);
-    expect(gloss('Where are you going?'), [
-      'YOU',
-      'GO',
-      'WHERE?',
-    ]);
+    expect(gloss('Where are you going?'), ['YOU', 'GO', 'WHERE?']);
     expect(gloss('Are you coming?'), ['[y/n-q]', 'YOU', 'COME?']);
     expect(gloss('Are you coming'), ['[y/n-q]', 'YOU', 'COME?']);
-    expect(gloss("I don't know"), [
-      'ME',
-      'KNOW',
-      'NOT',
-    ]);
+    expect(gloss("I don't know"), ['ME', 'KNOW', 'NOT']);
   });
 
   test('ISL word mechanics', () {
@@ -74,9 +67,10 @@ void main() {
   });
 
   test('romanized Hindi name question maps to YOUR NAME WHAT', () {
-    final glosses = SignGlossMapper.signSequence('tumara nam kya hai', 'HI')
-        .map((t) => t.gloss)
-        .toList();
+    final glosses = SignGlossMapper.signSequence(
+      'tumara nam kya hai',
+      'HI',
+    ).map((t) => t.gloss).toList();
     expect(glosses, ['YOUR', 'NAME', 'WHAT?']);
   });
 }

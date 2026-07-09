@@ -35,9 +35,10 @@ void main() {
       final native = parts[1];
       final expected = parts[2].trim().split(RegExp(r'\s+'));
 
-      final actual = SignGlossMapper.signSequence(native, lang)
-          .map((t) => t.gloss)
-          .toList();
+      final actual = SignGlossMapper.signSequence(
+        native,
+        lang,
+      ).map((t) => t.gloss).toList();
 
       if (actual.isEmpty) {
         hidden++;
@@ -77,6 +78,6 @@ void main() {
       print('... and ${failures.length - 25} more');
     }
 
-    expect(hidden, 0, reason: '${hidden} sentences produced no gloss');
+    expect(hidden, 0, reason: '$hidden sentences produced no gloss');
   });
 }

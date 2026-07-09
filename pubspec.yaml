@@ -40,7 +40,7 @@ dependencies:
   flutter_tts: ^4.2.0
   camera: ^0.11.2
   http: ^1.4.0
-  webview_flutter: ^4.14.0
+  path_provider: ^2.1.5
   url_launcher: ^6.3.1
   video_player: ^2.10.0
 dev_dependencies:
@@ -82,10 +82,7 @@ flutter:
     - assets/home/talk_flow/illu_listening.png
     - assets/home/talk_flow/illu_heard.png
     - assets/home/talk_flow/illu_signing.png
-    - assets/cwasa/cwasa_avatar.html
     - assets/signs/manifest.json
-    - assets/signs/asl/
-    - assets/signs/isl/
     - assets/home/tabs/tab_convert.png
     - assets/home/tabs/tab_book.png
     - assets/home/tabs/tab_alert.png

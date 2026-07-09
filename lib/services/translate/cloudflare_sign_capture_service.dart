@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'cloudflare_sign_config.dart';
+import 'sign_capture_config.dart';
 import 'sign_capture_service.dart';
 import 'sign_language_system.dart';
 
@@ -15,9 +16,9 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     String? workerUrl,
     String? sharedKey,
     http.Client? client,
-  })  : _workerUrl = (workerUrl ?? CloudflareSignConfig.workerUrl).trim(),
-        _sharedKey = sharedKey ?? CloudflareSignConfig.sharedKey,
-        _client = client ?? http.Client();
+  }) : _workerUrl = (workerUrl ?? CloudflareSignConfig.workerUrl).trim(),
+       _sharedKey = sharedKey ?? CloudflareSignConfig.sharedKey,
+       _client = client ?? http.Client();
 
   final String _workerUrl;
   final String _sharedKey;
@@ -30,10 +31,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
 
   @override
   SignCaptureResult peekResult(String languageCode) {
-    return SignCaptureResult(
-      text: '',
-      duration: Duration.zero,
-    );
+    return SignCaptureResult(text: '', duration: Duration.zero);
   }
 
   @override
@@ -50,6 +48,13 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     final file = File(videoPath);
     if (!await file.exists()) {
       throw StateError('Sign recording not found: $videoPath');
+    }
+
+    final fileSize = await file.length();
+    if (fileSize > SignCaptureConfig.maxUploadBytes) {
+      throw HttpException(
+        'Video too large (max ${SignCaptureConfig.maxUploadBytes ~/ (1024 * 1024)} MB)',
+      );
     }
 
     final context = conversationContext?.trim();
@@ -79,11 +84,16 @@ final class CloudflareSignCaptureService implements SignCaptureService {
   }
 
   List<String> _workerUrls() {
+    final urls = <String>[];
     final primary = _workerUrl.trim();
-    if (primary.isEmpty) {
-      return const [];
+    if (primary.isNotEmpty) {
+      urls.add(primary);
     }
-    return [primary];
+    final legacy = CloudflareSignConfig.legacyWorkerUrl.trim();
+    if (legacy.isNotEmpty && !urls.contains(legacy)) {
+      urls.add(legacy);
+    }
+    return urls;
   }
 
   bool _shouldTryNextWorker(Object error) {
@@ -114,8 +124,9 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     required Duration recordingDuration,
     String? conversationContext,
   }) async {
-    final signLanguage =
-        SignLanguageSystem.forSpokenLanguage(languageCode).label;
+    final signLanguage = SignLanguageSystem.forSpokenLanguage(
+      languageCode,
+    ).label;
     final jobId = DateTime.now().millisecondsSinceEpoch.toString();
 
     final request = http.MultipartRequest('POST', Uri.parse(workerUrl))
@@ -138,9 +149,9 @@ final class CloudflareSignCaptureService implements SignCaptureService {
       request.headers['X-SignBridge-Key'] = _sharedKey;
     }
 
-    final streamed = await _client.send(request).timeout(
-      const Duration(seconds: 90),
-    );
+    final streamed = await _client
+        .send(request)
+        .timeout(SignCaptureConfig.workerRequestTimeout);
     final response = await http.Response.fromStream(streamed);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -188,7 +199,7 @@ final class CloudflareSignCaptureService implements SignCaptureService {
     if (modelLabel != null) {
       debugPrint(
         '[SignBridge/Sign] Gemini model: $modelLabel '
-        '(video sign→text, jobId=$jobId, gloss=${glossSequence.length})',
+        '(video→text, jobId=$jobId)',
       );
     } else {
       debugPrint(

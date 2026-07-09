@@ -438,6 +438,26 @@ final class LocalTranslateService implements TranslateService {
         }
         await Future<void>.delayed(const Duration(milliseconds: 350));
       }
+
+      if (_sessionActive &&
+          _autoResumeEnabled &&
+          _controller != null &&
+          !_controller!.isClosed) {
+        debugPrint(
+          '[SignBridge/STT] listen resume failed after doneStatus; retrying '
+          'with system locale',
+        );
+        final restarted = await _startSpeechCapture(localeId: null);
+        if (restarted) {
+          if (_latestWords.trim().isNotEmpty) {
+            _emitUpdate(isFinal: false);
+          }
+          return;
+        }
+        _emitListenError(
+          'Speech recognition paused. Tap stop and listen again.',
+        );
+      }
     } finally {
       _resumeInFlight = false;
     }
@@ -614,9 +634,8 @@ final class LocalTranslateService implements TranslateService {
     }
     final captionBefore = _sessionCaption;
     _syncSessionCaption(nextLive);
-    if (_sessionCaption != captionBefore ||
-        nextLive != previousLive ||
-        result.finalResult) {
+    final captionChanged = _sessionCaption != captionBefore;
+    if (captionChanged || nextLive != previousLive || result.finalResult) {
       _emitUpdate(isFinal: result.finalResult);
     }
   }
@@ -708,7 +727,9 @@ final class LocalTranslateService implements TranslateService {
     }
 
     final signingCaption = _transcript.currentPhrase.trim();
-    final glossSource = signingCaption.isNotEmpty ? signingCaption : text.trim();
+    final glossSource = signingCaption.isNotEmpty
+        ? signingCaption
+        : text.trim();
     final elapsed = DateTime.now().difference(_startedAt ?? DateTime.now());
     final active = SignGlossMapper.activeSign(glossSource, _languageCode);
     final sequence = isFinal

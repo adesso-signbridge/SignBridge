@@ -12,9 +12,10 @@ void main() {
   });
 
   List<String> gloss(String english) {
-    return SignGlossMapper.signSequence(english, 'ENG')
-        .map((t) => t.gloss)
-        .toList();
+    return SignGlossMapper.signSequence(
+      english,
+      'ENG',
+    ).map((t) => t.gloss).toList();
   }
 
   test('Module 1 foundational structures', () {
@@ -35,29 +36,14 @@ void main() {
   });
 
   test('Module 2 interrogative negative rhetorical', () {
-    expect(gloss('Why did you go?'), [
-      'YOU',
-      'GO',
-      'WHY',
-      '[wh-q]',
-    ]);
-    expect(gloss('Are you Deaf?'), [
-      '[y/n-q]',
-      'YOU',
-      'DEAF',
-      'YOU',
-    ]);
+    expect(gloss('Why did you go?'), ['YOU', 'GO', 'WHY', '[wh-q]']);
+    expect(gloss('Are you Deaf?'), ['[y/n-q]', 'YOU', 'DEAF', 'YOU']);
     final late = gloss('I am late because traffic was heavy');
     expect(late, contains('LATE'));
     expect(late, contains('[rh-q]'));
     expect(late, contains('WHY'));
     expect(late, contains('TRAFFIC'));
-    expect(gloss('I cannot cook'), [
-      'ME',
-      'COOK',
-      'CANNOT',
-      '[headshake]',
-    ]);
+    expect(gloss('I cannot cook'), ['ME', 'COOK', 'CANNOT', '[headshake]']);
   });
 
   test('Module 3 word mechanics', () {
@@ -89,32 +75,14 @@ void main() {
 
   test('Module 5 AND conjunction omitted', () {
     expect(gloss('I like dogs and cats'), ['DOG', 'CAT', 'ME', 'LIKE']);
-    expect(
-      gloss('I want coffee and tea').where((g) => g == 'AND'),
-      isEmpty,
-    );
+    expect(gloss('I want coffee and tea').where((g) => g == 'AND'), isEmpty);
   });
 
   test('Module 6 locatives spatial loci and full NMM', () {
-    expect(gloss('The phone is on the table'), [
-      'TABLE',
-      'PHONE-ON-TOP',
-    ]);
-    expect(gloss('The book is under the table'), [
-      'TABLE',
-      'BOOK-UNDER',
-    ]);
-    expect(gloss('The book is in the bag'), [
-      'BAG',
-      'BOOK-IN',
-    ]);
-    expect(gloss('John likes Mary'), [
-      'JOHN',
-      'IX-a',
-      'LIKE',
-      'MARY',
-      'IX-b',
-    ]);
+    expect(gloss('The phone is on the table'), ['TABLE', 'PHONE-ON-TOP']);
+    expect(gloss('The book is under the table'), ['TABLE', 'BOOK-UNDER']);
+    expect(gloss('The book is in the bag'), ['BAG', 'BOOK-IN']);
+    expect(gloss('John likes Mary'), ['JOHN', 'IX-a', 'LIKE', 'MARY', 'IX-b']);
     final routine = gloss('I always eat breakfast');
     expect(routine, contains('[mm]'));
     final intense = gloss('The car is very red');

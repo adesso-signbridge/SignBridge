@@ -2,6 +2,7 @@
 library;
 
 import 'isl_spoken_corpus.dart';
+import 'isl_hindi_lexicon.dart';
 
 abstract final class SpokenTextPrep {
   /// Maps Hindi / Tamil / Malayalam tokens to English grammar words for ISL rules.
@@ -53,6 +54,13 @@ abstract final class SpokenTextPrep {
       }
       final mapped = map[stripped] ?? map[stripped.toLowerCase()];
       if (mapped == null) {
+        if (languageCode == 'HI') {
+          final hindiEnglish = IslHindiLexicon.englishFor(stripped);
+          if (hindiEnglish != null && hindiEnglish.isNotEmpty) {
+            out.add(hindiEnglish);
+            continue;
+          }
+        }
         out.add(raw);
       } else if (mapped.isNotEmpty) {
         out.add(mapped);
@@ -145,8 +153,18 @@ abstract final class SpokenTextPrep {
     return false;
   }
 
-  static const _yesNoTamilSuffixes = ['இருக்கிறதா', 'போகுமா', 'ஏற்குமா', 'விட்டதா'];
-  static const _yesNoMalayalamSuffixes = ['ഉണ്ടോ', 'പോകുമോ', 'സ്വീകരിക്കുമോ', 'എട്ടിട്ടുണ്ടോ'];
+  static const _yesNoTamilSuffixes = [
+    'இருக்கிறதா',
+    'போகுமா',
+    'ஏற்குமா',
+    'விட்டதா',
+  ];
+  static const _yesNoMalayalamSuffixes = [
+    'ഉണ്ടോ',
+    'പോകുമോ',
+    'സ്വീകരിക്കുമോ',
+    'എട്ടിട്ടുണ്ടോ',
+  ];
 
   static final _yesNoLeadPatterns = [
     RegExp(r'^are you\b'),

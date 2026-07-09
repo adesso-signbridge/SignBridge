@@ -18,7 +18,6 @@ void main() {
       const requiredDirectories = [
         'lib/app',
         'lib/core/di',
-        'lib/core/network',
         'lib/core/services',
         'lib/core/theme',
         'lib/features',

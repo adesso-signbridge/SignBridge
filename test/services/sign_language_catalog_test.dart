@@ -79,15 +79,17 @@ void main() {
 
   test('place names gloss on chip', () {
     expect(
-      SignGlossMapper.signSequence('I live in Mumbai', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'I live in Mumbai',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       contains('MUMBAI'),
     );
     expect(
-      SignGlossMapper.signSequence('I live in Bengaluru', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'I live in Bengaluru',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       contains('BENGALURU'),
     );
   });
@@ -110,7 +112,12 @@ void main() {
 
   test('ASL uses FINISH for past only when no time anchor', () {
     final withoutTime = SignGlossMapper.signSequence('I ran', 'ENG');
-    expect(withoutTime.map((t) => t.gloss).toList(), ['ME', 'RUN', 'FINISH', 'ME']);
+    expect(withoutTime.map((t) => t.gloss).toList(), [
+      'ME',
+      'RUN',
+      'FINISH',
+      'ME',
+    ]);
 
     final withTime = SignGlossMapper.signSequence('I ran yesterday', 'ENG');
     expect(withTime.map((t) => t.gloss).toList(), ['YESTERDAY', 'ME', 'RUN']);
@@ -193,51 +200,58 @@ void main() {
 
   test('ASL identity noun drops is and keeps demonstrative order', () {
     expect(
-      SignGlossMapper.signSequence('It is cat', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'It is cat',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['IX', 'CAT'],
     );
     expect(
-      SignGlossMapper.signSequence('That is dog', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'That is dog',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['THAT', 'DOG'],
     );
     expect(
-      SignGlossMapper.signSequence('This is my house', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'This is my house',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['THIS', 'MY', 'HOUSE'],
     );
   });
 
   test('ASL yes-no questions use YOU verb order without DO', () {
     expect(
-      SignGlossMapper.signSequence('Do you understand', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Do you understand',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['[y/n-q]', 'YOU', 'UNDERSTAND', 'YOU'],
     );
     expect(
-      SignGlossMapper.signSequence('Do you understand me', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Do you understand me',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['[y/n-q]', 'YOU', 'UNDERSTAND', 'ME', 'YOU'],
     );
     expect(
-      SignGlossMapper.signSequence('Are you coming', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Are you coming',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['[y/n-q]', 'YOU', 'ARRIVE', 'YOU'],
     );
   });
 
   test('ASL negative imperative uses post-fix NOT', () {
     expect(
-      SignGlossMapper.signSequence("don't tell this", 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        "don't tell this",
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['TELL', 'THIS', 'NOT', '[headshake]'],
     );
   });
@@ -249,48 +263,55 @@ void main() {
 
   test('ASL what happened phrases use WH-final and HAPPEN gloss', () {
     expect(
-      SignGlossMapper.signSequence('what happened', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'what happened',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['HAPPEN', 'WHAT'],
     );
     expect(
-      SignGlossMapper.signSequence('what is happening', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'what is happening',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['HAPPEN', 'WHAT'],
     );
     expect(
-      SignGlossMapper.signSequence('what happened to you', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'what happened to you',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['YOU', 'HAPPEN', 'WHAT'],
     );
     expect(
-      SignGlossMapper.signSequence('tell me what happened', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'tell me what happened',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['ME', 'TELL', 'WHAT', 'HAPPEN'],
     );
     expect(
-      SignGlossMapper.signSequence('I am telling you what happened', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'I am telling you what happened',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['ME', 'TELL-YOU', 'WHAT', 'HAPPEN'],
     );
   });
 
   test('ASL greeting phrases use standard gloss order', () {
     expect(
-      SignGlossMapper.signSequence('Nice to meet you', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Nice to meet you',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['NICE', 'MEET', 'YOU'],
     );
     expect(
-      SignGlossMapper.signSequence('Nice meeting you', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Nice meeting you',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['NICE', 'MEET', 'YOU'],
     );
     expect(
@@ -302,76 +323,90 @@ void main() {
       ['HELLO'],
     );
     expect(
-      SignGlossMapper.signSequence('Good morning', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Good morning',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['GOOD', 'MORNING'],
     );
     expect(
-      SignGlossMapper.signSequence('Goodbye', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Goodbye',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['GOODBYE'],
     );
     expect(
-      SignGlossMapper.signSequence('Good to see you', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'Good to see you',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['GOOD', 'SEE', 'YOU'],
     );
     expect(
-      SignGlossMapper.signSequence('How are you', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'How are you',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['HOW', 'YOU'],
     );
     expect(
-      SignGlossMapper.signSequence('Welcome', 'ENG').map((t) => t.gloss).toList(),
+      SignGlossMapper.signSequence(
+        'Welcome',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['WELCOME'],
     );
     expect(
-      SignGlossMapper.signSequence('See you later', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'See you later',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['SEE', 'YOU', 'LATER'],
     );
   });
 
   test('ASL daily-life phrases for holiday and scheduling', () {
     expect(
-      SignGlossMapper.signSequence('today is a holiday for me', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'today is a holiday for me',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['TODAY', 'VACATION', 'ME'],
     );
     expect(
-      SignGlossMapper.signSequence('I have not decided yet', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'I have not decided yet',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['YET', 'ME', 'DECIDE', 'NOT', '[headshake]'],
     );
     expect(
-      SignGlossMapper.signSequence('dont disturb im studing', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'dont disturb im studing',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['BOTHER', 'ME', 'STUDY', 'NOT', '[headshake]'],
     );
     expect(
-      SignGlossMapper.signSequence("don't disturb I'm studying", 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        "don't disturb I'm studying",
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['BOTHER', 'ME', 'STUDY', 'NOT', '[headshake]'],
     );
     expect(
-      SignGlossMapper.signSequence('doctor will come to the shop after 9:30', 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        'doctor will come to the shop after 9:30',
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['WILL', 'DOCTOR', 'SHOP', '9:30', 'ARRIVE'],
     );
     expect(
-      SignGlossMapper.signSequence("don't disturb", 'ENG')
-          .map((t) => t.gloss)
-          .toList(),
+      SignGlossMapper.signSequence(
+        "don't disturb",
+        'ENG',
+      ).map((t) => t.gloss).toList(),
       ['BOTHER', 'NOT', '[headshake]'],
     );
   });

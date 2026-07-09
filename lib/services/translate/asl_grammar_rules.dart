@@ -146,11 +146,7 @@ abstract final class AslGrammarRules {
     'ix',
   };
 
-  static const grammarMarkers = {
-    'not',
-    'finish',
-    'will',
-  };
+  static const grammarMarkers = {'not', 'finish', 'will'};
 
   static const commonVerbs = {
     'be',

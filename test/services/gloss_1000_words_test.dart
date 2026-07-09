@@ -119,7 +119,8 @@ void main() {
 }
 
 Future<List<String>> _sampleDictionaryWords(int count) async {
-  final path = '${Directory.current.path}/assets/lexicon/english_dictionary.txt';
+  final path =
+      '${Directory.current.path}/assets/lexicon/english_dictionary.txt';
   final lines = await File(path).readAsLines();
   final stride = lines.length ~/ count;
   final words = <String>[];

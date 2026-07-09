@@ -79,8 +79,21 @@ def curriculum_rows(csv_path: Path) -> list[dict[str, str]]:
     return list(csv.DictReader(csv_path.open(encoding="utf-8")))
 
 
-def missing_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    return [row for row in rows if row.get("has_local_video") != "yes"]
+def missing_rows(
+    rows: list[dict[str, str]],
+    manifest: dict,
+    language: str,
+    gloss_column: str,
+) -> list[dict[str, str]]:
+    missing: list[dict[str, str]] = []
+    for row in rows:
+        keys = target_keys(row, gloss_column)
+        if not keys:
+            continue
+        if keys[0] in manifest.get(language, {}):
+            continue
+        missing.append(row)
+    return missing
 
 
 def target_keys(row: dict[str, str], gloss_column: str) -> list[str]:
@@ -283,7 +296,7 @@ def lookup_cislr(row: dict[str, str], by_word: dict[str, str]) -> str | None:
 
 
 def fetch_isl_cislr_missing(manifest: dict) -> int:
-    rows = missing_rows(curriculum_rows(CURRICULUM_ISL_CSV))
+    rows = missing_rows(curriculum_rows(CURRICULUM_ISL_CSV), manifest, "isl", "isl_gloss")
     if not rows:
         return 0
     cislr = build_cislr_index()
@@ -352,8 +365,86 @@ def download_repo_file(repo: str, filename: str) -> bytes | None:
         cleanup_hub_file(local_path)
 
 
+def fetch_wlasl_all_missing(manifest: dict, *, max_bytes: int | None = None) -> int:
+    """Download every WLASL gloss not already in the ASL manifest."""
+    wlasl = build_wlasl_index()
+    added = 0
+    bytes_added = 0
+    for label in sorted(wlasl):
+        key = normalize_key(label)
+        if key in manifest["asl"]:
+            continue
+        if max_bytes is not None and bytes_added >= max_bytes:
+            print(f"[wlasl] stopped at {max_bytes // (1024 * 1024)} MB cap")
+            break
+        candidates = wlasl[label]
+        mp4_bytes = None
+        used_remote = None
+        for remote in candidates:
+            mp4_bytes = download_repo_file(WLASL_REPO, remote)
+            if mp4_bytes is not None:
+                used_remote = remote
+                break
+        if mp4_bytes is None or used_remote is None:
+            continue
+        if register_clip(manifest, "asl", {key}, mp4_bytes, canonical_key=key):
+            added += 1
+            bytes_added += len(mp4_bytes)
+            print(f"[asl] {key} <- {WLASL_REPO}:{used_remote}")
+        save_manifest(manifest)
+    return added
+
+
+def fetch_isl_gov_all_missing(manifest: dict, *, max_bytes: int | None = None) -> int:
+    """Download every ISL government-dataset clip not already in the manifest."""
+    gov = build_isl_gov_index()
+    added = 0
+    bytes_added = 0
+    for key in sorted(gov):
+        if key in manifest["isl"]:
+            continue
+        if max_bytes is not None and bytes_added >= max_bytes:
+            print(f"[isl-gov] stopped at {max_bytes // (1024 * 1024)} MB cap")
+            break
+        remote = gov[key]
+        mp4_bytes = download_repo_file(ISL_GOV_REPO, remote)
+        if mp4_bytes is None:
+            continue
+        if register_clip(manifest, "isl", {key}, mp4_bytes, canonical_key=key):
+            added += 1
+            bytes_added += len(mp4_bytes)
+            print(f"[isl] {key} <- {ISL_GOV_REPO}:{remote}")
+        save_manifest(manifest)
+    return added
+
+
+def fetch_isl_cislr_all_missing(manifest: dict, *, max_bytes: int | None = None) -> int:
+    """Download every CISLR word not already in the ISL manifest."""
+    cislr = build_cislr_index()
+    if not cislr:
+        return 0
+    added = 0
+    bytes_added = 0
+    for key in sorted(cislr):
+        if key in manifest["isl"]:
+            continue
+        if max_bytes is not None and bytes_added >= max_bytes:
+            print(f"[cislr] stopped at {max_bytes // (1024 * 1024)} MB cap")
+            break
+        remote = cislr[key]
+        mp4_bytes = download_cislr_video(remote)
+        if mp4_bytes is None:
+            continue
+        if register_clip(manifest, "isl", {key}, mp4_bytes, canonical_key=key):
+            added += 1
+            bytes_added += len(mp4_bytes)
+            print(f"[isl] {key} <- {CISLR_REPO}:{remote}")
+        save_manifest(manifest)
+    return added
+
+
 def fetch_asl_missing(manifest: dict) -> int:
-    rows = missing_rows(curriculum_rows(CURRICULUM_ASL_CSV))
+    rows = missing_rows(curriculum_rows(CURRICULUM_ASL_CSV), manifest, "asl", "asl_gloss")
     if not rows:
         print("[asl] nothing missing")
         return 0
@@ -403,7 +494,7 @@ def fetch_asl_missing(manifest: dict) -> int:
 
 
 def fetch_isl_missing(manifest: dict, *, use_cislr: bool) -> int:
-    rows = missing_rows(curriculum_rows(CURRICULUM_ISL_CSV))
+    rows = missing_rows(curriculum_rows(CURRICULUM_ISL_CSV), manifest, "isl", "isl_gloss")
     if not rows:
         print("[isl] nothing missing")
         return 0
@@ -457,13 +548,40 @@ def main() -> None:
         action="store_true",
         help="Only run CISLR pass for missing ISL (skip govt dataset).",
     )
+    parser.add_argument(
+        "--allow-missing-disk",
+        action="store_true",
+        help="Do not fail when manifest entries lack local files (R2-only workflows).",
+    )
+    parser.add_argument(
+        "--all-missing",
+        action="store_true",
+        help="Download every HF supplemental clip not already in manifest (not curriculum-only).",
+    )
+    parser.add_argument(
+        "--max-add-mb",
+        type=int,
+        default=None,
+        help="With --all-missing, stop after adding this many megabytes per language pass.",
+    )
     args = parser.parse_args()
 
     manifest = load_manifest()
-    if args.language in ("asl", "both") and not args.cislr_only:
+    max_bytes = args.max_add_mb * 1024 * 1024 if args.max_add_mb else None
+
+    if args.all_missing:
+        if args.language in ("asl", "both"):
+            count = fetch_wlasl_all_missing(manifest, max_bytes=max_bytes)
+            print(f"ASL WLASL all-missing clips added: {count}")
+        if args.language in ("isl", "both"):
+            count = fetch_isl_cislr_all_missing(manifest, max_bytes=max_bytes)
+            print(f"ISL CISLR all-missing clips added: {count}")
+            count = fetch_isl_gov_all_missing(manifest, max_bytes=max_bytes)
+            print(f"ISL govt all-missing clips added: {count}")
+    elif args.language in ("asl", "both") and not args.cislr_only:
         count = fetch_asl_missing(manifest)
         print(f"ASL supplemental clips added: {count}")
-    if args.language in ("isl", "both"):
+    if not args.all_missing and args.language in ("isl", "both"):
         if args.cislr_only:
             count = fetch_isl_cislr_missing(manifest)
             print(f"ISL CISLR clips added: {count}")
@@ -474,8 +592,10 @@ def main() -> None:
     save_manifest(manifest)
     update_curriculum_video_flags()
     missing = verify_manifest(manifest)
-    if missing:
+    if missing and not args.allow_missing_disk:
         raise SystemExit(f"Verification found {missing} issue(s)")
+    if missing and args.allow_missing_disk:
+        print(f"[verify] {missing} manifest entries still missing on disk (allowed).")
 
 
 if __name__ == "__main__":

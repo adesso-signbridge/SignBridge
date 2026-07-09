@@ -89,7 +89,7 @@ The gloss lexicon is a starter set; unknown words appear as uppercase fallback g
 | Typography | Klavika Bold (brand font) |
 | Platforms | Android, iOS (scaffold also includes web, macOS, Linux, Windows) |
 | Testing | `flutter_test` widget + service tests, architecture guardrails, release readiness |
-| CI | GitHub Actions — **PR merge gate** (3 checks: architecture, golden path, SwiftLint) |
+| CI | GitHub Actions — **PR merge gate** (5 checks: coding standards, architecture, tests, Android build, iOS checks) |
 
 ## Architecture
 
@@ -152,22 +152,26 @@ flutter run --device-id <device-id>
 ### Run tests (matches CI)
 
 ```bash
-dart format --output=none --set-exit-if-changed .
+dart format --output=none --set-exit-if-changed lib test
 flutter analyze --fatal-infos --fatal-warnings
 flutter test test/architecture/
-flutter test test/validation/
-flutter test --exclude-tags  store-blocker
+flutter test --exclude-tags store-blocker
+flutter test --tags golden-path
+flutter test test/widget_test.dart --name "Tap listen"
+flutter build apk --debug
 ```
 
-### Merge protection (3 CI checks)
+### Merge protection (5 CI checks)
 
-Pull requests to `main` run a **PR merge gate** job that fails unless all **3** core checks pass:
+Pull requests to `main` run six CI jobs. The **PR merge gate** job fails unless all **5** core checks pass:
 
-1. Architecture checks  
-2. Tested the app for golden path  
-3. SwiftLint  
+1. **Coding standards** — `dart format`, `flutter analyze`, `pubspec.lock` freshness  
+2. **Architecture checks** — feature/service layer guardrails  
+3. **Tests** — unit/widget tests (excluding `store-blocker`), golden-path tests, listen widget smoke test  
+4. **Build Android** — debug APK build  
+5. **iOS checks** — SwiftLint + debug iOS build (no codesign)
 
-> Other CI jobs (formatting, full test suite, builds) still run but are not required to merge.
+> Cloudflare Workers deploy checks and the PR template checklist are informational — they do not satisfy the merge gate.
 
 To enforce this on GitHub (block merge when the gate is red), run once with admin access:
 

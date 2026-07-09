@@ -269,6 +269,31 @@ def asset_path(language: str, key: str) -> str:
     return f"assets/signs/{language}/{key}.mp4"
 
 
+def clip_on_disk(manifest: dict, language: str, key: str) -> bool:
+    path = manifest.get(language, {}).get(key)
+    if not path:
+        return False
+    disk_path = ROOT / path
+    return disk_path.exists() and disk_path.stat().st_size >= MIN_CLIP_BYTES
+
+
+def should_skip_resume(
+    manifest: dict,
+    language: str,
+    key: str,
+    *,
+    resume: bool,
+    sync_disk: bool,
+) -> bool:
+    if key not in manifest.get(language, {}):
+        return False
+    if not resume:
+        return False
+    if sync_disk:
+        return clip_on_disk(manifest, language, key)
+    return True
+
+
 def cleanup_hub_file(path: str) -> None:
     file_path = Path(path)
     if file_path.exists():
@@ -389,6 +414,7 @@ def fetch_isl(
     allowed: set[str] | None,
     limit: int | None,
     resume: bool,
+    sync_disk: bool,
     stop_when_complete: bool,
 ) -> int:
     shard_names = sorted(
@@ -422,7 +448,13 @@ def fetch_isl(
                 else:
                     overlap = keys
                     canonical = sorted(keys)[0]
-                if resume and canonical in manifest["isl"]:
+                if should_skip_resume(
+                    manifest,
+                    "isl",
+                    canonical,
+                    resume=resume,
+                    sync_disk=sync_disk,
+                ):
                     continue
                 if register_clip(
                     manifest,
@@ -466,6 +498,7 @@ def fetch_asl(
     allowed: set[str] | None,
     limit: int | None,
     resume: bool,
+    sync_disk: bool,
     stop_when_complete: bool,
 ) -> int:
     by_label = build_asl_path_index()
@@ -486,7 +519,13 @@ def fetch_asl(
             break
         if stop_when_complete and allowed and mvp_satisfied(manifest, "asl", allowed):
             break
-        if resume and key in manifest["asl"]:
+        if should_skip_resume(
+            manifest,
+            "asl",
+            key,
+            resume=resume,
+            sync_disk=sync_disk,
+        ):
             continue
         video_path = by_label[label][0]
         local_video = hf_hub_download(
@@ -563,6 +602,16 @@ def main() -> None:
         help="Re-download clips even when manifest entries already exist.",
     )
     parser.add_argument(
+        "--sync-disk",
+        action="store_true",
+        help="With resume (default), re-fetch manifest entries whose local mp4 is missing.",
+    )
+    parser.add_argument(
+        "--allow-missing-disk",
+        action="store_true",
+        help="Do not fail when manifest entries lack local files (R2-only workflows).",
+    )
+    parser.add_argument(
         "--verify",
         action="store_true",
         help="Validate manifest entries and on-disk clip files.",
@@ -588,6 +637,7 @@ def main() -> None:
     use_curriculum = args.curriculum
     mvp = args.mvp or (not args.all and not use_curriculum)
     resume = not args.no_resume
+    sync_disk = args.sync_disk
 
     asl_allowed: set[str] | None
     isl_allowed: set[str] | None
@@ -615,6 +665,7 @@ def main() -> None:
             allowed=isl_allowed,
             limit=args.limit,
             resume=resume,
+            sync_disk=sync_disk,
             stop_when_complete=stop_when_complete,
         )
         print(f"ISL clips added: {count}")
@@ -624,6 +675,7 @@ def main() -> None:
             allowed=asl_allowed,
             limit=args.limit,
             resume=resume,
+            sync_disk=sync_disk,
             stop_when_complete=stop_when_complete,
         )
         print(f"ASL clips added: {count}")
@@ -638,8 +690,10 @@ def main() -> None:
     if use_curriculum:
         update_curriculum_video_flags()
     missing = verify_manifest(manifest)
-    if missing:
+    if missing and not args.allow_missing_disk:
         raise SystemExit(f"Post-download verification found {missing} issue(s)")
+    if missing and args.allow_missing_disk:
+        print(f"[verify] {missing} manifest entries still missing on disk (allowed).")
 
 
 if __name__ == "__main__":

@@ -38,10 +38,9 @@ Future<bool> launchEmergencyCall(String phoneNumber) async {
     final granted = await phoneCallPermissionRequester();
     if (granted) {
       try {
-        final placed = await _emergencyCallChannel.invokeMethod<bool>(
-          'call',
-          {'number': normalized},
-        );
+        final placed = await _emergencyCallChannel.invokeMethod<bool>('call', {
+          'number': normalized,
+        });
         if (placed == true) {
           return true;
         }

@@ -32,9 +32,42 @@ void main() {
       jobId: 'job-1',
       caption: 'Hello there',
       signLanguage: 'ASL',
+      languageCode: 'ENG',
     );
 
     expect(gloss, ['HELLO', 'THERE']);
+    service.dispose();
+  });
+
+  test('requestGloss sends language metadata for ISL', () async {
+    final client = MockClient((request) async {
+      final body = jsonDecode(request.body) as Map<String, dynamic>;
+      expect(body['signLanguage'], 'ISL');
+      expect(body['languageCode'], 'TA');
+      expect(body['spokenLanguage'], 'தமிழ்');
+      return http.Response(
+        jsonEncode({
+          'ok': true,
+          'glossSequence': ['YOU', 'HOW'],
+        }),
+        200,
+      );
+    });
+
+    final service = CloudflareGlossService(
+      workerUrl: 'https://gloss.example.com/',
+      client: client,
+    );
+
+    final gloss = await service.requestGloss(
+      jobId: 'job-ta',
+      caption: 'நீங்கள் எப்படி இருக்கிறீர்கள்?',
+      signLanguage: 'ISL',
+      languageCode: 'TA',
+      spokenLanguage: 'தமிழ்',
+    );
+
+    expect(gloss, ['YOU', 'HOW']);
     service.dispose();
   });
 
@@ -42,7 +75,10 @@ void main() {
     final client = MockClient((request) async {
       expect(request.headers['X-SignBridge-Key'], 'secret-key');
       return http.Response(
-        jsonEncode({'ok': true, 'glossSequence': ['ME', 'HELLO']}),
+        jsonEncode({
+          'ok': true,
+          'glossSequence': ['ME', 'HELLO'],
+        }),
         200,
       );
     });
@@ -57,6 +93,7 @@ void main() {
       jobId: 'job-2',
       caption: 'Hi',
       signLanguage: 'ASL',
+      languageCode: 'ENG',
     );
 
     expect(gloss, ['ME', 'HELLO']);

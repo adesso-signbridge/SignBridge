@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:sign_bridge/core/theme/app_colors.dart';
 import 'package:sign_bridge/services/avatar/sign_asset_catalog.dart';
 import 'package:sign_bridge/services/avatar/sign_playback_clip.dart';
+import 'package:sign_bridge/services/avatar/sign_video_cache.dart';
 import 'package:sign_bridge/services/translate/sign_language_system.dart';
 import 'package:sign_bridge/services/translate/sign_token.dart';
 import 'package:video_player/video_player.dart';
 
-/// Plays real signer clips from the Hugging Face–sourced asset catalog.
+/// Plays signer clips sequentially with streaming, disk cache, and crossfade.
 class SignVideoAvatarView extends StatefulWidget {
   const SignVideoAvatarView({
     super.key,
@@ -16,25 +17,47 @@ class SignVideoAvatarView extends StatefulWidget {
     required this.signSequence,
     required this.fallback,
     this.pulse = 0,
+    this.generatedVideoUrl,
+    this.veoOnly = false,
   });
 
   final SignLanguageSystem signSystem;
   final List<SignToken> signSequence;
   final Widget fallback;
   final int pulse;
+  final String? generatedVideoUrl;
+
+  /// When true, skip R2 clip playback and wait for [generatedVideoUrl].
+  final bool veoOnly;
 
   @override
   State<SignVideoAvatarView> createState() => _SignVideoAvatarViewState();
 }
 
 class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
+  static const _crossfadeDuration = Duration(milliseconds: 120);
+
   VideoPlayerController? _controller;
+  VideoPlayerController? _incomingController;
+  VideoPlayerController? _prefetchedController;
+  var _prefetchedIndex = -1;
   var _catalogReady = false;
   var _videoReady = false;
   var _clipIndex = 0;
   var _playbackGeneration = 0;
+  var _incomingOpacity = 0.0;
+  var _isAdvancing = false;
+  var _watchdogDuration = Duration.zero;
   List<SignPlaybackClip> _clips = const [];
   Timer? _watchdogTimer;
+  String? _activeGeneratedUrl;
+
+  bool get _useGeneratedPlayback => _hasGeneratedUrl(widget.generatedVideoUrl);
+
+  static bool _hasGeneratedUrl(String? url) {
+    final trimmed = url?.trim();
+    return trimmed != null && trimmed.isNotEmpty;
+  }
 
   @override
   void initState() {
@@ -45,20 +68,43 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   @override
   void didUpdateWidget(SignVideoAvatarView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final sequenceChanged =
-        !_sameSequence(oldWidget.signSequence, widget.signSequence);
+    final generatedChanged =
+        oldWidget.generatedVideoUrl?.trim() != widget.generatedVideoUrl?.trim();
+    final sequenceChanged = !_sameSequence(
+      oldWidget.signSequence,
+      widget.signSequence,
+    );
     final pulseChanged = oldWidget.pulse != widget.pulse;
+    final modeChanged =
+        _hasGeneratedUrl(oldWidget.generatedVideoUrl) != _useGeneratedPlayback;
+    final veoOnlyChanged = oldWidget.veoOnly != widget.veoOnly;
+    if (!_catalogReady && !_useGeneratedPlayback && !widget.veoOnly) {
+      return;
+    }
+    if (widget.veoOnly || _useGeneratedPlayback) {
+      if (modeChanged ||
+          veoOnlyChanged ||
+          generatedChanged ||
+          (pulseChanged && !generatedChanged)) {
+        unawaited(
+          _syncGeneratedPlayback(
+            forceReplay: pulseChanged && !generatedChanged,
+          ),
+        );
+      }
+      return;
+    }
     if (!_catalogReady) {
+      return;
+    }
+    if (modeChanged) {
+      unawaited(_syncPlayback(forceReplay: true));
       return;
     }
     if (sequenceChanged ||
         oldWidget.signSystem != widget.signSystem ||
-        pulseChanged) {
-      unawaited(
-        _syncPlayback(
-          forceReplay: pulseChanged && !sequenceChanged,
-        ),
-      );
+        (pulseChanged && !sequenceChanged)) {
+      unawaited(_syncPlayback(forceReplay: pulseChanged && !sequenceChanged));
     }
   }
 
@@ -66,10 +112,9 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   void dispose() {
     _watchdogTimer?.cancel();
     _playbackGeneration++;
-    final controller = _controller;
-    _controller = null;
-    controller?.removeListener(_handleTick);
-    controller?.dispose();
+    unawaited(_disposeController());
+    unawaited(_disposeIncoming());
+    unawaited(_disposePrefetch());
     super.dispose();
   }
 
@@ -88,6 +133,17 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
   }
 
   Future<void> _bootstrap() async {
+    if (widget.veoOnly || _useGeneratedPlayback) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _catalogReady = true);
+      if (_useGeneratedPlayback) {
+        await _syncGeneratedPlayback(forceReplay: false);
+      }
+      return;
+    }
+
     await SignAssetCatalog.ensureLoaded();
     if (!mounted) {
       return;
@@ -96,8 +152,59 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     await _syncPlayback(forceReplay: false);
   }
 
+  Future<void> _syncGeneratedPlayback({required bool forceReplay}) async {
+    final url = widget.generatedVideoUrl?.trim();
+    if (url == null || url.isEmpty) {
+      return;
+    }
+    if (!forceReplay && url == _activeGeneratedUrl && _videoReady) {
+      return;
+    }
+
+    final generation = ++_playbackGeneration;
+    _activeGeneratedUrl = url;
+    _clips = const [];
+    _clipIndex = 0;
+    _watchdogTimer?.cancel();
+    await _disposeIncoming();
+    await _disposePrefetch();
+    await _disposeController();
+
+    final controller = VideoPlayerController.networkUrl(Uri.parse(url));
+    _controller = controller;
+
+    try {
+      await controller.initialize();
+      if (!mounted || generation != _playbackGeneration) {
+        await controller.dispose();
+        return;
+      }
+      controller.setLooping(false);
+      controller.addListener(_handleTick);
+      _startWatchdog(generation, controller);
+      setState(() {
+        _videoReady = true;
+        _incomingOpacity = 0;
+      });
+      await controller.play();
+    } on Object catch (error) {
+      debugPrint('[SignBridge/SignVideo] Veo playback failed $url ($error)');
+      await controller.dispose();
+      if (_controller == controller) {
+        _controller = null;
+      }
+      if (mounted && generation == _playbackGeneration) {
+        setState(() {
+          _videoReady = false;
+          _activeGeneratedUrl = null;
+        });
+      }
+    }
+  }
+
   Future<void> _syncPlayback({required bool forceReplay}) async {
-    final clips = SignAssetCatalog.playbackClipsForSequence(
+    _activeGeneratedUrl = null;
+    final clips = await SignAssetCatalog.playbackClipsForSequenceAsync(
       widget.signSequence,
       widget.signSystem,
     );
@@ -105,30 +212,42 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       _playbackGeneration++;
       _watchdogTimer?.cancel();
       await _disposeController();
+      await _disposeIncoming();
+      await _disposePrefetch();
       if (mounted) {
         setState(() {
           _clips = const [];
           _videoReady = false;
+          _incomingOpacity = 0;
         });
       }
       return;
     }
 
-    final sameClipPaths = _clips.length == clips.length &&
-        _pathsMatch(_clips, clips);
+    final sameClipPaths =
+        _clips.length == clips.length && _pathsMatch(_clips, clips);
     if (!forceReplay && sameClipPaths) {
       return;
     }
 
     final previous = _clips;
-    final appendedOnly = !forceReplay &&
+    final appendedOnly =
+        !forceReplay &&
         previous.isNotEmpty &&
         clips.length > previous.length &&
         _pathsSharePrefix(previous, clips);
 
     if (appendedOnly) {
       _clips = clips;
-      await _playClipAt(previous.length);
+      final controller = _controller;
+      if (controller != null &&
+          controller.value.isInitialized &&
+          controller.value.isCompleted &&
+          _clipIndex == previous.length - 1) {
+        await _advanceFrom(controller, _playbackGeneration);
+      } else {
+        unawaited(_prefetchClipAt(_clipIndex + 1, _playbackGeneration));
+      }
       return;
     }
 
@@ -171,14 +290,32 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     final generation = ++_playbackGeneration;
     _clipIndex = index;
     _watchdogTimer?.cancel();
+    await _disposeIncoming();
     await _disposeController();
 
-    final clip = _clips[index];
-    final controller = VideoPlayerController.asset(clip.assetPath);
+    VideoPlayerController? controller;
+    if (_prefetchedIndex == index && _prefetchedController != null) {
+      controller = _prefetchedController;
+      _prefetchedController = null;
+      _prefetchedIndex = -1;
+    } else {
+      await _disposePrefetch();
+      controller = await _createControllerForClip(_clips[index]);
+    }
+
+    if (controller == null) {
+      if (mounted && generation == _playbackGeneration) {
+        await _playClipAt(index + 1);
+      }
+      return;
+    }
+
     _controller = controller;
 
     try {
-      await controller.initialize();
+      if (!controller.value.isInitialized) {
+        await controller.initialize();
+      }
       if (!mounted || generation != _playbackGeneration) {
         await controller.dispose();
         return;
@@ -186,11 +323,15 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       controller.setLooping(false);
       controller.addListener(_handleTick);
       _startWatchdog(generation, controller);
-      setState(() => _videoReady = true);
+      setState(() {
+        _videoReady = true;
+        _incomingOpacity = 0;
+      });
       await controller.play();
+      unawaited(_prefetchClipAt(index + 1, generation));
     } on Object catch (error) {
       debugPrint(
-        '[SignBridge/SignVideo] failed ${clip.assetPath} ($error); skipping',
+        '[SignBridge/SignVideo] failed ${_clips[index].playbackUri} ($error); skipping',
       );
       await controller.dispose();
       if (_controller == controller) {
@@ -202,12 +343,131 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
   }
 
+  Future<void> _crossfadeToPrefetched(int nextIndex, int generation) async {
+    final outgoing = _controller;
+    final incoming = _prefetchedController;
+    if (incoming == null) {
+      await _playClipAt(nextIndex);
+      return;
+    }
+
+    _prefetchedController = null;
+    _prefetchedIndex = -1;
+    outgoing?.removeListener(_handleTick);
+    _watchdogTimer?.cancel();
+
+    if (!incoming.value.isInitialized) {
+      await incoming.initialize();
+    }
+    if (!mounted || generation != _playbackGeneration) {
+      await incoming.dispose();
+      if (outgoing != null && _controller == outgoing) {
+        outgoing.addListener(_handleTick);
+        _startWatchdog(generation, outgoing);
+      }
+      return;
+    }
+
+    incoming.setLooping(false);
+    await incoming.seekTo(Duration.zero);
+    _incomingController = incoming;
+    _incomingOpacity = 0;
+
+    setState(() {});
+    await incoming.play();
+
+    const steps = 6;
+    for (var step = 1; step <= steps; step++) {
+      await Future<void>.delayed(
+        Duration(milliseconds: _crossfadeDuration.inMilliseconds ~/ steps),
+      );
+      if (!mounted || generation != _playbackGeneration) {
+        await incoming.dispose();
+        _incomingController = null;
+        _incomingOpacity = 0;
+        if (outgoing != null && _controller == outgoing) {
+          outgoing.addListener(_handleTick);
+          _startWatchdog(generation, outgoing);
+        }
+        return;
+      }
+      setState(() => _incomingOpacity = step / steps);
+    }
+
+    await outgoing?.dispose();
+    _controller = incoming;
+    _incomingController = null;
+    _incomingOpacity = 0;
+    _clipIndex = nextIndex;
+    incoming.addListener(_handleTick);
+    _startWatchdog(generation, incoming);
+    setState(() => _videoReady = true);
+    unawaited(_prefetchClipAt(nextIndex + 1, generation));
+  }
+
+  Future<void> _prefetchClipAt(int index, int generation) async {
+    if (index < 0 || index >= _clips.length) {
+      return;
+    }
+    if (_prefetchedIndex == index && _prefetchedController != null) {
+      return;
+    }
+
+    await _disposePrefetch();
+    final controller = await _createControllerForClip(
+      _clips[index],
+      prefetch: true,
+    );
+    if (controller == null) {
+      return;
+    }
+    if (!mounted || generation != _playbackGeneration) {
+      await controller.dispose();
+      return;
+    }
+    _prefetchedController = controller;
+    _prefetchedIndex = index;
+  }
+
+  Future<VideoPlayerController?> _createControllerForClip(
+    SignPlaybackClip clip, {
+    bool prefetch = false,
+  }) async {
+    if (!clip.isRemote) {
+      debugPrint(
+        '[SignBridge/SignVideo] skipping non-remote clip ${clip.assetPath}',
+      );
+      return null;
+    }
+
+    final source = prefetch
+        ? await SignVideoPlaybackSource.resolveForPrefetch(clip)
+        : await SignVideoPlaybackSource.resolve(clip);
+
+    try {
+      final controller = _controllerForSource(source);
+      await controller.initialize();
+      return controller;
+    } on Object catch (error) {
+      debugPrint('[SignBridge/SignVideo] playback failed $source ($error)');
+      return null;
+    }
+  }
+
+  VideoPlayerController _controllerForSource(String source) {
+    if (source.startsWith('http://') || source.startsWith('https://')) {
+      return VideoPlayerController.networkUrl(Uri.parse(source));
+    }
+    return VideoPlayerController.file(File(source));
+  }
+
   void _startWatchdog(int generation, VideoPlayerController controller) {
     _watchdogTimer?.cancel();
     final duration = controller.value.duration;
+    _watchdogDuration = duration;
     final timeout = duration == Duration.zero
-        ? const Duration(seconds: 4)
-        : duration + const Duration(milliseconds: 500);
+        ? const Duration(seconds: 8)
+        : duration + const Duration(milliseconds: 800);
     _watchdogTimer = Timer(timeout, () {
       if (!mounted || generation != _playbackGeneration) {
         return;
@@ -226,10 +486,21 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     }
     final value = controller.value;
     if (value.hasError) {
-      debugPrint('[SignBridge/SignVideo] player error: ${value.errorDescription}');
+      debugPrint(
+        '[SignBridge/SignVideo] player error: ${value.errorDescription}',
+      );
       unawaited(_advanceFrom(controller, _playbackGeneration));
       return;
     }
+
+    if (value.duration > Duration.zero && value.duration != _watchdogDuration) {
+      _startWatchdog(_playbackGeneration, controller);
+    }
+
+    if (!value.isPlaying && !value.isCompleted && !value.isBuffering) {
+      unawaited(controller.play());
+    }
+
     if (value.isCompleted) {
       unawaited(_advanceFrom(controller, _playbackGeneration));
       return;
@@ -244,15 +515,35 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     VideoPlayerController controller,
     int generation,
   ) async {
+    if (_isAdvancing) {
+      return;
+    }
     if (!mounted || generation != _playbackGeneration) {
       return;
     }
     if (_controller != controller) {
       return;
     }
-    controller.removeListener(_handleTick);
-    _watchdogTimer?.cancel();
-    await _playClipAt(_clipIndex + 1);
+
+    _isAdvancing = true;
+    try {
+      controller.removeListener(_handleTick);
+      _watchdogTimer?.cancel();
+
+      final nextIndex = _clipIndex + 1;
+      if (nextIndex >= _clips.length) {
+        return;
+      }
+      if (nextIndex < _clips.length &&
+          _prefetchedIndex == nextIndex &&
+          _prefetchedController != null) {
+        await _crossfadeToPrefetched(nextIndex, generation);
+        return;
+      }
+      await _playClipAt(nextIndex);
+    } finally {
+      _isAdvancing = false;
+    }
   }
 
   Future<void> _disposeController() async {
@@ -266,10 +557,93 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
     await controller.dispose();
   }
 
+  Future<void> _disposeIncoming() async {
+    final controller = _incomingController;
+    _incomingController = null;
+    _incomingOpacity = 0;
+    if (controller != null) {
+      await controller.dispose();
+    }
+  }
+
+  Future<void> _disposePrefetch() async {
+    final controller = _prefetchedController;
+    _prefetchedController = null;
+    _prefetchedIndex = -1;
+    if (controller != null) {
+      await controller.dispose();
+    }
+  }
+
+  Widget _videoLayer(VideoPlayerController controller, double opacity) {
+    final videoSize = controller.value.size;
+    final hasVideoSize = videoSize.width > 0 && videoSize.height > 0;
+
+    return IgnorePointer(
+      child: Opacity(
+        opacity: opacity.clamp(0.0, 1.0),
+        child: FittedBox(
+          fit: BoxFit.contain,
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            width: hasVideoSize ? videoSize.width : 16,
+            height: hasVideoSize ? videoSize.height : 9,
+            child: VideoPlayer(controller),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!_catalogReady) {
+    if (widget.veoOnly && !_useGeneratedPlayback) {
+      return Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          widget.fallback,
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ],
+      );
+    }
+
+    if (!_catalogReady && !_useGeneratedPlayback) {
       return widget.fallback;
+    }
+
+    if (_useGeneratedPlayback && !_videoReady) {
+      return Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          widget.fallback,
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ],
+      );
+    }
+
+    if (_clips.isNotEmpty && !_videoReady) {
+      return Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.center,
+        children: [
+          widget.fallback,
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ],
+      );
     }
 
     final controller = _controller;
@@ -277,72 +651,16 @@ class _SignVideoAvatarViewState extends State<SignVideoAvatarView> {
       return widget.fallback;
     }
 
-    final activeGloss = _clips.isEmpty ? '' : _clips[_clipIndex].token.gloss;
+    final incoming = _incomingController;
 
     return Stack(
       fit: StackFit.expand,
       alignment: Alignment.bottomCenter,
       children: [
-        widget.fallback,
-        Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: AspectRatio(
-              aspectRatio: controller.value.aspectRatio == 0
-                  ? 16 / 9
-                  : controller.value.aspectRatio,
-              child: VideoPlayer(controller),
-            ),
-          ),
-        ),
-        if (activeGloss.isNotEmpty)
-          Positioned(
-            left: 8,
-            right: 8,
-            bottom: 8,
-            child: _ActiveGlossChip(
-              gloss: activeGloss,
-              index: _clipIndex + 1,
-              total: _clips.length,
-            ),
-          ),
+        Positioned.fill(child: _videoLayer(controller, 1 - _incomingOpacity)),
+        if (incoming != null && incoming.value.isInitialized)
+          Positioned.fill(child: _videoLayer(incoming, _incomingOpacity)),
       ],
-    );
-  }
-}
-
-class _ActiveGlossChip extends StatelessWidget {
-  const _ActiveGlossChip({
-    required this.gloss,
-    required this.index,
-    required this.total,
-  });
-
-  final String gloss;
-  final int index;
-  final int total;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.splashBlue.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Text(
-          '$gloss  ($index/$total)',
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-        ),
-      ),
     );
   }
 }

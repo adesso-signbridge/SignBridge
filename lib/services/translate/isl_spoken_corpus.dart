@@ -146,14 +146,16 @@ abstract final class IslSpokenCorpus {
     'டாக்டர் எப்போது வருவார்?': 'doctor arrive when',
     'எனக்கு கடுமையான காய்ச்சல் இருக்கிறது.': 'me fever high',
     'மருத்துவமனை எங்கே இருக்கிறது?': 'hospital where',
-    'இந்த மாத்திரையை ஒரு நாளைக்கு இரண்டு முறை சாப்பிட வேண்டும்.': 'medicine day two times take',
+    'இந்த மாத்திரையை ஒரு நாளைக்கு இரண்டு முறை சாப்பிட வேண்டும்.':
+        'medicine day two times take',
     'எனக்கு தலைச்சுற்றலாக இருக்கிறது.': 'me dizzy',
     'ஆம்புலன்ஸை கூப்பிடுங்கள்!': 'ambulance call quick',
     'அடி பட்டுவிட்டதா?': 'injury have',
     'என் கால் வீங்கியிருக்கிறது.': 'my leg swelling',
     'இரத்தப் பரிசோதனை செய்ய வேண்டும்.': 'me blood test need',
     'மேலாளர் எங்கே?': 'manager where',
-    'நாளை காலை 10 மணிக்கு மீட்டிங் இருக்கிறது.': 'tomorrow meeting morning 10-o\'clock',
+    'நாளை காலை 10 மணிக்கு மீட்டிங் இருக்கிறது.':
+        'tomorrow meeting morning 10-o\'clock',
     'எனக்கு வேலை அதிகமாக இருக்கிறது.': 'me work much',
     'கம்ப்யூட்டர் வேலை செய்யவில்லை.': 'computer work not',
     'இன்று எனக்கு லீவு.': 'today my holiday',
@@ -256,7 +258,8 @@ abstract final class IslSpokenCorpus {
     'എന്റെ കാലിൽ നീരുണ്ട്.': 'my leg swelling',
     'രക്തപരിശോധന നടത്തണം.': 'me blood test need',
     'മാനേജർ എവിടെ?': 'manager where',
-    'നാളെ രാവിലെ 10 മണിക്ക് മീറ്റിംഗ് ഉണ്ട്.': 'tomorrow meeting morning 10-o\'clock',
+    'നാളെ രാവിലെ 10 മണിക്ക് മീറ്റിംഗ് ഉണ്ട്.':
+        'tomorrow meeting morning 10-o\'clock',
     'എനിക്ക് ജോലി കൂടുതലുണ്ട്.': 'me work much',
     'കമ്പ്യൂട്ടർ പ്രവർത്തിക്കുന്നില്ല.': 'computer work not',
     'ഇന്ന് എനിക്ക് അവധിയാണ്.': 'today my holiday',

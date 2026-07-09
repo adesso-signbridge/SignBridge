@@ -43,18 +43,8 @@ abstract final class PhraseLocalizations {
       'HI': 'कृपया evacuate करें',
       'TA': 'தயவுசெய்து evacuate செய்யுங்கள்',
     },
-    'em_fire': {
-      'ENG': 'Fire!',
-      'ML': 'തീ!',
-      'HI': 'आग!',
-      'TA': 'தீ!',
-    },
-    'em_help': {
-      'ENG': 'Help!',
-      'ML': 'സഹായം!',
-      'HI': 'मदद!',
-      'TA': 'உதவி!',
-    },
+    'em_fire': {'ENG': 'Fire!', 'ML': 'തീ!', 'HI': 'आग!', 'TA': 'தீ!'},
+    'em_help': {'ENG': 'Help!', 'ML': 'സഹായം!', 'HI': 'मदद!', 'TA': 'உதவி!'},
     'em_help_now': {
       'ENG': 'I need help now',
       'ML': 'എനിക്ക് ഇപ്പോൾ സഹായം വേണം',
@@ -97,12 +87,7 @@ abstract final class PhraseLocalizations {
       'HI': 'पुलिस बुलाएँ',
       'TA': 'போலீஸை அழைக்கவும்',
     },
-    'em_sos': {
-      'ENG': 'SOS',
-      'ML': 'SOS',
-      'HI': 'SOS',
-      'TA': 'SOS',
-    },
+    'em_sos': {'ENG': 'SOS', 'ML': 'SOS', 'HI': 'SOS', 'TA': 'SOS'},
     'em_stay': {
       'ENG': 'Please stay with me',
       'ML': 'ദയവായി എന്നോട് കൂടെ നിൽക്കുക',
@@ -181,12 +166,7 @@ abstract final class PhraseLocalizations {
       'HI': 'आपसे मिलकर खुशी हुई',
       'TA': 'உங்களை சந்தித்ததில் மகிழ்ச்சி',
     },
-    'greet_no': {
-      'ENG': 'No',
-      'ML': 'അല്ല',
-      'HI': 'नहीं',
-      'TA': 'இல்லை',
-    },
+    'greet_no': {'ENG': 'No', 'ML': 'അല്ല', 'HI': 'नहीं', 'TA': 'இல்லை'},
     'greet_please_wait': {
       'ENG': 'Please wait',
       'ML': 'ദയവായി കാത്തിരിക്കുക',
@@ -235,12 +215,7 @@ abstract final class PhraseLocalizations {
       'HI': 'कृपया लिखकर दें',
       'TA': 'தயவுசெய்து எழுதிக் காட்டுங்கள்',
     },
-    'greet_yes': {
-      'ENG': 'Yes',
-      'ML': 'അതെ',
-      'HI': 'हाँ',
-      'TA': 'ஆம்',
-    },
+    'greet_yes': {'ENG': 'Yes', 'ML': 'അതെ', 'HI': 'हाँ', 'TA': 'ஆம்'},
     'med_accident': {
       'ENG': 'I had an accident',
       'ML': 'എനിക്ക് അപകടം സംഭവിച്ചു',
@@ -608,8 +583,7 @@ abstract final class PhraseLocalizations {
     String languageCode, {
     required String fallback,
   }) {
-    final localized =
-        _byId[phraseId]?[languageCode.trim().toUpperCase()];
+    final localized = _byId[phraseId]?[languageCode.trim().toUpperCase()];
     if (localized != null && localized.trim().isNotEmpty) {
       return localized;
     }

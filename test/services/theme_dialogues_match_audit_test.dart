@@ -80,15 +80,13 @@ void main() {
   });
 
   test('theme dialogues match ASL Fix glosses', () {
-    final sentences = File('test/fixtures/theme_dialogues_sentences.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final sentences = File(
+      'test/fixtures/theme_dialogues_sentences.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
-    final expectedLines = File('test/fixtures/theme_dialogues_expected_glosses.txt')
-        .readAsLinesSync()
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final expectedLines = File(
+      'test/fixtures/theme_dialogues_expected_glosses.txt',
+    ).readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
 
     final expectedById = <String, List<String>>{};
     for (final line in expectedLines) {
@@ -110,8 +108,10 @@ void main() {
       final id = 'D${i + 1}';
       final sentence = sentences[i];
       final expected = expectedById[id]!;
-      final actual =
-          SignGlossMapper.signSequence(sentence, 'ENG').map((t) => t.gloss).toList();
+      final actual = SignGlossMapper.signSequence(
+        sentence,
+        'ENG',
+      ).map((t) => t.gloss).toList();
 
       if (actual.isEmpty) {
         hidden++;

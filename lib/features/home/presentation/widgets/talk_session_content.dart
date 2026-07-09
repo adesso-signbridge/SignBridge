@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../services/home/home_service.dart';
-import '../../../../services/translate/sign_token.dart';
 import '../../../../services/translate/translate_service.dart';
 import 'sign_avatar_view.dart';
 
@@ -17,6 +16,8 @@ class TalkListeningContent extends StatelessWidget {
     this.signPulse = 0,
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
+    this.generatedSignVideoUrl,
+    this.veoOnly = false,
   });
 
   final HomeUiCopy uiCopy;
@@ -24,6 +25,8 @@ class TalkListeningContent extends StatelessWidget {
   final int signPulse;
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
+  final String? generatedSignVideoUrl;
+  final bool veoOnly;
 
   bool get _hasCaption => liveResult?.fullTranscript.isNotEmpty ?? false;
 
@@ -90,10 +93,15 @@ class TalkListeningContent extends StatelessWidget {
         signingWord: _avatarSigningWord,
         signSequence: _avatarSignSequence,
         signPulse: signPulse,
+        generatedVideoUrl: generatedSignVideoUrl,
+        veoOnly: veoOnly,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
-          systemLabel: cloudGlossWord != null ? liveResult?.signSystem.label : null,
+          systemLabel: cloudGlossWord != null
+              ? liveResult?.signSystem.label
+              : null,
+          showLoader: isRefreshingGloss,
         ),
       ),
     );
@@ -179,6 +187,8 @@ class TalkStoppedContent extends StatelessWidget {
     this.signPulse = 0,
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
+    this.generatedSignVideoUrl,
+    this.veoOnly = false,
   });
 
   final HomeUiCopy uiCopy;
@@ -186,6 +196,8 @@ class TalkStoppedContent extends StatelessWidget {
   final int signPulse;
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
+  final String? generatedSignVideoUrl;
+  final bool veoOnly;
 
   String? get _chipWord {
     if (cloudGlossWord != null && cloudGlossWord!.trim().isNotEmpty) {
@@ -240,10 +252,13 @@ class TalkStoppedContent extends StatelessWidget {
         signingWord: _avatarSigningWord,
         signSequence: _avatarSignSequence,
         signPulse: signPulse,
+        generatedVideoUrl: generatedSignVideoUrl,
+        veoOnly: veoOnly,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
           word: _chipWord,
           systemLabel: cloudGlossWord != null ? result.signSystem.label : null,
+          showLoader: isRefreshingGloss,
         ),
       ),
     );
@@ -440,7 +455,8 @@ class _TalkAvatarCardStage extends StatelessWidget {
     this.signSequence = const [],
     required this.signPulse,
     required this.signingChip,
-    this.showSigningChip = true,
+    this.generatedVideoUrl,
+    this.veoOnly = false,
   });
 
   final double height;
@@ -451,7 +467,8 @@ class _TalkAvatarCardStage extends StatelessWidget {
   final List<SignToken> signSequence;
   final int signPulse;
   final Widget signingChip;
-  final bool showSigningChip;
+  final String? generatedVideoUrl;
+  final bool veoOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -475,26 +492,19 @@ class _TalkAvatarCardStage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (showSigningChip) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: signingChip,
-                ),
-              ),
-              const SizedBox(
-                height: AppSpacing.talkSessionSigningChipToAvatarGap,
-              ),
-            ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Align(alignment: Alignment.topCenter, child: signingChip),
+            ),
+            const SizedBox(
+              height: AppSpacing.talkSessionSigningChipToAvatarGap,
+            ),
             Expanded(
               child: Align(
                 alignment: Alignment.topCenter,
                 child: SizedBox(
                   width: AppSpacing.talkSessionAvatarIlluWidth,
-                  height: showSigningChip
-                      ? AppSpacing.talkSessionAvatarIlluHeight
-                      : height,
+                  height: AppSpacing.talkSessionAvatarIlluHeight,
                   child: SignAvatarView(
                     signTokenId: signTokenId,
                     signSystem: signSystem,
@@ -502,6 +512,8 @@ class _TalkAvatarCardStage extends StatelessWidget {
                     signingWord: signingWord,
                     signSequence: signSequence,
                     signPulse: signPulse,
+                    generatedVideoUrl: generatedVideoUrl,
+                    veoOnly: veoOnly,
                   ),
                 ),
               ),
@@ -764,11 +776,13 @@ class _OverlaySigningChip extends StatelessWidget {
     required this.prefix,
     required this.word,
     this.systemLabel,
+    this.showLoader = false,
   });
 
   final String prefix;
   final String? word;
   final String? systemLabel;
+  final bool showLoader;
 
   @override
   Widget build(BuildContext context) {
@@ -782,7 +796,7 @@ class _OverlaySigningChip extends StatelessWidget {
         final maxChipWidth = constraints.maxWidth.isFinite
             ? constraints.maxWidth
             : MediaQuery.sizeOf(context).width -
-                (AppSpacing.screenPaddingH * 2);
+                  (AppSpacing.screenPaddingH * 2);
 
         return ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxChipWidth),
@@ -805,22 +819,36 @@ class _OverlaySigningChip extends StatelessWidget {
                   horizontal: 16,
                   vertical: 8,
                 ),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$prefix ',
-                        style: const TextStyle(
-                          fontFamily: 'Klavika',
-                          fontWeight: FontWeight.w400,
-                          fontSize: AppSpacing.talkSessionSigningChipFont,
-                          height: 16 / 12,
-                          leadingDistribution: TextLeadingDistribution.even,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$prefix ',
+                      style: const TextStyle(
+                        fontFamily: 'Klavika',
+                        fontWeight: FontWeight.w400,
+                        fontSize: AppSpacing.talkSessionSigningChipFont,
+                        height: 16 / 12,
+                        leadingDistribution: TextLeadingDistribution.even,
+                        color: AppColors.splashBlue,
+                      ),
+                    ),
+                    if (showLoader) ...[
+                      const SizedBox(
+                        key: Key('talk_signing_gloss_loader'),
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
                           color: AppColors.splashBlue,
                         ),
                       ),
-                      TextSpan(
-                        text: '$word$systemSuffix',
+                      const SizedBox(width: 6),
+                    ],
+                    Flexible(
+                      child: Text(
+                        '$word$systemSuffix',
                         style: const TextStyle(
                           fontFamily: 'Klavika',
                           fontWeight: FontWeight.w700,
@@ -829,11 +857,11 @@ class _OverlaySigningChip extends StatelessWidget {
                           leadingDistribution: TextLeadingDistribution.even,
                           color: AppColors.splashBlue,
                         ),
+                        softWrap: true,
+                        textAlign: TextAlign.center,
                       ),
-                    ],
-                  ),
-                  softWrap: true,
-                  textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),

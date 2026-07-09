@@ -12,8 +12,10 @@ abstract final class AudioLevelNormalizer {
     if (rawDb < 0) {
       const floorDb = -50.0;
       const ceilingDb = -15.0;
-      final linear =
-          ((rawDb - floorDb) / (ceilingDb - floorDb)).clamp(0.0, 1.0);
+      final linear = ((rawDb - floorDb) / (ceilingDb - floorDb)).clamp(
+        0.0,
+        1.0,
+      );
       // Slight curve so normal speech reads clearly on the waveform.
       return math.pow(linear, 0.85).toDouble().clamp(0.0, 1.0);
     }

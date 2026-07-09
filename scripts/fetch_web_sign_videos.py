@@ -70,8 +70,21 @@ def curriculum_rows(csv_path: Path) -> list[dict[str, str]]:
     return list(csv.DictReader(csv_path.open(encoding="utf-8")))
 
 
-def missing_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    return [row for row in rows if row.get("has_local_video") != "yes"]
+def missing_rows(
+    rows: list[dict[str, str]],
+    manifest: dict,
+    language: str,
+    gloss_column: str,
+) -> list[dict[str, str]]:
+    missing: list[dict[str, str]] = []
+    for row in rows:
+        keys = target_keys(row, gloss_column)
+        if not keys:
+            continue
+        if keys[0] in manifest.get(language, {}):
+            continue
+        missing.append(row)
+    return missing
 
 
 def gloss_lookup_variants(row: dict[str, str], gloss_column: str) -> list[str]:
@@ -464,16 +477,25 @@ def main() -> None:
         action="store_true",
         help="Skip INCLUDE/Zenodo ISL downloads.",
     )
+    parser.add_argument(
+        "--allow-missing-disk",
+        action="store_true",
+        help="Do not fail when manifest entries lack local files (R2-only workflows).",
+    )
     args = parser.parse_args()
 
     manifest = load_manifest()
     asl_added = isl_added = 0
 
     if args.language in ("asl", "both"):
-        asl_rows = missing_rows(curriculum_rows(CURRICULUM_ASL_CSV))
+        asl_rows = missing_rows(
+            curriculum_rows(CURRICULUM_ASL_CSV), manifest, "asl", "asl_gloss"
+        )
         if not args.skip_wlasl:
             asl_added += fetch_wlasl_missing(manifest, asl_rows)
-            asl_rows = missing_rows(curriculum_rows(CURRICULUM_ASL_CSV))
+            asl_rows = missing_rows(
+                curriculum_rows(CURRICULUM_ASL_CSV), manifest, "asl", "asl_gloss"
+            )
         asl_added += fetch_hf_shortcuts(
             manifest,
             asl_rows,
@@ -483,15 +505,23 @@ def main() -> None:
         )
 
     if args.language in ("isl", "both"):
-        isl_rows = missing_rows(curriculum_rows(CURRICULUM_ISL_CSV))
+        isl_rows = missing_rows(
+            curriculum_rows(CURRICULUM_ISL_CSV), manifest, "isl", "isl_gloss"
+        )
         if not args.skip_include:
             isl_added += fetch_include_missing(manifest, isl_rows)
-            isl_rows = missing_rows(curriculum_rows(CURRICULUM_ISL_CSV))
+            isl_rows = missing_rows(
+                curriculum_rows(CURRICULUM_ISL_CSV), manifest, "isl", "isl_gloss"
+            )
         # ASL mirrors are not valid ISL signs; do not map ISL to ASL repos.
 
     save_manifest(manifest)
     update_curriculum_video_flags()
-    verify_manifest(manifest)
+    missing = verify_manifest(manifest)
+    if missing and not args.allow_missing_disk:
+        raise SystemExit(f"Verification found {missing} issue(s)")
+    if missing and args.allow_missing_disk:
+        print(f"[verify] {missing} manifest entries still missing on disk (allowed).")
     print(f"Web fetch complete: asl+={asl_added} isl+={isl_added}")
 
 

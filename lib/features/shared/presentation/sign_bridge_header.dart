@@ -78,10 +78,10 @@ class SignBridgeHeader extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'assets/home/icon_globe.png',
-                  width: AppTypography.langGlobe,
-                  height: AppTypography.langGlobe,
+                Icon(
+                  Icons.public_rounded,
+                  size: AppTypography.langGlobe,
+                  color: AppColors.splashBlue,
                 ),
                 const SizedBox(width: AppSpacing.langGlobeToText),
                 Text(

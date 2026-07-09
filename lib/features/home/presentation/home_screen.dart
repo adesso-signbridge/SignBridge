@@ -11,20 +11,24 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../services/gloss/gloss_sequence_mapper.dart';
+import '../../../services/avatar/sign_asset_catalog.dart';
+import '../../../services/avatar/sign_playback_config.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
+import '../../../services/veo/cloudflare_veo_sign_video_service.dart';
+import '../../../services/veo/veo_sign_video_config.dart';
 import '../../../services/translate/sign_capture_config.dart';
 import '../../../services/translate/sign_capture_error_mapper.dart';
 import '../../../services/translate/sign_capture_service.dart';
-import '../../../services/translate/sign_language_system.dart';
 import '../../../services/translate/translate_service.dart';
 import 'language_change_coordinator.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
 import 'widgets/talk_sign_session_content.dart';
+import 'widgets/sign_avatar_view.dart';
 
 enum SignFlowPhase { idle, recording, analyzing, spoken }
 
@@ -82,19 +86,27 @@ class _HomeScreenState extends State<HomeScreen> {
   SignFlowPhase _signPhase = SignFlowPhase.idle;
   SignCaptureResult? _signResult;
   bool _signRecordingActive = false;
-  DateTime? _signRecordingStartedAt;
+  bool _uploadAfterStop = false;
+  Duration? _signClipDuration;
   int _signGeneration = 0;
   int _signSpeakGeneration = 0;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
+  String? _generatedSignVideoUrl;
+  bool _veoVideoInFlight = false;
   final List<String> _accumulatedGlossTokens = [];
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
+  int _veoRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
+  CloudflareVeoSignVideoService? _veoSignVideoService;
 
   @override
   void dispose() {
+    if (!SignPlaybackConfig.imagesOnly) {
+      _veoSignVideoService?.dispose();
+    }
     widget.onUnregisterSession();
     _cancelLiveGlossDebounce();
     _cancelSessionTimers();
@@ -156,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _signPhase = SignFlowPhase.idle;
         _signRecordingActive = false;
-        _signRecordingStartedAt = null;
+        _resetSignCaptureState();
       });
     }
   }
@@ -200,6 +212,19 @@ class _HomeScreenState extends State<HomeScreen> {
     _cancelLiveGlossDebounce();
   }
 
+  void _resetSignCaptureState() {
+    _uploadAfterStop = false;
+    _signClipDuration = null;
+  }
+
+  void _returnToSignPreview({bool clearUploadFlag = true}) {
+    if (clearUploadFlag) {
+      _uploadAfterStop = false;
+    }
+    _signRecordingActive = false;
+    _signClipDuration = null;
+  }
+
   void _cancelLiveGlossDebounce() {
     _liveGlossDebounceTimer?.cancel();
     _liveGlossDebounceTimer = null;
@@ -208,7 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _resetLiveGlossState() {
     _cancelLiveGlossDebounce();
     _glossRequestGeneration++;
+    _veoRequestGeneration++;
     _cloudGlossWord = null;
+    _generatedSignVideoUrl = null;
+    _veoVideoInFlight = false;
     _accumulatedGlossTokens.clear();
     _lastFetchedGlossCaption = null;
     _glossInFlightEndCaption = null;
@@ -246,10 +274,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    if (!SignPlaybackConfig.imagesOnly) {
+      _veoSignVideoService = CloudflareVeoSignVideoService();
+    }
     widget.onRegisterSession(
-      HomeSessionRegistration(
-        teardownActiveSessions: _teardownActiveSessions,
-      ),
+      HomeSessionRegistration(teardownActiveSessions: _teardownActiveSessions),
     );
     widget.onSessionModeChanged(_appSessionMode);
     widget.homeService.fetchHomeContent().then((content) {
@@ -280,6 +309,57 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool get _isSignFlowActive => _signPhase != SignFlowPhase.idle;
 
+  bool get _isSignFlowBlockingOtherActions {
+    return _signPhase == SignFlowPhase.recording ||
+        _signPhase == SignFlowPhase.analyzing;
+  }
+
+  void _resetCompletedSignSession() {
+    _signGeneration++;
+    _signSpeakGeneration++;
+    _signPhase = SignFlowPhase.idle;
+    _signResult = null;
+    _signRecordingActive = false;
+    _resetSignCaptureState();
+  }
+
+  String? get _signRecordingStatusLabel {
+    if (_signRecordingActive) {
+      return widget.uiCopy.recordingSignsLabel;
+    }
+    return widget.uiCopy.flipCameraLabel;
+  }
+
+  void _onSignRecordTap() {
+    if (_signPhase != SignFlowPhase.recording || _signRecordingActive) {
+      return;
+    }
+    setState(() => _signRecordingActive = true);
+    debugPrint('[SignBridge/SignCapture] clip recording started');
+  }
+
+  void _onSignStopTap() {
+    if (_signPhase != SignFlowPhase.recording) {
+      return;
+    }
+
+    if (signCameraTestModeEnabled) {
+      if (_signRecordingActive) {
+        _uploadAfterStop = true;
+        setState(() => _signRecordingActive = false);
+        unawaited(_analyzeSignVideo('mock-sign-capture.mp4'));
+      }
+      return;
+    }
+
+    if (!_signRecordingActive) {
+      return;
+    }
+
+    _uploadAfterStop = true;
+    setState(() => _signRecordingActive = false);
+  }
+
   /// Clear history after listen stops or sign translation finishes — never
   /// while sign recording or analysis is in progress.
   bool get _showClearHistory {
@@ -291,11 +371,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startSignRecording() async {
-    if (_signPhase != SignFlowPhase.idle || _isActiveListenPhase) {
+    if (_isSignFlowBlockingOtherActions || _isActiveListenPhase) {
+      return;
+    }
+
+    if (_signPhase == SignFlowPhase.spoken) {
+      await widget.phraseSpeechService.stop();
+      if (!mounted) {
+        return;
+      }
+      setState(_resetCompletedSignSession);
+    }
+
+    if (_signPhase != SignFlowPhase.idle) {
       return;
     }
 
     final generation = ++_signGeneration;
+    _resetSignCaptureState();
 
     if (signCameraTestModeEnabled) {
       if (!mounted || generation != _signGeneration) {
@@ -304,7 +397,6 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _signPhase = SignFlowPhase.recording;
         _signRecordingActive = true;
-        _signRecordingStartedAt = DateTime.now();
       });
       return;
     }
@@ -321,42 +413,65 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     setState(() {
       _signPhase = SignFlowPhase.recording;
-      _signRecordingActive = true;
-      _signRecordingStartedAt = DateTime.now();
+      _signRecordingActive = false;
     });
+    debugPrint(
+      '[SignBridge/SignCapture] camera preview (flip, then tap to record)',
+    );
   }
 
-  Future<void> _sendSignRecording() async {
-    if (_signPhase != SignFlowPhase.recording) {
+  void _onSignRecordingStopped(String videoPath, Duration recordingDuration) {
+    final generation = _signGeneration;
+    if (!mounted || generation != _signGeneration) {
       return;
     }
 
-    if (signCameraTestModeEnabled) {
-      await _analyzeSignVideo('mock-sign-capture.mp4');
+    _signClipDuration = recordingDuration;
+    debugPrint(
+      '[SignBridge/SignCapture] clip saved '
+      '${recordingDuration.inMilliseconds}ms',
+    );
+
+    if (!_uploadAfterStop) {
       return;
     }
 
-    setState(() => _signRecordingActive = false);
-  }
-
-  Future<void> _stopSignAndAnalyze() async {
-    await _sendSignRecording();
+    _uploadAfterStop = false;
+    unawaited(_analyzeSignVideo(videoPath));
   }
 
   Future<void> _analyzeSignVideo(String videoPath) async {
     final generation = _signGeneration;
-    final recordingDuration = _signRecordingStartedAt == null
-        ? Duration.zero
-        : DateTime.now().difference(_signRecordingStartedAt!);
-    _signRecordingStartedAt = null;
+    final recordingDuration = _signClipDuration ?? Duration.zero;
+    _signClipDuration = null;
 
     if (!signCameraTestModeEnabled &&
-        recordingDuration < SignCaptureConfig.minRecordingDuration) {
+        recordingDuration <
+            SignCaptureConfig.minRecordingDuration -
+                const Duration(milliseconds: 300)) {
       if (!mounted || generation != _signGeneration) {
         return;
       }
-      setState(() => _signPhase = SignFlowPhase.idle);
+      setState(() {
+        _signPhase = SignFlowPhase.recording;
+        _returnToSignPreview();
+      });
       _showSignMessage(widget.uiCopy.signRecordingTooShortLabel);
+      return;
+    }
+
+    if (!signCameraTestModeEnabled &&
+        recordingDuration >
+            SignCaptureConfig.maxRecordingDuration +
+                const Duration(milliseconds: 500)) {
+      if (!mounted || generation != _signGeneration) {
+        return;
+      }
+      setState(() {
+        _signPhase = SignFlowPhase.recording;
+        _returnToSignPreview();
+      });
+      _showSignMessage(widget.uiCopy.signRecordingTooLargeLabel);
       return;
     }
 
@@ -366,17 +481,38 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!mounted || generation != _signGeneration) {
           return;
         }
-        setState(() => _signPhase = SignFlowPhase.idle);
+        setState(() {
+          _signPhase = SignFlowPhase.recording;
+          _returnToSignPreview();
+        });
         _showSignMessage(widget.uiCopy.signCaptureFailedLabel);
         return;
       }
       final videoBytes = await videoFile.length();
+      debugPrint(
+        '[SignBridge/SignCapture] clip ${recordingDuration.inMilliseconds}ms, '
+        '${(videoBytes / (1024 * 1024)).toStringAsFixed(2)} MB → worker',
+      );
       if (videoBytes < 1024) {
         if (!mounted || generation != _signGeneration) {
           return;
         }
-        setState(() => _signPhase = SignFlowPhase.idle);
+        setState(() {
+          _signPhase = SignFlowPhase.recording;
+          _returnToSignPreview();
+        });
         _showSignMessage(widget.uiCopy.signRecordingEmptyLabel);
+        return;
+      }
+      if (videoBytes > SignCaptureConfig.maxUploadBytes) {
+        if (!mounted || generation != _signGeneration) {
+          return;
+        }
+        setState(() {
+          _signPhase = SignFlowPhase.recording;
+          _returnToSignPreview();
+        });
+        _showSignMessage(widget.uiCopy.signRecordingTooLargeLabel);
         return;
       }
     }
@@ -398,8 +534,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _sessionPhase = TalkSessionPhase.stopped;
       });
       debugPrint(
-        '[SignBridge/Sign] Spoken text (${result.glossSequence.length} gloss, '
-        '${recordingDuration.inMilliseconds}ms clip): ${result.text}',
+        '[SignBridge/Sign] Spoken text (${recordingDuration.inMilliseconds}ms clip): ${result.text}',
       );
       _scheduleSignSpeechAfterTextShown(result, generation);
     } on Object catch (error) {
@@ -407,7 +542,10 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       debugPrint('Sign analysis failed: $error');
-      setState(() => _signPhase = SignFlowPhase.idle);
+      setState(() {
+        _signPhase = SignFlowPhase.recording;
+        _returnToSignPreview();
+      });
       _showSignError(error);
     }
   }
@@ -427,10 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showSignMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -482,10 +617,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _startListening() async {
     if (_listenInFlight ||
-        _isSignFlowActive ||
+        _isSignFlowBlockingOtherActions ||
         (_sessionPhase != TalkSessionPhase.idle &&
             _sessionPhase != TalkSessionPhase.stopped)) {
       return;
+    }
+
+    if (_signPhase == SignFlowPhase.spoken) {
+      await widget.phraseSpeechService.stop();
+      if (!mounted) {
+        return;
+      }
     }
 
     final generation = ++_listenGeneration;
@@ -511,6 +653,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
+      if (_signPhase == SignFlowPhase.spoken) {
+        _resetCompletedSignSession();
+      }
       _listenInFlight = true;
       _sessionPhase = TalkSessionPhase.listening;
       _listenResult = null;
@@ -799,6 +944,8 @@ class _HomeScreenState extends State<HomeScreen> {
         jobId: jobId,
         caption: delta,
         signLanguage: signLanguage,
+        languageCode: widget.selectedLanguageCode,
+        spokenLanguage: _selectedLanguage?.label,
       );
       if (!mounted || generation != _glossRequestGeneration) {
         return;
@@ -806,12 +953,28 @@ class _HomeScreenState extends State<HomeScreen> {
       if (glossTokens.isNotEmpty) {
         _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
+        _lastFetchedGlossCaption = targetCaption;
+        if (!SignPlaybackConfig.imagesOnly) {
+          unawaited(
+            _requestVeoSignVideo(
+              caption: targetCaption,
+              signLanguage: signLanguage,
+            ),
+          );
+        }
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
-        _lastFetchedGlossCaption = targetCaption;
         _glossInFlightEndCaption = null;
         setState(() => _cloudGlossInFlight = false);
+        if (_sessionPhase == TalkSessionPhase.listening) {
+          final latestCaption = _normalizeGlossCaption(
+            _listenResult?.fullTranscript ?? '',
+          );
+          if (_needsGlossRefresh(latestCaption)) {
+            _scheduleLiveGlossUpdate();
+          }
+        }
       }
     }
   }
@@ -820,6 +983,8 @@ class _HomeScreenState extends State<HomeScreen> {
     required String jobId,
     required String caption,
     required String signLanguage,
+    required String languageCode,
+    String? spokenLanguage,
   }) async {
     if (CloudflareGlossConfig.isConfigured) {
       try {
@@ -827,15 +992,25 @@ class _HomeScreenState extends State<HomeScreen> {
           jobId: jobId,
           caption: caption,
           signLanguage: signLanguage,
+          languageCode: languageCode,
+          spokenLanguage: spokenLanguage,
         );
         if (tokens.isNotEmpty) {
-          return tokens;
+          if (await _cloudGlossMapsToVideos(tokens, signLanguage)) {
+            return tokens;
+          }
+          debugPrint(
+            '[SignBridge/Gloss] Cloud ISL gloss has no video mapping; using on-device rules',
+          );
+        } else {
+          debugPrint(
+            '[SignBridge/Gloss] Cloud returned empty gloss; using on-device rules',
+          );
         }
-        debugPrint(
-          '[SignBridge/Gloss] Cloud returned empty gloss; using on-device rules',
-        );
       } on Object catch (error) {
-        debugPrint('[SignBridge/Gloss] Cloud failed ($error); using on-device rules');
+        debugPrint(
+          '[SignBridge/Gloss] Cloud failed ($error); using on-device rules',
+        );
       }
     }
 
@@ -844,7 +1019,31 @@ class _HomeScreenState extends State<HomeScreen> {
       jobId: jobId,
       caption: caption,
       signLanguage: signLanguage,
+      languageCode: languageCode,
+      spokenLanguage: spokenLanguage,
     );
+  }
+
+  Future<bool> _cloudGlossMapsToVideos(
+    List<String> tokens,
+    String signLanguage,
+  ) async {
+    if (SignPlaybackConfig.imagesOnly) {
+      return true;
+    }
+    if (!signLanguage.toUpperCase().contains('ISL')) {
+      return true;
+    }
+    await SignAssetCatalog.ensureLoaded();
+    final system = SignLanguageSystem.isl;
+    final sequence = GlossSequenceMapper.tokensFor(
+      glossSequence: tokens,
+      system: system,
+    );
+    return SignAssetCatalog.playbackClipsForSequence(
+      sequence,
+      system,
+    ).isNotEmpty;
   }
 
   void _insertGlossTokens(int index, List<String> glossTokens) {
@@ -865,6 +1064,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  bool get _useVeoOnlyPlayback =>
+      !SignPlaybackConfig.imagesOnly &&
+      VeoSignVideoConfig.isConfigured &&
+      (_veoSignVideoService?.isConfigured ?? false);
+
   void _publishGlossState({
     required SignLanguageSystem system,
     required TalkListenResult result,
@@ -877,12 +1081,62 @@ class _HomeScreenState extends State<HomeScreen> {
       _cloudGlossWord = _accumulatedGlossTokens.join(' ');
       _listenResult = _listenResultForAvatar(result).copyWith(
         signingWord: _cloudGlossWord,
-        signSequence: sequence,
-        signTokenId: sequence.isNotEmpty ? sequence.last.id : result.signTokenId,
+        signSequence: _useVeoOnlyPlayback ? const [] : sequence,
+        signTokenId: _useVeoOnlyPlayback
+            ? SignTokenIds.thinking
+            : (sequence.isNotEmpty ? sequence.last.id : result.signTokenId),
         signSystem: system,
       );
-      _signPulse++;
+      if (!_useVeoOnlyPlayback) {
+        _signPulse++;
+      }
     });
+  }
+
+  Future<void> _requestVeoSignVideo({
+    required String caption,
+    required String signLanguage,
+  }) async {
+    if (SignPlaybackConfig.imagesOnly) {
+      return;
+    }
+    if (!VeoSignVideoConfig.isConfigured ||
+        !(_veoSignVideoService?.isConfigured ?? false)) {
+      return;
+    }
+    if (_accumulatedGlossTokens.isEmpty) {
+      return;
+    }
+
+    final generation = ++_veoRequestGeneration;
+    final jobId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (mounted) {
+      setState(() => _veoVideoInFlight = true);
+    }
+
+    try {
+      final result = await _veoSignVideoService!.waitUntilReady(
+        jobId: jobId,
+        caption: caption,
+        glossSequence: List<String>.from(_accumulatedGlossTokens),
+        signLanguage: signLanguage,
+      );
+      if (!mounted || generation != _veoRequestGeneration) {
+        return;
+      }
+      if (result?.isReady == true && result!.videoUrl != null) {
+        setState(() {
+          _generatedSignVideoUrl = result.videoUrl!.trim();
+          _signPulse++;
+        });
+      }
+    } on Object catch (error) {
+      debugPrint('[SignBridge/Veo] generation failed ($error)');
+    } finally {
+      if (mounted && generation == _veoRequestGeneration) {
+        setState(() => _veoVideoInFlight = false);
+      }
+    }
   }
 
   Future<void> _clearHistory() async {
@@ -901,11 +1155,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _sessionPhase = TalkSessionPhase.idle;
       _listenResult = null;
       _resetLiveGlossState();
-      _signGeneration++;
-      _signSpeakGeneration++;
-      _signPhase = SignFlowPhase.idle;
-      _signResult = null;
-      _signRecordingActive = false;
+      _resetCompletedSignSession();
     });
     unawaited(widget.translateService.cancelListening());
   }
@@ -923,7 +1173,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _TalkControlsMode get _controlsMode {
     return switch (_signPhase) {
-      SignFlowPhase.recording => _TalkControlsMode.signRecording,
+      SignFlowPhase.recording when _signRecordingActive =>
+        _TalkControlsMode.signRecordingActive,
+      SignFlowPhase.recording => _TalkControlsMode.signRecordingPreview,
       SignFlowPhase.analyzing => _TalkControlsMode.signAnalyzing,
       SignFlowPhase.spoken => _TalkControlsMode.signSpoken,
       SignFlowPhase.idle => switch (_sessionPhase) {
@@ -943,11 +1195,22 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         heardResult: _heardForSignFlow,
         isRecording: _signRecordingActive,
-        onRecordingStopped: _analyzeSignVideo,
+        statusLabel: _signRecordingStatusLabel,
+        canStartRecording: !_signRecordingActive,
+        onStartRecording: _onSignRecordTap,
+        onRecordingStopped: _onSignRecordingStopped,
         onCameraError: (message) {
-          debugPrint('Sign camera error: $message');
+          debugPrint('[SignBridge/SignCapture] camera error: $message');
+          if (message.contains('Recording did not start')) {
+            setState(() => _returnToSignPreview());
+            _showSignMessage(widget.uiCopy.tapToRecordSign);
+            return;
+          }
           _showSignMessage(widget.uiCopy.signCaptureFailedLabel);
-          setState(() => _signPhase = SignFlowPhase.idle);
+          setState(() {
+            _signPhase = SignFlowPhase.idle;
+            _returnToSignPreview();
+          });
         },
       );
     }
@@ -989,8 +1252,14 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         liveResult: _listenResult,
         signPulse: _signPulse,
-        isRefreshingGloss: _cloudGlossInFlight,
+        isRefreshingGloss:
+            _cloudGlossInFlight ||
+            (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
         cloudGlossWord: _cloudGlossWord,
+        generatedSignVideoUrl: SignPlaybackConfig.imagesOnly
+            ? null
+            : _generatedSignVideoUrl,
+        veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -1009,8 +1278,14 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         result: _listenResult!,
         signPulse: _signPulse,
-        isRefreshingGloss: _cloudGlossInFlight,
+        isRefreshingGloss:
+            _cloudGlossInFlight ||
+            (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
         cloudGlossWord: _cloudGlossWord,
+        generatedSignVideoUrl: SignPlaybackConfig.imagesOnly
+            ? null
+            : _generatedSignVideoUrl,
+        veoOnly: _useVeoOnlyPlayback,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),
@@ -1121,7 +1396,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             onListenTap: _startListening,
                             onStopTap: _stopListening,
                             onSignTap: _startSignRecording,
-                            onTranslateTap: _stopSignAndAnalyze,
+                            onSignRecordTap: _onSignRecordTap,
+                            onSignStopTap: _onSignStopTap,
                           ),
                         ),
                       ],
@@ -1216,10 +1492,10 @@ class _HomeHeader extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'assets/home/icon_globe.png',
-                  width: AppTypography.langGlobe,
-                  height: AppTypography.langGlobe,
+                Icon(
+                  Icons.public_rounded,
+                  size: AppTypography.langGlobe,
+                  color: AppColors.splashBlue,
                 ),
                 const SizedBox(width: AppSpacing.langGlobeToText),
                 Text(
@@ -1322,7 +1598,8 @@ class _LanguageMenu extends StatelessWidget {
 enum _TalkControlsMode {
   idle,
   listenRecording,
-  signRecording,
+  signRecordingPreview,
+  signRecordingActive,
   signAnalyzing,
   stopped,
   signSpoken,
@@ -1335,7 +1612,8 @@ class _TalkActionButtons extends StatelessWidget {
     required this.onListenTap,
     required this.onStopTap,
     required this.onSignTap,
-    required this.onTranslateTap,
+    required this.onSignRecordTap,
+    required this.onSignStopTap,
   });
 
   final HomeUiCopy uiCopy;
@@ -1343,7 +1621,8 @@ class _TalkActionButtons extends StatelessWidget {
   final VoidCallback onListenTap;
   final VoidCallback onStopTap;
   final VoidCallback onSignTap;
-  final VoidCallback onTranslateTap;
+  final VoidCallback onSignRecordTap;
+  final VoidCallback onSignStopTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1373,7 +1652,7 @@ class _TalkActionButtons extends StatelessWidget {
       );
     }
 
-    if (mode == _TalkControlsMode.signRecording) {
+    if (mode == _TalkControlsMode.signRecordingPreview) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1389,11 +1668,38 @@ class _TalkActionButtons extends StatelessWidget {
             ),
           ),
           _TalkActionButton(
-            key: const Key('talk_translate_button'),
+            key: const Key('talk_sign_record_button'),
+            backgroundColor: AppColors.splashBlue,
+            shadowColor: AppColors.talkButtonShadow,
+            icon: Icons.videocam_outlined,
+            label: uiCopy.tapToRecordSign,
+            onTap: onSignRecordTap,
+          ),
+        ],
+      );
+    }
+
+    if (mode == _TalkControlsMode.signRecordingActive) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Opacity(
+            opacity: AppSpacing.talkSessionSignMutedOpacity,
+            child: _TalkActionButton(
+              backgroundColor: AppColors.splashBlue,
+              shadowColor: AppColors.talkButtonShadow,
+              icon: Icons.mic_none_outlined,
+              label: uiCopy.tapToListen,
+              onTap: () {},
+            ),
+          ),
+          _TalkActionButton(
+            key: const Key('talk_sign_stop_button'),
             backgroundColor: AppColors.talkStopRed,
-            icon: Icons.translate_rounded,
-            label: uiCopy.tapToTranslate,
-            onTap: onTranslateTap,
+            icon: Icons.stop_circle_outlined,
+            label: uiCopy.tapToStop,
+            onTap: onSignStopTap,
           ),
         ],
       );
