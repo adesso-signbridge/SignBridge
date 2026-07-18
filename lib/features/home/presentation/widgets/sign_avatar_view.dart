@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
@@ -21,6 +22,7 @@ class SignAvatarView extends StatelessWidget {
     this.signPulse = 0,
     this.showNative = true,
     this.generatedVideoUrl,
+    this.generatedImageUrls = const [],
     this.veoOnly = false,
   });
 
@@ -32,6 +34,7 @@ class SignAvatarView extends StatelessWidget {
   final int signPulse;
   final bool showNative;
   final String? generatedVideoUrl;
+  final List<String> generatedImageUrls;
   final bool veoOnly;
 
   static bool get _isFlutterTest =>
@@ -60,6 +63,9 @@ class SignAvatarView extends StatelessWidget {
     return signTokenId != SignTokenIds.thinking;
   }
 
+  bool get _hasGeneratedImages =>
+      generatedImageUrls.any((url) => url.trim().isNotEmpty);
+
   Widget _buildFallback() {
     return Stack(
       fit: StackFit.expand,
@@ -83,6 +89,14 @@ class SignAvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_hasGeneratedImages) {
+      return GeneratedGlossImageView(
+        imageUrls: generatedImageUrls,
+        pulse: signPulse,
+        fallback: _buildFallback(),
+      );
+    }
+
     if (!SignPlaybackConfig.imagesOnly && (veoOnly || _useSignerVideo)) {
       return SignVideoAvatarView(
         signSystem: signSystem,
@@ -95,6 +109,114 @@ class SignAvatarView extends StatelessWidget {
     }
 
     return _buildFallback();
+  }
+}
+
+/// Cycles through Nano Banana 2D images, one per gloss.
+class GeneratedGlossImageView extends StatefulWidget {
+  const GeneratedGlossImageView({
+    super.key,
+    required this.imageUrls,
+    required this.fallback,
+    this.pulse = 0,
+    this.dwell = const Duration(milliseconds: 1600),
+  });
+
+  final List<String> imageUrls;
+  final Widget fallback;
+  final int pulse;
+  final Duration dwell;
+
+  @override
+  State<GeneratedGlossImageView> createState() =>
+      _GeneratedGlossImageViewState();
+}
+
+class _GeneratedGlossImageViewState extends State<GeneratedGlossImageView> {
+  Timer? _timer;
+  var _index = 0;
+  late List<String> _urls;
+
+  @override
+  void initState() {
+    super.initState();
+    _urls = _normalize(widget.imageUrls);
+    _restartCycle();
+  }
+
+  @override
+  void didUpdateWidget(GeneratedGlossImageView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = _normalize(widget.imageUrls);
+    final urlsChanged = !_sameUrls(_urls, next);
+    if (urlsChanged || oldWidget.pulse != widget.pulse) {
+      _urls = next;
+      _index = 0;
+      _restartCycle();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  List<String> _normalize(List<String> raw) {
+    return raw
+        .map((url) => url.trim())
+        .where((url) => url.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  bool _sameUrls(List<String> a, List<String> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (var index = 0; index < a.length; index++) {
+      if (a[index] != b[index]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _restartCycle() {
+    _timer?.cancel();
+    if (_urls.length <= 1) {
+      return;
+    }
+    _timer = Timer.periodic(widget.dwell, (_) {
+      if (!mounted || _urls.isEmpty) {
+        return;
+      }
+      setState(() => _index = (_index + 1) % _urls.length);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_urls.isEmpty) {
+      return widget.fallback;
+    }
+
+    final url = _urls[_index.clamp(0, _urls.length - 1)];
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      child: Image.network(
+        url,
+        key: ValueKey('$url-$_index-${widget.pulse}'),
+        fit: BoxFit.contain,
+        alignment: Alignment.bottomCenter,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) {
+            return child;
+          }
+          return widget.fallback;
+        },
+        errorBuilder: (context, error, stackTrace) => widget.fallback,
+      ),
+    );
   }
 }
 

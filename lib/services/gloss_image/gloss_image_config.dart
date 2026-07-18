@@ -1,5 +1,5 @@
-/// Cloud Veo 3.1 sign-video generation (Adobe Firefly-style).
-abstract final class VeoSignVideoConfig {
+/// Nano Banana (Gemini) 2D gloss-image generation via the gloss worker.
+abstract final class GlossImageConfig {
   static const workerUrl = String.fromEnvironment(
     'CLOUDFLARE_GLOSS_WORKER_URL',
     defaultValue: 'https://signbridge-gloss.signbridge-adesso.workers.dev',
@@ -10,11 +10,10 @@ abstract final class VeoSignVideoConfig {
     defaultValue: '',
   );
 
-  /// Enable Veo-generated avatar videos instead of R2 clip playback.
-  /// Prefer Banana gloss images (`BANANA_GLOSS_IMAGES`) for 2D per-gloss output.
+  /// Enable Banana-generated 2D images per gloss instead of Veo video.
   static const enabled = bool.fromEnvironment(
-    'VEO_SIGN_VIDEO',
-    defaultValue: false,
+    'BANANA_GLOSS_IMAGES',
+    defaultValue: true,
   );
 
   static bool get isConfigured => workerUrl.trim().isNotEmpty && enabled;

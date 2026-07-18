@@ -1,12 +1,14 @@
 /**
  * SignBridge gloss Worker — POST { caption, signLanguage } → glossSequence[].
  * POST /sign (multipart video) → spoken text via Gemini.
- * POST /veo/generate → start Veo 3.1 sign-video generation.
+ * POST /image/generate → Nano Banana 2D images per gloss (R2 cache).
+ * POST /veo/generate → start Veo 3.1 sign-video generation (legacy).
  * GET  /veo/status?operation=... → poll Veo job and cache MP4 in R2.
  * Secrets: GROQ_KEY, GEMINI_KEY, ADESSO_KEY, ADESSO_API_URL, WORKER_SHARED_KEY.
  */
 
 import { geminiQualityChain } from "../gemini_model_chain.js";
+import { resolveGlossImages } from "../gemini_gloss_image.js";
 import { handleSignRecognitionRequest } from "../sign_recognition.js";
 import { resolveVeoSignVideo } from "../veo_sign_video.js";
 
@@ -28,6 +30,10 @@ export default {
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    if (pathname.endsWith("/image/generate") && request.method === "POST") {
+      return handleImageGenerate(request, env);
     }
 
     if (pathname.endsWith("/veo/generate") && request.method === "POST") {
@@ -83,6 +89,55 @@ export default {
     return json({ ok: true, jobId, glossSequence, modelUsed });
   },
 };
+
+async function handleImageGenerate(request, env) {
+  if (env.WORKER_SHARED_KEY) {
+    const provided = request.headers.get("X-SignBridge-Key");
+    if (provided !== env.WORKER_SHARED_KEY) {
+      return json({ error: "Unauthorized" }, 401);
+    }
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const signLanguage = (body.signLanguage || "ASL").trim();
+  const jobId = (body.jobId || crypto.randomUUID()).trim();
+  const glossSequence = Array.isArray(body.glossSequence)
+    ? body.glossSequence
+    : [];
+
+  if (glossSequence.length === 0) {
+    return json({ error: "Missing glossSequence" }, 400);
+  }
+
+  if (!env.SIGN_VIDEOS) {
+    return json({ error: "SIGN_VIDEOS R2 binding not configured" }, 503);
+  }
+
+  try {
+    const result = await resolveGlossImages(env, {
+      glossSequence,
+      signLanguage,
+      jobId,
+    });
+    return json(result);
+  } catch (err) {
+    return json(
+      {
+        ok: false,
+        error: "Banana image generation failed",
+        detail: String(err).slice(0, 300),
+        jobId,
+      },
+      502,
+    );
+  }
+}
 
 async function handleVeoGenerate(request, env) {
   if (env.WORKER_SHARED_KEY) {

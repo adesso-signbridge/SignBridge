@@ -16,10 +16,10 @@ import '../../../services/avatar/sign_playback_config.dart';
 import '../../../services/gloss/cloudflare_gloss_config.dart';
 import '../../../services/gloss/gloss_caption_delta.dart';
 import '../../../services/gloss/gloss_service.dart';
+import '../../../services/gloss_image/cloudflare_gloss_image_service.dart';
+import '../../../services/gloss_image/gloss_image_config.dart';
 import '../../../services/home/home_service.dart';
 import '../../../services/phrases/phrase_speech_service.dart';
-import '../../../services/veo/cloudflare_veo_sign_video_service.dart';
-import '../../../services/veo/veo_sign_video_config.dart';
 import '../../../services/translate/sign_capture_config.dart';
 import '../../../services/translate/sign_capture_error_mapper.dart';
 import '../../../services/translate/sign_capture_service.dart';
@@ -28,7 +28,6 @@ import 'language_change_coordinator.dart';
 import 'widgets/talk_audio_waveform.dart';
 import 'widgets/talk_session_content.dart';
 import 'widgets/talk_sign_session_content.dart';
-import 'widgets/sign_avatar_view.dart';
 
 enum SignFlowPhase { idle, recording, analyzing, spoken }
 
@@ -92,21 +91,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int _signSpeakGeneration = 0;
   bool _cloudGlossInFlight = false;
   String? _cloudGlossWord;
-  String? _generatedSignVideoUrl;
-  bool _veoVideoInFlight = false;
+  List<String> _generatedSignImageUrls = const [];
+  bool _glossMediaInFlight = false;
   final List<String> _accumulatedGlossTokens = [];
   Timer? _liveGlossDebounceTimer;
   int _glossRequestGeneration = 0;
-  int _veoRequestGeneration = 0;
+  int _glossMediaRequestGeneration = 0;
   String? _lastFetchedGlossCaption;
   String? _glossInFlightEndCaption;
-  CloudflareVeoSignVideoService? _veoSignVideoService;
+  CloudflareGlossImageService? _glossImageService;
 
   @override
   void dispose() {
-    if (!SignPlaybackConfig.imagesOnly) {
-      _veoSignVideoService?.dispose();
-    }
+    _glossImageService?.dispose();
     widget.onUnregisterSession();
     _cancelLiveGlossDebounce();
     _cancelSessionTimers();
@@ -233,10 +230,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _resetLiveGlossState() {
     _cancelLiveGlossDebounce();
     _glossRequestGeneration++;
-    _veoRequestGeneration++;
+    _glossMediaRequestGeneration++;
     _cloudGlossWord = null;
-    _generatedSignVideoUrl = null;
-    _veoVideoInFlight = false;
+    _generatedSignImageUrls = const [];
+    _glossMediaInFlight = false;
     _accumulatedGlossTokens.clear();
     _lastFetchedGlossCaption = null;
     _glossInFlightEndCaption = null;
@@ -274,8 +271,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (!SignPlaybackConfig.imagesOnly) {
-      _veoSignVideoService = CloudflareVeoSignVideoService();
+    if (GlossImageConfig.isConfigured) {
+      _glossImageService = CloudflareGlossImageService();
     }
     widget.onRegisterSession(
       HomeSessionRegistration(teardownActiveSessions: _teardownActiveSessions),
@@ -954,14 +951,11 @@ class _HomeScreenState extends State<HomeScreen> {
         _insertGlossTokens(_accumulatedGlossTokens.length, glossTokens);
         _publishGlossState(system: system, result: result);
         _lastFetchedGlossCaption = targetCaption;
-        if (!SignPlaybackConfig.imagesOnly) {
-          unawaited(
-            _requestVeoSignVideo(
-              caption: targetCaption,
-              signLanguage: signLanguage,
-            ),
-          );
-        }
+        unawaited(
+          _requestGlossImages(
+            signLanguage: signLanguage,
+          ),
+        );
       }
     } finally {
       if (mounted && generation == _glossRequestGeneration) {
@@ -1064,10 +1058,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  bool get _useVeoOnlyPlayback =>
-      !SignPlaybackConfig.imagesOnly &&
-      VeoSignVideoConfig.isConfigured &&
-      (_veoSignVideoService?.isConfigured ?? false);
+  bool get _useBananaImagePlayback =>
+      GlossImageConfig.isConfigured &&
+      (_glossImageService?.isConfigured ?? false);
 
   void _publishGlossState({
     required SignLanguageSystem system,
@@ -1081,60 +1074,52 @@ class _HomeScreenState extends State<HomeScreen> {
       _cloudGlossWord = _accumulatedGlossTokens.join(' ');
       _listenResult = _listenResultForAvatar(result).copyWith(
         signingWord: _cloudGlossWord,
-        signSequence: _useVeoOnlyPlayback ? const [] : sequence,
-        signTokenId: _useVeoOnlyPlayback
-            ? SignTokenIds.thinking
-            : (sequence.isNotEmpty ? sequence.last.id : result.signTokenId),
+        signSequence: sequence,
+        signTokenId: sequence.isNotEmpty
+            ? sequence.last.id
+            : result.signTokenId,
         signSystem: system,
       );
-      if (!_useVeoOnlyPlayback) {
-        _signPulse++;
-      }
+      _signPulse++;
     });
   }
 
-  Future<void> _requestVeoSignVideo({
-    required String caption,
+  Future<void> _requestGlossImages({
     required String signLanguage,
   }) async {
-    if (SignPlaybackConfig.imagesOnly) {
-      return;
-    }
-    if (!VeoSignVideoConfig.isConfigured ||
-        !(_veoSignVideoService?.isConfigured ?? false)) {
+    if (!_useBananaImagePlayback) {
       return;
     }
     if (_accumulatedGlossTokens.isEmpty) {
       return;
     }
 
-    final generation = ++_veoRequestGeneration;
+    final generation = ++_glossMediaRequestGeneration;
     final jobId = DateTime.now().millisecondsSinceEpoch.toString();
     if (mounted) {
-      setState(() => _veoVideoInFlight = true);
+      setState(() => _glossMediaInFlight = true);
     }
 
     try {
-      final result = await _veoSignVideoService!.waitUntilReady(
+      final result = await _glossImageService!.waitUntilReady(
         jobId: jobId,
-        caption: caption,
         glossSequence: List<String>.from(_accumulatedGlossTokens),
         signLanguage: signLanguage,
       );
-      if (!mounted || generation != _veoRequestGeneration) {
+      if (!mounted || generation != _glossMediaRequestGeneration) {
         return;
       }
-      if (result?.isReady == true && result!.videoUrl != null) {
+      if (result?.isReady == true) {
         setState(() {
-          _generatedSignVideoUrl = result.videoUrl!.trim();
+          _generatedSignImageUrls = List<String>.from(result!.imageUrls);
           _signPulse++;
         });
       }
     } on Object catch (error) {
-      debugPrint('[SignBridge/Veo] generation failed ($error)');
+      debugPrint('[SignBridge/Banana] generation failed ($error)');
     } finally {
-      if (mounted && generation == _veoRequestGeneration) {
-        setState(() => _veoVideoInFlight = false);
+      if (mounted && generation == _glossMediaRequestGeneration) {
+        setState(() => _glossMediaInFlight = false);
       }
     }
   }
@@ -1252,14 +1237,11 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         liveResult: _listenResult,
         signPulse: _signPulse,
-        isRefreshingGloss:
-            _cloudGlossInFlight ||
-            (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
+        isRefreshingGloss: _cloudGlossInFlight || _glossMediaInFlight,
         cloudGlossWord: _cloudGlossWord,
-        generatedSignVideoUrl: SignPlaybackConfig.imagesOnly
-            ? null
-            : _generatedSignVideoUrl,
-        veoOnly: _useVeoOnlyPlayback,
+        generatedSignVideoUrl: null,
+        generatedSignImageUrls: _generatedSignImageUrls,
+        veoOnly: false,
       ),
       TalkSessionPhase.heard when _listenResult != null => TalkHeardContent(
         key: const Key('talk_heard_content'),
@@ -1278,14 +1260,11 @@ class _HomeScreenState extends State<HomeScreen> {
         uiCopy: widget.uiCopy,
         result: _listenResult!,
         signPulse: _signPulse,
-        isRefreshingGloss:
-            _cloudGlossInFlight ||
-            (!SignPlaybackConfig.imagesOnly && _veoVideoInFlight),
+        isRefreshingGloss: _cloudGlossInFlight || _glossMediaInFlight,
         cloudGlossWord: _cloudGlossWord,
-        generatedSignVideoUrl: SignPlaybackConfig.imagesOnly
-            ? null
-            : _generatedSignVideoUrl,
-        veoOnly: _useVeoOnlyPlayback,
+        generatedSignVideoUrl: null,
+        generatedSignImageUrls: _generatedSignImageUrls,
+        veoOnly: false,
       ),
       TalkSessionPhase.heard => const SizedBox.shrink(),
       TalkSessionPhase.signing => const SizedBox.shrink(),

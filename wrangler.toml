@@ -11,7 +11,11 @@ GEMINI_PRIMARY_TIMEOUT_MS = "15000"
 # Sign video (/sign): gemini-3.5-flash via Adesso AI Hub (GEMINI_KEY = fallback)
 SIGN_GEMINI_MODEL = "gemini-3.5-flash"
 ADESSO_MODEL = "qwen-3.6-35b-sovereign"
-# Veo 3.1 sign-video generation (POST /veo/generate) — Adobe Firefly-style
+# Nano Banana 2D gloss images (POST /image/generate) — one image per gloss
+BANANA_IMAGE_MODEL = "gemini-2.5-flash-image"
+BANANA_ASPECT_RATIO = "3:4"
+BANANA_IMAGE_CONCURRENCY = "3"
+# Legacy Veo 3.1 sign-video generation (POST /veo/generate)
 VEO_MODEL = "veo-3.1-fast-generate-preview"
 VEO_RESOLUTION = "720p"
 VEO_ASPECT_RATIO = "9:16"

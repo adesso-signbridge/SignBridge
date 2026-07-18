@@ -17,6 +17,7 @@ class TalkListeningContent extends StatelessWidget {
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
     this.generatedSignVideoUrl,
+    this.generatedSignImageUrls = const [],
     this.veoOnly = false,
   });
 
@@ -26,6 +27,7 @@ class TalkListeningContent extends StatelessWidget {
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
   final String? generatedSignVideoUrl;
+  final List<String> generatedSignImageUrls;
   final bool veoOnly;
 
   bool get _hasCaption => liveResult?.fullTranscript.isNotEmpty ?? false;
@@ -94,6 +96,7 @@ class TalkListeningContent extends StatelessWidget {
         signSequence: _avatarSignSequence,
         signPulse: signPulse,
         generatedVideoUrl: generatedSignVideoUrl,
+        generatedImageUrls: generatedSignImageUrls,
         veoOnly: veoOnly,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
@@ -188,6 +191,7 @@ class TalkStoppedContent extends StatelessWidget {
     this.isRefreshingGloss = false,
     this.cloudGlossWord,
     this.generatedSignVideoUrl,
+    this.generatedSignImageUrls = const [],
     this.veoOnly = false,
   });
 
@@ -197,6 +201,7 @@ class TalkStoppedContent extends StatelessWidget {
   final bool isRefreshingGloss;
   final String? cloudGlossWord;
   final String? generatedSignVideoUrl;
+  final List<String> generatedSignImageUrls;
   final bool veoOnly;
 
   String? get _chipWord {
@@ -253,6 +258,7 @@ class TalkStoppedContent extends StatelessWidget {
         signSequence: _avatarSignSequence,
         signPulse: signPulse,
         generatedVideoUrl: generatedSignVideoUrl,
+        generatedImageUrls: generatedSignImageUrls,
         veoOnly: veoOnly,
         signingChip: _OverlaySigningChip(
           prefix: uiCopy.signingPrefix,
@@ -456,6 +462,7 @@ class _TalkAvatarCardStage extends StatelessWidget {
     required this.signPulse,
     required this.signingChip,
     this.generatedVideoUrl,
+    this.generatedImageUrls = const [],
     this.veoOnly = false,
   });
 
@@ -468,6 +475,7 @@ class _TalkAvatarCardStage extends StatelessWidget {
   final int signPulse;
   final Widget signingChip;
   final String? generatedVideoUrl;
+  final List<String> generatedImageUrls;
   final bool veoOnly;
 
   @override
@@ -513,6 +521,7 @@ class _TalkAvatarCardStage extends StatelessWidget {
                     signSequence: signSequence,
                     signPulse: signPulse,
                     generatedVideoUrl: generatedVideoUrl,
+                    generatedImageUrls: generatedImageUrls,
                     veoOnly: veoOnly,
                   ),
                 ),
